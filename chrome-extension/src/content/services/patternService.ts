@@ -31,10 +31,10 @@ export class PatternService {
     console.log(`[Pattern Service] Analisando ${values.length} velas do histórico completo`);
 
     // Calcular métricas estatísticas
-    const avgMultiplier = calculateAverage(values);
-    const minMultiplier = Math.min(...values);
-    const maxMultiplier = Math.max(...values);
-    const volatility = calculateStandardDeviation(values);
+    const avgMultiplier = calculateAverage(values) || 0.0;
+    const minMultiplier = values.length > 0 ? Math.min(...values) : 0.0;
+    const maxMultiplier = values.length > 0 ? Math.max(...values) : 0.0;
+    const volatility = calculateStandardDeviation(values) || 0.0;
 
     // Detectar padrões
     const patterns = this.detectPatterns(values);
@@ -374,10 +374,10 @@ export class PatternService {
       riskLevel: 'low',
       confidence: 0,
       recommendation: 'Aguardando dados suficientes para análise...',
-      volatility: 0,
-      avgMultiplier: 0,
-      minMultiplier: 0,
-      maxMultiplier: 0,
+      volatility: 0.0,
+      avgMultiplier: 0.0,
+      minMultiplier: 0.0,
+      maxMultiplier: 0.0,
       lastCandles: [],
       patterns: [],
     };

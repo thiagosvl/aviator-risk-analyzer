@@ -165,7 +165,9 @@ export const AnalyzerOverlay = () => {
             {gameState.lastCrash && (
               <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/30 p-2">
                 <span className="text-xs font-medium text-slate-400">Último Crash:</span>
-                <span className="font-mono text-sm font-bold text-cyan-400">{gameState.lastCrash.toFixed(2)}x</span>
+                <span className="font-mono text-sm font-bold text-cyan-400">
+                  {typeof gameState.lastCrash === 'number' ? gameState.lastCrash.toFixed(2) : '0.00'}x
+                </span>
               </div>
             )}
 
@@ -206,15 +208,21 @@ export const AnalyzerOverlay = () => {
               <div className="grid grid-cols-3 gap-2">
                 <div className="rounded border border-slate-700/50 bg-slate-800/30 p-2 text-center">
                   <div className="text-[10px] text-slate-500">Média</div>
-                  <div className="font-mono text-xs font-bold text-cyan-400">{analysis.avgMultiplier.toFixed(2)}x</div>
+                  <div className="font-mono text-xs font-bold text-cyan-400">
+                    {analysis.avgMultiplier ? analysis.avgMultiplier.toFixed(2) : '0.00'}x
+                  </div>
                 </div>
                 <div className="rounded border border-slate-700/50 bg-slate-800/30 p-2 text-center">
                   <div className="text-[10px] text-slate-500">Menor</div>
-                  <div className="font-mono text-xs font-bold text-red-400">{analysis.minMultiplier.toFixed(2)}x</div>
+                  <div className="font-mono text-xs font-bold text-red-400">
+                    {analysis.minMultiplier ? analysis.minMultiplier.toFixed(2) : '0.00'}x
+                  </div>
                 </div>
                 <div className="rounded border border-slate-700/50 bg-slate-800/30 p-2 text-center">
                   <div className="text-[10px] text-slate-500">Maior</div>
-                  <div className="font-mono text-xs font-bold text-green-400">{analysis.maxMultiplier.toFixed(2)}x</div>
+                  <div className="font-mono text-xs font-bold text-green-400">
+                    {analysis.maxMultiplier ? analysis.maxMultiplier.toFixed(2) : '0.00'}x
+                  </div>
                 </div>
               </div>
             </div>
@@ -224,7 +232,7 @@ export const AnalyzerOverlay = () => {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-400">Volatilidade:</span>
                 <Badge variant={analysis.volatility > 1.5 ? 'destructive' : 'secondary'} className="font-mono text-xs">
-                  {analysis.volatility.toFixed(2)}
+                  {analysis.volatility ? analysis.volatility.toFixed(2) : '0.00'}
                 </Badge>
               </div>
             </div>
