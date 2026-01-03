@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset para garantir que o overlay não seja afetado pelos estilos da página */
+#aviator-analyzer-root * {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Garantir que elementos interativos do overlay funcionem */
+#aviator-analyzer-root button,
+#aviator-analyzer-root input,
+#aviator-analyzer-root select {
+  pointer-events: auto;
+}
+
+/* Card do overlay deve ter pointer-events habilitado */
+#aviator-analyzer-root > div > div {
+  pointer-events: auto;
+}
