@@ -8,12 +8,12 @@ import { useGameAnalysis } from '@src/content/hooks/useGameAnalysis';
 import { cn } from '@src/content/lib/utils';
 import { RiskLevel } from '@src/content/types';
 import {
-    AlertTriangle,
-    CheckCircle,
-    Maximize2,
-    Minimize2,
-    X,
-    XCircle
+  AlertTriangle,
+  CheckCircle,
+  Maximize2,
+  Minimize2,
+  X,
+  XCircle
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -51,7 +51,9 @@ export function AnalyzerOverlay() {
   };
 
   return (
-    <div className="fixed top-4 right-4 z-[999999] font-sans">
+    // Container absoluto dentro do fixed root
+    // pointer-events-auto restaura os cliques para este elemento específico
+    <div className="absolute top-4 right-4 z-[2147483647] font-sans pointer-events-auto">
       <Card className="w-80 bg-gradient-to-br from-slate-900 to-slate-800 border-cyan-500/30 shadow-2xl shadow-cyan-500/20">
         <CardHeader className="pb-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-t-lg">
           <div className="flex items-center justify-between">

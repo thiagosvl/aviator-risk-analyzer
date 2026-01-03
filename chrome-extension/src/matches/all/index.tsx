@@ -12,10 +12,17 @@ console.log('[Aviator Analyzer] Content script carregado!');
 
 function init() {
   try {
+    // Verificar se já existe
+    if (document.getElementById('aviator-analyzer-root')) {
+      console.log('[Aviator Analyzer] Overlay já existe neste frame.');
+      return;
+    }
+
     // Criar container para o overlay
     const appContainer = document.createElement('div');
     appContainer.id = 'aviator-analyzer-root';
-    appContainer.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999;';
+    // Importante: pointer-events: none no container para que cliques passem através dele (nas áreas vazias)
+    appContainer.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2147483647;';
     
     document.body.appendChild(appContainer);
     
