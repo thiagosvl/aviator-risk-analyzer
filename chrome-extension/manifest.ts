@@ -47,11 +47,7 @@ const manifest = {
   },
   content_scripts: [
     {
-      // Carregar apenas em sites de apostas (.bet)
-      matches: [
-        '*://*.bet/*',
-        '*://*.bet.br/*',
-      ],
+      matches: ['<all_urls>'],
       js: ['content/all.iife.js'],
       all_frames: true,
       run_at: 'document_end',
