@@ -38,6 +38,17 @@ function init() {
 
 // Aguardar o DOM estar pronto
 const checkAndInit = () => {
+  // Verificar se é realmente a página do Aviator
+  const url = window.location.href.toLowerCase();
+  const isAviatorPage = 
+    url.includes('aviator') || 
+    url.includes('spribe');
+
+  if (!isAviatorPage) {
+    console.log('[Aviator Analyzer] Não é a página do Aviator. Ignorando.');
+    return;
+  }
+
   // Verificar se o jogo está presente neste frame
   // Procurar por elementos conhecidos do Aviator (Spribe)
   const isGameFrame = 
@@ -45,24 +56,28 @@ const checkAndInit = () => {
     document.querySelector('app-canvas') ||
     document.querySelector('canvas') ||
     document.querySelector('.payouts-block') ||
-    window.location.href.includes('spribe');
+    document.querySelector('[class*="payout"]');
 
   if (isGameFrame) {
-    console.log('[Aviator Analyzer] Jogo detectado neste frame! Inicializando overlay...');
+    console.log('[Aviator Analyzer] Jogo Aviator detectado! Inicializando overlay...');
     init();
   } else {
     // Tentar novamente em alguns segundos (carregamento dinâmico)
+    console.log('[Aviator Analyzer] Aguardando carregamento do jogo...');
     setTimeout(() => {
       const isGameFrameRetry = 
         document.querySelector('app-stats-dropdown') ||
         document.querySelector('app-canvas') ||
-        document.querySelector('canvas');
+        document.querySelector('canvas') ||
+        document.querySelector('.payouts-block');
         
       if (isGameFrameRetry) {
         console.log('[Aviator Analyzer] Jogo detectado após espera! Inicializando...');
         init();
+      } else {
+        console.log('[Aviator Analyzer] Jogo não encontrado após espera.');
       }
-    }, 2000);
+    }, 3000);
   }
 };
 

@@ -165,12 +165,19 @@ export class DOMAnalyzer {
           Math.abs(c.timestamp - crash.timestamp) < 2000)
       );
       
-      this.gameState.history = uniqueCrashes.slice(-60); // Manter últimas 60
+      // IMPORTANTE: No Aviator, as velas são exibidas da ESQUERDA para DIREITA
+      // A vela mais recente está à ESQUERDA, então precisamos INVERTER a ordem
+      const orderedCrashes = uniqueCrashes.reverse();
       
-      // Atualizar último crash
-      if (uniqueCrashes.length > 0) {
-        this.gameState.lastCrash = uniqueCrashes[uniqueCrashes.length - 1].value;
+      this.gameState.history = orderedCrashes.slice(-60); // Manter últimas 60
+      
+      // Atualizar último crash (agora é o primeiro do array invertido)
+      if (orderedCrashes.length > 0) {
+        this.gameState.lastCrash = orderedCrashes[0].value;
       }
+      
+      console.log('[Aviator Debug] Histórico atualizado (mais recente à esquerda):', 
+        orderedCrashes.slice(0, 10).map(c => c.value.toFixed(2) + 'x').join(', '));
     }
   }
 

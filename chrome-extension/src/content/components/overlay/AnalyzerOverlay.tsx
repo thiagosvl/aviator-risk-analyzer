@@ -51,10 +51,10 @@ export function AnalyzerOverlay() {
   };
 
   return (
-    // Container absoluto dentro do fixed root
+    // Container absoluto no canto superior direito, FORA da área do jogo
     // pointer-events-auto restaura os cliques para este elemento específico
-    <div className="absolute top-4 right-4 z-[2147483647] font-sans pointer-events-auto">
-      <Card className="w-80 bg-gradient-to-br from-slate-900 to-slate-800 border-cyan-500/30 shadow-2xl shadow-cyan-500/20">
+    <div className="fixed top-2 right-2 z-[2147483647] font-sans pointer-events-auto max-w-sm">
+      <Card className="w-80 bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-sm border-cyan-500/30 shadow-2xl shadow-cyan-500/20">
         <CardHeader className="pb-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-t-lg">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
@@ -82,42 +82,37 @@ export function AnalyzerOverlay() {
         </CardHeader>
 
         {!isMinimized && (
-          <CardContent className="pt-4 space-y-4">
-            {/* Status do Jogo */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">Status:</span>
-              <Badge variant={gameState.isFlying ? "success" : "secondary"}>
-                {gameState.isFlying ? '✈️ EM VOO' : '⏸️ AGUARDANDO'}
-              </Badge>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-400">Multiplicador:</span>
-              <span className="text-lg font-bold text-white">
-                {gameState.currentMultiplier.toFixed(2)}x
-              </span>
-            </div>
-
-            {/* Divisor */}
-            <div className="border-t border-gray-700" />
-
-            {/* Nível de Risco */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-400">Risco Detectado:</span>
-                <div className={cn(
-                  "flex items-center gap-2 px-3 py-1 rounded-lg border",
-                  getRiskColor(analysis.riskLevel)
-                )}>
-                  {getRiskIcon(analysis.riskLevel)}
-                  <span className="font-bold text-sm">{analysis.riskLevel}</span>
-                </div>
+          <CardContent className="pt-3 space-y-3 text-sm">
+            {/* Status do Jogo - Compacto */}
+            <div className="flex items-center justify-between bg-slate-800/30 p-2 rounded-lg">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400">Status:</span>
+                <Badge variant={gameState.isFlying ? "success" : "secondary"} className="text-xs">
+                  {gameState.isFlying ? '✈️ VOO' : '⏸️ AGUARDANDO'}
+                </Badge>
               </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400">Mult:</span>
+                <span className="text-base font-bold text-white">
+                  {gameState.currentMultiplier.toFixed(2)}x
+                </span>
+              </div>
+            </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-400">Confiança:</span>
-                <span className="text-sm font-semibold text-white">
-                  {analysis.confidence}%
+
+
+            {/* Nível de Risco - Destaque */}
+            <div className={cn(
+              "p-3 rounded-lg border-2",
+              getRiskColor(analysis.riskLevel)
+            )}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  {getRiskIcon(analysis.riskLevel)}
+                  <span className="font-bold text-base">{analysis.riskLevel}</span>
+                </div>
+                <span className="text-xs font-semibold">
+                  {analysis.confidence}% confiança
                 </span>
               </div>
             </div>
@@ -132,32 +127,32 @@ export function AnalyzerOverlay() {
               </p>
             </div>
 
-            {/* Estatísticas */}
+            {/* Estatísticas - Compacto */}
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-slate-800/50 p-2 rounded">
+              <div className="bg-slate-800/50 p-2 rounded text-center">
                 <div className="text-xs text-gray-400">Volatilidade</div>
-                <div className="text-sm font-semibold text-white">
+                <div className="text-base font-bold text-white">
                   {analysis.volatility.toFixed(2)}
                 </div>
               </div>
-              <div className="bg-slate-800/50 p-2 rounded">
+              <div className="bg-slate-800/50 p-2 rounded text-center">
                 <div className="text-xs text-gray-400">Média</div>
-                <div className="text-sm font-semibold text-white">
+                <div className="text-base font-bold text-white">
                   {analysis.average.toFixed(2)}x
                 </div>
               </div>
             </div>
 
-            {/* Últimas Velas */}
+            {/* Últimas Velas - Mostrar apenas as 8 mais recentes */}
             {analysis.lastCandles.length > 0 && (
-              <div className="space-y-2">
-                <span className="text-xs text-gray-400">Últimas Velas:</span>
+              <div className="space-y-1">
+                <span className="text-xs text-gray-400">Últimas 8 velas (mais recente à esquerda):</span>
                 <div className="flex flex-wrap gap-1">
-                  {analysis.lastCandles.map((candle, index) => (
+                  {analysis.lastCandles.slice(0, 8).map((candle, index) => (
                     <Badge
                       key={index}
                       variant={candle < 1.5 ? "danger" : candle > 5 ? "success" : "secondary"}
-                      className="text-xs"
+                      className="text-xs px-2 py-0.5"
                     >
                       {candle.toFixed(2)}x
                     </Badge>
@@ -166,16 +161,16 @@ export function AnalyzerOverlay() {
               </div>
             )}
 
-            {/* Padrões Detectados */}
+            {/* Padrões Detectados - Mais compacto */}
             {analysis.patterns.length > 0 && (
-              <div className="space-y-2">
-                <span className="text-xs text-gray-400">Padrões Detectados:</span>
+              <div className="space-y-1">
+                <span className="text-xs text-gray-400 font-semibold">Padrões:</span>
                 <div className="space-y-1">
-                  {analysis.patterns.map((pattern, index) => (
+                  {analysis.patterns.slice(0, 3).map((pattern, index) => (
                     <div
                       key={index}
                       className={cn(
-                        "text-xs p-2 rounded border-l-2",
+                        "text-xs p-1.5 rounded border-l-2 leading-tight",
                         pattern.severity === 'danger' && "bg-red-500/10 border-red-500 text-red-300",
                         pattern.severity === 'warning' && "bg-yellow-500/10 border-yellow-500 text-yellow-300",
                         pattern.severity === 'info' && "bg-blue-500/10 border-blue-500 text-blue-300"
@@ -184,13 +179,16 @@ export function AnalyzerOverlay() {
                       {pattern.description}
                     </div>
                   ))}
+                  {analysis.patterns.length > 3 && (
+                    <div className="text-xs text-gray-500 text-center">+{analysis.patterns.length - 3} mais</div>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Footer */}
-            <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-700">
-              Análise em tempo real • {isAnalyzing ? '🟢 Ativo' : '🔴 Pausado'}
+            {/* Footer - Mais compacto */}
+            <div className="text-center text-xs text-slate-500 pt-1">
+              {isAnalyzing ? '🟢 Análise ativa' : '🔴 Pausado'}
             </div>
           </CardContent>
         )}
