@@ -6,25 +6,17 @@ import { Badge } from '@src/content/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@src/content/components/ui/card';
 import { useGameAnalysis } from '@src/content/hooks/useGameAnalysis';
 import { cn } from '@src/content/lib/utils';
-import { RiskLevel } from '@src/content/types';
-import {
-  AlertTriangle,
-  CheckCircle,
-  GripVertical,
-  Maximize2,
-  Minimize2,
-  X,
-  XCircle
-} from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import { AlertTriangle, CheckCircle, GripVertical, X, XCircle } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import type { RiskLevel } from '@src/content/types';
+import type React from 'react';
 
-export function AnalyzerOverlay() {
-  const { gameState, analysis, isAnalyzing, startAnalysis, stopAnalysis } = useGameAnalysis();
-  const [isMinimized, setIsMinimized] = useState(false);
+export const AnalyzerOverlay = () => {
+  const { gameState, analysis, startAnalysis, stopAnalysis } = useGameAnalysis();
   const [isVisible, setIsVisible] = useState(true);
-  
+
   // Estado para draggable
-  const [position, setPosition] = useState({ x: 20, y: 20 }); // Posição inicial na lateral esquerda
+  const [position, setPosition] = useState({ x: 20, y: 20 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -33,7 +25,7 @@ export function AnalyzerOverlay() {
   useEffect(() => {
     startAnalysis();
     return () => stopAnalysis();
-  }, []);
+  }, [startAnalysis, stopAnalysis]);
 
   // Handlers para drag
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -49,6 +41,7 @@ export function AnalyzerOverlay() {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
+
       setPosition({
         x: e.clientX - dragOffset.x,
         y: e.clientY - dragOffset.y,
@@ -72,185 +65,236 @@ export function AnalyzerOverlay() {
 
   if (!isVisible) return null;
 
-  const getRiskColor = (level: RiskLevel): string => {
-    const colors: Record<RiskLevel, string> = {
-      BAIXO: 'text-green-400 bg-green-500/10 border-green-500',
-      MEDIO: 'text-yellow-400 bg-yellow-500/10 border-yellow-500',
-      ALTO: 'text-orange-400 bg-orange-500/10 border-orange-500',
-      MUITO_ALTO: 'text-red-400 bg-red-500/10 border-red-500',
-    };
-    return colors[level];
+  // Função auxiliar para obter cor do risco
+  const getRiskColor = (risk: RiskLevel) => {
+    switch (risk) {
+      case 'low':
+        return 'text-green-400 border-green-500 bg-green-500/10';
+      case 'medium':
+        return 'text-yellow-400 border-yellow-500 bg-yellow-500/10';
+      case 'high':
+        return 'text-orange-400 border-orange-500 bg-orange-500/10';
+      case 'critical':
+        return 'text-red-400 border-red-500 bg-red-500/10';
+      default:
+        return 'text-slate-400 border-slate-500 bg-slate-500/10';
+    }
   };
 
-  const getRiskIcon = (level: RiskLevel) => {
-    const icons: Record<RiskLevel, React.ReactNode> = {
-      BAIXO: <CheckCircle className="w-4 h-4" />,
-      MEDIO: <AlertTriangle className="w-4 h-4" />,
-      ALTO: <AlertTriangle className="w-4 h-4" />,
-      MUITO_ALTO: <XCircle className="w-4 h-4" />,
-    };
-    return icons[level];
+  // Função auxiliar para obter ícone do risco
+  const getRiskIcon = (risk: RiskLevel) => {
+    switch (risk) {
+      case 'low':
+        return <CheckCircle className="h-5 w-5" />;
+      case 'medium':
+        return <AlertTriangle className="h-5 w-5" />;
+      case 'high':
+        return <AlertTriangle className="h-5 w-5" />;
+      case 'critical':
+        return <XCircle className="h-5 w-5" />;
+      default:
+        return <AlertTriangle className="h-5 w-5" />;
+    }
   };
+
+  // Função auxiliar para obter recomendação
+  const getRecommendation = (risk: RiskLevel) => {
+    switch (risk) {
+      case 'low':
+        return { text: 'JOGUE', color: 'text-green-400 bg-green-500/20 border-green-500' };
+      case 'medium':
+        return { text: 'CUIDADO', color: 'text-yellow-400 bg-yellow-500/20 border-yellow-500' };
+      case 'high':
+      case 'critical':
+        return { text: 'NÃO JOGUE', color: 'text-red-400 bg-red-500/20 border-red-500' };
+      default:
+        return { text: 'AGUARDE', color: 'text-slate-400 bg-slate-500/20 border-slate-500' };
+    }
+  };
+
+  const recommendation = getRecommendation(analysis.riskLevel);
+  const lastFiveCandles = gameState.history.slice(0, 5);
 
   return (
-    // Container FIXED na lateral da tela, completamente FORA do jogo
-    // pointer-events-auto restaura os cliques para este elemento específico
     <div
       ref={overlayRef}
-      className="fixed z-[2147483647] font-sans pointer-events-auto"
+      className="fixed z-[999999] select-none"
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
         cursor: isDragging ? 'grabbing' : 'default',
-      }}
-    >
-      <Card className="w-80 bg-slate-900 backdrop-blur-md border-cyan-500/50 shadow-2xl shadow-cyan-500/40">
-        <CardHeader 
-          className="pb-2 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-t-lg cursor-grab active:cursor-grabbing"
-          onMouseDown={handleMouseDown}
-        >
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-              <GripVertical className="w-4 h-4" />
-              🎯 Aviator Analyzer
-            </CardTitle>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setIsMinimized(!isMinimized)}
-                className="p-1 hover:bg-white/20 rounded transition-colors"
-                title={isMinimized ? "Maximizar" : "Minimizar"}
-              >
-                {isMinimized ? (
-                  <Maximize2 className="w-3.5 h-3.5 text-white" />
-                ) : (
-                  <Minimize2 className="w-3.5 h-3.5 text-white" />
-                )}
-              </button>
-              <button
-                onClick={() => setIsVisible(false)}
-                className="p-1 hover:bg-white/20 rounded transition-colors"
-                title="Fechar"
-              >
-                <X className="w-3.5 h-3.5 text-white" />
-              </button>
+        pointerEvents: 'auto',
+      }}>
+      <div className="flex gap-3">
+        {/* CARD 1: RESUMO - Recomendação Direta */}
+        <Card className="w-64 border-cyan-500/50 bg-slate-900 shadow-2xl shadow-cyan-500/40 backdrop-blur-md">
+          <CardHeader
+            className="cursor-grab rounded-t-lg bg-gradient-to-r from-cyan-600 to-blue-600 pb-2 active:cursor-grabbing"
+            onMouseDown={handleMouseDown}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <GripVertical className="h-4 w-4 text-white/70" />
+                <CardTitle className="text-sm font-bold text-white">Aviator Analyzer</CardTitle>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setIsVisible(false)}
+                  className="rounded p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                  title="Fechar">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-          </div>
-        </CardHeader>
+          </CardHeader>
 
-        {!isMinimized && (
-          <CardContent className="pt-3 pb-3 space-y-2.5 text-sm">
+          <CardContent className="space-y-3 p-4">
             {/* Status do Jogo */}
-            <div className="flex items-center justify-between bg-slate-800/50 p-2 rounded-lg border border-slate-700/50">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Status:</span>
-                <Badge variant={gameState.isFlying ? "success" : "secondary"} className="text-xs px-2 py-0.5">
-                  {gameState.isFlying ? '✈️ VOO' : '⏸️ AGUARDANDO'}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">Mult:</span>
-                <span className="text-sm font-bold text-white">
-                  {gameState.currentMultiplier.toFixed(2)}x
-                </span>
-              </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/30 p-2">
+              <span className="text-xs font-medium text-slate-400">Status:</span>
+              <Badge
+                variant={gameState.isFlying ? 'default' : 'secondary'}
+                className={cn(
+                  'text-xs font-bold',
+                  gameState.isFlying ? 'bg-blue-500/20 text-blue-300' : 'bg-slate-700 text-slate-300',
+                )}>
+                {gameState.isFlying ? '✈️ VOO' : '⏳ AGUARDANDO'}
+              </Badge>
             </div>
 
-            {/* Nível de Risco - Card Destacado */}
-            <div className={cn(
-              "p-2.5 rounded-lg border-2",
-              getRiskColor(analysis.riskLevel)
-            )}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {getRiskIcon(analysis.riskLevel)}
-                  <span className="font-bold text-sm">{analysis.riskLevel}</span>
-                </div>
-                <span className="text-xs font-semibold opacity-90">
-                  {analysis.confidence}% confiança
-                </span>
-              </div>
-            </div>
-
-            {/* Recomendação */}
-            <div className={cn(
-              "p-2.5 rounded-lg border-l-4",
-              getRiskColor(analysis.riskLevel)
-            )}>
-              <p className="text-xs text-white/90 leading-relaxed">
-                {analysis.recommendation}
-              </p>
-            </div>
-
-            {/* Estatísticas */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700/50 text-center">
-                <div className="text-xs text-slate-400 mb-0.5">Volatilidade</div>
-                <div className="text-sm font-bold text-white">
-                  {analysis.volatility.toFixed(2)}
-                </div>
-              </div>
-              <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700/50 text-center">
-                <div className="text-xs text-slate-400 mb-0.5">Média</div>
-                <div className="text-sm font-bold text-white">
-                  {analysis.average.toFixed(2)}x
-                </div>
-              </div>
-            </div>
-
-            {/* Últimas Velas */}
-            {analysis.lastCandles.length > 0 && (
-              <div className="space-y-1.5 bg-slate-800/30 p-2 rounded-lg border border-slate-700/50">
-                <div className="text-xs text-slate-400 font-medium">
-                  Últimas 8 velas (← mais recente):
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {analysis.lastCandles.slice(0, 8).map((candle, index) => (
-                    <Badge
-                      key={index}
-                      variant={candle < 1.5 ? "danger" : candle > 5 ? "success" : "secondary"}
-                      className="text-xs px-1.5 py-0.5 font-mono"
-                    >
-                      {candle.toFixed(2)}x
-                    </Badge>
-                  ))}
-                </div>
+            {/* Último Crash */}
+            {gameState.lastCrash && (
+              <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/30 p-2">
+                <span className="text-xs font-medium text-slate-400">Último Crash:</span>
+                <span className="font-mono text-sm font-bold text-cyan-400">{gameState.lastCrash.toFixed(2)}x</span>
               </div>
             )}
 
-            {/* Padrões Detectados */}
-            {analysis.patterns.length > 0 && (
-              <div className="space-y-1.5 bg-slate-800/30 p-2 rounded-lg border border-slate-700/50">
-                <div className="text-xs text-slate-400 font-medium">Padrões detectados:</div>
-                <div className="space-y-1">
-                  {analysis.patterns.slice(0, 3).map((pattern, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        "text-xs p-1.5 rounded border-l-2 leading-tight",
-                        pattern.severity === 'danger' && "bg-red-500/10 border-red-500 text-red-300",
-                        pattern.severity === 'warning' && "bg-yellow-500/10 border-yellow-500 text-yellow-300",
-                        pattern.severity === 'info' && "bg-blue-500/10 border-blue-500 text-blue-300"
-                      )}
-                    >
-                      {pattern.description}
-                    </div>
-                  ))}
-                  {analysis.patterns.length > 3 && (
-                    <div className="text-xs text-slate-500 text-center pt-0.5">
-                      +{analysis.patterns.length - 3} padrões adicionais
-                    </div>
-                  )}
-                </div>
+            {/* Recomendação PRINCIPAL */}
+            <div className="mt-4 rounded-lg border-2 p-4 text-center">
+              <div className={cn('rounded-lg border-2 p-3', recommendation.color)}>
+                <div className="text-2xl font-black">{recommendation.text}</div>
               </div>
-            )}
+            </div>
 
-            {/* Footer */}
-            <div className="text-center text-xs text-slate-500 pt-1 border-t border-slate-700/50">
-              {isAnalyzing ? '🟢 Análise em tempo real' : '🔴 Pausado'}
+            {/* Nível de Risco */}
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/30 p-2">
+              <span className="text-xs font-medium text-slate-400">Risco:</span>
+              <div
+                className={cn('flex items-center gap-1.5 rounded border px-2 py-1', getRiskColor(analysis.riskLevel))}>
+                {getRiskIcon(analysis.riskLevel)}
+                <span className="text-xs font-bold uppercase">{analysis.riskLevel}</span>
+              </div>
+            </div>
+
+            {/* Histórico de Velas Disponíveis */}
+            <div className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-2">
+              <div className="text-xs font-medium text-slate-400">Histórico: {gameState.history.length} velas</div>
             </div>
           </CardContent>
-        )}
-      </Card>
+        </Card>
+
+        {/* CARD 2: DETALHADO - Estatísticas e Análises */}
+        <Card className="w-80 border-cyan-500/50 bg-slate-900 shadow-2xl shadow-cyan-500/40 backdrop-blur-md">
+          <CardHeader className="rounded-t-lg border-b border-cyan-500/30 bg-slate-800/50 pb-2">
+            <CardTitle className="text-sm font-bold text-cyan-400">📊 Análise Detalhada</CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-3 p-4">
+            {/* Estatísticas Gerais */}
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-slate-300">Estatísticas:</div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded border border-slate-700/50 bg-slate-800/30 p-2 text-center">
+                  <div className="text-[10px] text-slate-500">Média</div>
+                  <div className="font-mono text-xs font-bold text-cyan-400">{analysis.avgMultiplier.toFixed(2)}x</div>
+                </div>
+                <div className="rounded border border-slate-700/50 bg-slate-800/30 p-2 text-center">
+                  <div className="text-[10px] text-slate-500">Menor</div>
+                  <div className="font-mono text-xs font-bold text-red-400">{analysis.minMultiplier.toFixed(2)}x</div>
+                </div>
+                <div className="rounded border border-slate-700/50 bg-slate-800/30 p-2 text-center">
+                  <div className="text-[10px] text-slate-500">Maior</div>
+                  <div className="font-mono text-xs font-bold text-green-400">{analysis.maxMultiplier.toFixed(2)}x</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Volatilidade */}
+            <div className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-400">Volatilidade:</span>
+                <Badge variant={analysis.volatility > 1.5 ? 'destructive' : 'secondary'} className="font-mono text-xs">
+                  {analysis.volatility.toFixed(2)}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Últimas 5 Velas */}
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-slate-300">Últimas 5 Velas:</div>
+              <div className="flex flex-wrap gap-1.5">
+                {lastFiveCandles.length > 0 ? (
+                  lastFiveCandles.map((candle, index) => (
+                    <Badge
+                      key={index}
+                      variant={candle.value < 2 ? 'destructive' : candle.value > 5 ? 'default' : 'secondary'}
+                      className="font-mono text-xs">
+                      {candle.value.toFixed(2)}x
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-500">Aguardando dados...</span>
+                )}
+              </div>
+            </div>
+
+            {/* Padrões Detectados (placeholder para futuras análises) */}
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-slate-300">Padrões Detectados:</div>
+              <div className="space-y-1">
+                {analysis.patterns.slice(0, 3).map((pattern, index) => (
+                  <div
+                    key={index}
+                    className="rounded border-l-2 p-1.5 text-xs leading-tight"
+                    style={{
+                      borderColor:
+                        pattern.type === 'high_risk'
+                          ? '#ef4444'
+                          : pattern.type === 'medium_risk'
+                            ? '#f59e0b'
+                            : '#3b82f6',
+                      backgroundColor:
+                        pattern.type === 'high_risk'
+                          ? 'rgba(239, 68, 68, 0.1)'
+                          : pattern.type === 'medium_risk'
+                            ? 'rgba(245, 158, 11, 0.1)'
+                            : 'rgba(59, 130, 246, 0.1)',
+                      color:
+                        pattern.type === 'high_risk'
+                          ? '#fca5a5'
+                          : pattern.type === 'medium_risk'
+                            ? '#fcd34d'
+                            : '#93c5fd',
+                    }}>
+                    <div className="font-medium">{pattern.description}</div>
+                    <div className="text-[10px] opacity-70">Confiança: {(pattern.confidence * 100).toFixed(0)}%</div>
+                  </div>
+                ))}
+                {analysis.patterns.length === 0 && (
+                  <div className="rounded border border-slate-700/50 bg-slate-800/30 p-2 text-center text-xs text-slate-500">
+                    Analisando padrões...
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Rodapé */}
+            <div className="border-t border-slate-700/50 pt-2 text-center text-xs text-slate-500">
+              Atualizado em tempo real
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-}
+};

@@ -1,6 +1,6 @@
 /**
  * Content Script - Aviator Risk Analyzer
- * 
+ *
  * Este script é injetado nas páginas do jogo Aviator e exibe o overlay de análise.
  */
 
@@ -18,7 +18,7 @@ if (window.self !== window.top) {
   console.log('[Aviator Analyzer] Rodando na página principal. Continuando...');
 }
 
-function init() {
+const init = () => {
   try {
     // Verificar se já existe
     if (document.getElementById('aviator-analyzer-root')) {
@@ -30,19 +30,20 @@ function init() {
     const appContainer = document.createElement('div');
     appContainer.id = 'aviator-analyzer-root';
     // Importante: pointer-events: none no container para que cliques passem através dele (nas áreas vazias)
-    appContainer.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2147483647;';
-    
+    appContainer.style.cssText =
+      'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2147483647;';
+
     document.body.appendChild(appContainer);
-    
+
     // Renderizar o overlay
     const root = createRoot(appContainer);
     root.render(<AnalyzerOverlay />);
-    
+
     console.log('[Aviator Analyzer] Overlay renderizado com sucesso!');
   } catch (error) {
     console.error('[Aviator Analyzer] Erro ao inicializar:', error);
   }
-}
+};
 
 // Aguardar o DOM estar pronto
 const checkAndInit = () => {
@@ -54,9 +55,7 @@ const checkAndInit = () => {
 
   // Verificar se é realmente a página do Aviator
   const url = window.location.href.toLowerCase();
-  const isAviatorPage = 
-    url.includes('aviator') || 
-    url.includes('spribe');
+  const isAviatorPage = url.includes('aviator') || url.includes('spribe');
 
   if (!isAviatorPage) {
     console.log('[Aviator Analyzer] Não é a página do Aviator. Ignorando.');
@@ -64,7 +63,7 @@ const checkAndInit = () => {
   }
 
   // Verificar se o iframe do jogo está presente na página
-  const hasGameIframe = 
+  const hasGameIframe =
     document.querySelector('iframe[src*="aviator"]') ||
     document.querySelector('iframe[src*="spribe"]') ||
     document.querySelector('iframe[src*="game"]');
@@ -76,11 +75,11 @@ const checkAndInit = () => {
     // Tentar novamente em alguns segundos (carregamento dinâmico)
     console.log('[Aviator Analyzer] Aguardando carregamento do jogo...');
     setTimeout(() => {
-      const hasGameIframeRetry = 
+      const hasGameIframeRetry =
         document.querySelector('iframe[src*="aviator"]') ||
         document.querySelector('iframe[src*="spribe"]') ||
         document.querySelector('iframe[src*="game"]');
-        
+
       if (hasGameIframeRetry) {
         console.log('[Aviator Analyzer] Iframe detectado após espera! Inicializando...');
         init();
