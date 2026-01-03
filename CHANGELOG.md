@@ -1,5 +1,41 @@
 # Changelog - Aviator Risk Analyzer
 
+## [Versão 0.5.1] - 03/01/2026 - MAJOR UI/UX OVERHAUL
+
+### 🎨 Reformulação Completa do UI/UX
+
+**Posicionamento Correto (FINALMENTE!)**
+- Overlay agora aparece na **lateral ESQUERDA** da tela (posição inicial: x=20px, y=20px)
+- **Completamente FORA da área do jogo** - não cobre mais nada
+- Usa `position: fixed` com coordenadas absolutas para controle preciso
+
+**Funcionalidade Draggable (Arrastar)**
+- ✨ **NOVO:** Você pode **clicar e arrastar** o overlay para qualquer lugar da tela
+- Clique no **header** (onde tem o ícone ≡) e arraste
+- Cursor muda para "grabbing" enquanto arrasta
+- Ícone `GripVertical` indica visualmente que é arrastável
+
+**Layout Restaurado e Melhorado**
+- ✅ **TODOS os cards estão de volta:**
+  - Status do jogo + Multiplicador
+  - Nível de Risco (com destaque visual)
+  - Recomendação
+  - Estatísticas (Volatilidade + Média)
+  - Últimas 8 velas
+  - Padrões detectados (até 3, com contador de adicionais)
+- Design mais compacto e organizado
+- Bordas e backgrounds melhorados para legibilidade
+- Background: `slate-900/98` com `backdrop-blur` para transparência elegante
+
+**Melhorias Visuais**
+- Cards com bordas sutis (`border-slate-700/50`)
+- Ícones menores e mais proporcionais
+- Espaçamento otimizado entre elementos
+- Cores mais vibrantes para níveis de risco
+- Footer com indicador de status da análise
+
+---
+
 ## [Versão 0.5.0] - 03/01/2026
 
 ### 🎨 Melhorias de UI/UX
@@ -45,9 +81,35 @@
 
 ## Como Atualizar
 
-1. Faça `git pull` no seu repositório local
-2. Execute `pnpm install` (se houver novas dependências)
-3. Execute `pnpm build`
-4. Recarregue a extensão no Chrome (`chrome://extensions` → botão de atualizar)
+### Opção 1: Git Pull (Recomendado)
+```bash
+cd aviator-risk-analyzer
+git pull
+pnpm build
+```
 
-Ou simplesmente baixe o novo `.zip` e reinstale a extensão.
+Depois vá em `chrome://extensions` e clique no botão de **atualizar** (ícone de reload) da extensão.
+
+### Opção 2: Reinstalar
+1. Baixe o novo código do repositório
+2. Execute `pnpm install && pnpm build`
+3. Recarregue a extensão no Chrome
+
+---
+
+## Testando as Novas Funcionalidades
+
+1. **Posicionamento:** O overlay deve aparecer na lateral esquerda, fora do jogo
+2. **Draggable:** Clique no header (onde tem ≡) e arraste para mover
+3. **Todos os cards:** Verifique se Status, Risco, Recomendação, Estatísticas, Velas e Padrões estão visíveis
+4. **Console:** Abra F12 e procure por `[Aviator Debug] Histórico atualizado (mais recente à esquerda)`
+
+---
+
+## Próximos Passos
+
+- [ ] Adicionar mais padrões de análise personalizados
+- [ ] Implementar histórico de longo prazo (últimas 1000 velas)
+- [ ] Adicionar gráfico de tendência
+- [ ] Salvar posição do overlay (localStorage)
+- [ ] Modo de teste com dados simulados
