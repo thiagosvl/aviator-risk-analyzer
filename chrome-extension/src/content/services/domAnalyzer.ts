@@ -52,8 +52,8 @@ export class DOMAnalyzer {
         if (match) {
           const value = parseFloat(match[1]);
           
-          // Validar se é um multiplicador válido
-          if (value > 0 && value < 10000) {
+          // Validar se é um multiplicador válido (Aviator começa em 1.00x)
+          if (value >= 1.0 && value < 10000) {
             this.gameState.currentMultiplier = value;
             
             // Se o multiplicador está crescendo, o avião está voando
@@ -103,47 +103,58 @@ export class DOMAnalyzer {
   private extractHistory(): void {
     // Procurar por elementos de histórico
     const historySelectors = [
+      'app-stats-dropdown .payouts-block',
+      '.payouts-block',
+      '[class*="payout"]',
+      'app-stats-dropdown',
+      'app-bubble-multiplier',
+      // Fallbacks
       '[class*="history"]',
       '[class*="previous"]',
       '[class*="crash"]',
       '[class*="recent"]',
       '[class*="last"]',
+      '.result-history',
+      '.bubble-multiplier',
     ];
 
     const crashes: CandleData[] = [];
     const now = Date.now();
+    let debugFound = false;
 
     for (const selector of historySelectors) {
       const containers = document.querySelectorAll(selector);
       
+      if (containers.length > 0 && !debugFound) {
+        console.log(`[Aviator Debug] Found containers with selector: ${selector}`, containers.length);
+        debugFound = true;
+      }
+
       for (const container of containers) {
-        // Procurar por todos os multiplicadores dentro do container
-        const text = container.textContent || '';
-        const matches = text.match(/(\d+\.?\d*)\s*x/gi);
+        // Tentar pegar do atributo title ou text
+        const text = container.textContent || container.getAttribute('title') || '';
         
-        if (matches && matches.length > 0) {
-          matches.forEach((match, index) => {
-            const value = parseFloat(match);
-            
-            // Validar multiplicador
-            if (value > 0.5 && value < 10000) {
-              crashes.push({
-                value,
-                timestamp: now - (matches.length - index) * 1000, // Estimativa de tempo
-              });
-            }
-          });
-          
-          // Se encontrou vários multiplicadores, provavelmente é o histórico
-          if (crashes.length >= 5) {
-            break;
-          }
+        // Padrão Angular/Spribe
+        if (text.includes('x') || selector.includes('payout')) {
+             const matches = text.match(/(\d+\.?\d*)\s*x?/gi); // O 'x' pode ser opcional em alguns casos
+             
+             if (matches && matches.length > 0) {
+               matches.forEach((match, index) => {
+                 const value = parseFloat(match.replace(/[^\d.]/g, ''));
+                 
+                 // Validar multiplicador
+                 if (value >= 1.0 && value < 10000) {
+                   crashes.push({
+                     value,
+                     timestamp: now - (matches.length - index) * 1000,
+                   });
+                 }
+               });
+             }
         }
       }
       
-      if (crashes.length >= 5) {
-        break;
-      }
+      if (crashes.length >= 5) break;
     }
 
     // Atualizar histórico se encontrou dados novos

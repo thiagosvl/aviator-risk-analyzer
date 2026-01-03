@@ -1,5 +1,5 @@
-import { readFileSync } from 'node:fs';
 import type { ManifestType } from '@extension/shared';
+import { readFileSync } from 'node:fs';
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
 
@@ -20,7 +20,7 @@ const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
  */
 const manifest = {
   manifest_version: 3,
-  default_locale: 'en',
+  // default_locale: 'en',
   name: 'Aviator Risk Analyzer',
   browser_specific_settings: {
     gecko: {
@@ -30,7 +30,7 @@ const manifest = {
   },
   version: packageJson.version,
   description: 'Monitora padrões no jogo Aviator e fornece recomendações de risco em tempo real',
-  host_permissions: ['*://*.bet365.com/*', '*://*.betano.com/*', '*://*.betfair.com/*', '*://*.sportingbet.com/*', '*://*.pixbet.com/*', '*://*.blaze.com/*', '*://*.spribe.co/*', 'http://localhost/*', 'https://localhost/*'],
+  host_permissions: ['<all_urls>'],
   permissions: ['storage', 'scripting'],
 
   background: {
@@ -47,8 +47,10 @@ const manifest = {
   },
   content_scripts: [
     {
-      matches: ['*://*.bet365.com/*', '*://*.betano.com/*', '*://*.betfair.com/*', '*://*.sportingbet.com/*', '*://*.pixbet.com/*', '*://*.blaze.com/*', '*://*.spribe.co/*', 'http://localhost/*', 'https://localhost/*'],
+      matches: ['<all_urls>'],
       js: ['content/all.iife.js'],
+      all_frames: true,
+      run_at: 'document_end',
     },
   ],
 

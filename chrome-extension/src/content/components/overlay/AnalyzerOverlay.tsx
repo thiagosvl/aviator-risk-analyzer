@@ -2,22 +2,20 @@
  * Analyzer Overlay - Componente principal do overlay que aparece sobre o jogo
  */
 
-import React, { useEffect, useState } from 'react';
-import { useGameAnalysis } from '@src/content/hooks/useGameAnalysis';
-import { Card, CardContent, CardHeader, CardTitle } from '@src/content/components/ui/card';
 import { Badge } from '@src/content/components/ui/badge';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle,
-  Minimize2,
-  Maximize2,
-  X
-} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@src/content/components/ui/card';
+import { useGameAnalysis } from '@src/content/hooks/useGameAnalysis';
 import { cn } from '@src/content/lib/utils';
 import { RiskLevel } from '@src/content/types';
+import {
+    AlertTriangle,
+    CheckCircle,
+    Maximize2,
+    Minimize2,
+    X,
+    XCircle
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 export function AnalyzerOverlay() {
   const { gameState, analysis, isAnalyzing, startAnalysis, stopAnalysis } = useGameAnalysis();
@@ -85,14 +83,14 @@ export function AnalyzerOverlay() {
           <CardContent className="pt-4 space-y-4">
             {/* Status do Jogo */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-400">Status:</span>
+              <span className="text-sm text-slate-400">Status:</span>
               <Badge variant={gameState.isFlying ? "success" : "secondary"}>
                 {gameState.isFlying ? '✈️ EM VOO' : '⏸️ AGUARDANDO'}
               </Badge>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-400">Multiplicador:</span>
+              <span className="text-sm text-slate-400">Multiplicador:</span>
               <span className="text-lg font-bold text-white">
                 {gameState.currentMultiplier.toFixed(2)}x
               </span>
@@ -104,7 +102,7 @@ export function AnalyzerOverlay() {
             {/* Nível de Risco */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Risco Detectado:</span>
+                <span className="text-sm text-slate-400">Risco Detectado:</span>
                 <div className={cn(
                   "flex items-center gap-2 px-3 py-1 rounded-lg border",
                   getRiskColor(analysis.riskLevel)
@@ -115,7 +113,7 @@ export function AnalyzerOverlay() {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Confiança:</span>
+                <span className="text-sm text-slate-400">Confiança:</span>
                 <span className="text-sm font-semibold text-white">
                   {analysis.confidence}%
                 </span>
@@ -189,7 +187,7 @@ export function AnalyzerOverlay() {
             )}
 
             {/* Footer */}
-            <div className="text-center text-xs text-gray-500 pt-2 border-t border-gray-700">
+            <div className="text-center text-xs text-slate-400 pt-2 border-t border-slate-700">
               Análise em tempo real • {isAnalyzing ? '🟢 Ativo' : '🔴 Pausado'}
             </div>
           </CardContent>
