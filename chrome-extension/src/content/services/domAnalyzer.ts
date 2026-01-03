@@ -167,7 +167,13 @@ export class DOMAnalyzer {
       
       // IMPORTANTE: No Aviator, as velas são exibidas da ESQUERDA para DIREITA
       // A vela mais recente está à ESQUERDA, então precisamos INVERTER a ordem
+      console.log('[Aviator Debug] Ordem ANTES do reverse (como capturado do DOM):', 
+        uniqueCrashes.slice(0, 5).map(c => c.value.toFixed(2) + 'x').join(' <- '));
+      
       const orderedCrashes = uniqueCrashes.reverse();
+      
+      console.log('[Aviator Debug] Ordem DEPOIS do reverse (mais recente primeiro no array):', 
+        orderedCrashes.slice(0, 5).map(c => c.value.toFixed(2) + 'x').join(' <- '));
       
       this.gameState.history = orderedCrashes.slice(-60); // Manter últimas 60
       

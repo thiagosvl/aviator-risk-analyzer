@@ -104,7 +104,7 @@ export function AnalyzerOverlay() {
         cursor: isDragging ? 'grabbing' : 'default',
       }}
     >
-      <Card className="w-80 bg-slate-900/98 backdrop-blur-md border-cyan-500/40 shadow-2xl shadow-cyan-500/30">
+      <Card className="w-80 bg-slate-900 backdrop-blur-md border-cyan-500/50 shadow-2xl shadow-cyan-500/40">
         <CardHeader 
           className="pb-2 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-t-lg cursor-grab active:cursor-grabbing"
           onMouseDown={handleMouseDown}

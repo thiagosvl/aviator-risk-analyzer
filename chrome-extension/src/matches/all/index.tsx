@@ -10,6 +10,14 @@ import './index.css';
 
 console.log('[Aviator Analyzer] Content script carregado!');
 
+// Verificar se estamos no iframe ou na página principal
+if (window.self !== window.top) {
+  console.log('[Aviator Analyzer] Rodando dentro de um iframe. Ignorando.');
+  // Não fazer nada se estivermos dentro de um iframe
+} else {
+  console.log('[Aviator Analyzer] Rodando na página principal. Continuando...');
+}
+
 function init() {
   try {
     // Verificar se já existe
@@ -38,6 +46,12 @@ function init() {
 
 // Aguardar o DOM estar pronto
 const checkAndInit = () => {
+  // Não rodar se estivermos dentro de um iframe
+  if (window.self !== window.top) {
+    console.log('[Aviator Analyzer] Dentro de iframe. Não inicializando.');
+    return;
+  }
+
   // Verificar se é realmente a página do Aviator
   const url = window.location.href.toLowerCase();
   const isAviatorPage = 
@@ -49,33 +63,29 @@ const checkAndInit = () => {
     return;
   }
 
-  // Verificar se o jogo está presente neste frame
-  // Procurar por elementos conhecidos do Aviator (Spribe)
-  const isGameFrame = 
-    document.querySelector('app-stats-dropdown') ||
-    document.querySelector('app-canvas') ||
-    document.querySelector('canvas') ||
-    document.querySelector('.payouts-block') ||
-    document.querySelector('[class*="payout"]');
+  // Verificar se o iframe do jogo está presente na página
+  const hasGameIframe = 
+    document.querySelector('iframe[src*="aviator"]') ||
+    document.querySelector('iframe[src*="spribe"]') ||
+    document.querySelector('iframe[src*="game"]');
 
-  if (isGameFrame) {
-    console.log('[Aviator Analyzer] Jogo Aviator detectado! Inicializando overlay...');
+  if (hasGameIframe) {
+    console.log('[Aviator Analyzer] Iframe do jogo detectado! Inicializando overlay...');
     init();
   } else {
     // Tentar novamente em alguns segundos (carregamento dinâmico)
     console.log('[Aviator Analyzer] Aguardando carregamento do jogo...');
     setTimeout(() => {
-      const isGameFrameRetry = 
-        document.querySelector('app-stats-dropdown') ||
-        document.querySelector('app-canvas') ||
-        document.querySelector('canvas') ||
-        document.querySelector('.payouts-block');
+      const hasGameIframeRetry = 
+        document.querySelector('iframe[src*="aviator"]') ||
+        document.querySelector('iframe[src*="spribe"]') ||
+        document.querySelector('iframe[src*="game"]');
         
-      if (isGameFrameRetry) {
-        console.log('[Aviator Analyzer] Jogo detectado após espera! Inicializando...');
+      if (hasGameIframeRetry) {
+        console.log('[Aviator Analyzer] Iframe detectado após espera! Inicializando...');
         init();
       } else {
-        console.log('[Aviator Analyzer] Jogo não encontrado após espera.');
+        console.log('[Aviator Analyzer] Iframe do jogo não encontrado após espera.');
       }
     }, 3000);
   }
