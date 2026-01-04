@@ -265,6 +265,8 @@ export class PatternService {
     if (lastPinkIndex === -1) return null;
     
     const pinkIndices = values
+      .slice(0, 25) // User Request: STRICT Momentum (Last 25 candles only). 
+      // If no pattern here, we don't play.
       .map((v, i) => (v >= 10.0 ? i : -1))
       .filter(i => i !== -1);
       
