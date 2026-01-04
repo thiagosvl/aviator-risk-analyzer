@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Configuração de Testes - Aviator Analyzer",
+  "description": "Parâmetros centralizados para geração e validação de testes",
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-04",
+  
+  "simulation": {
+    "description": "Parâmetros de simulação de gráficos",
+    "totalRounds": 60,
+    "initialRounds": 25,
+    "playableRounds": 35,
+    "comment": "Total = 60 rodadas. Primeiras 25 = histórico inicial (não jogáveis). Últimas 35 = jogáveis."
+  },
+  
+  "bankroll": {
+    "description": "Configuração de banca e apostas",
+    "initialBalance": 1000.00,
+    "bet2x": 100.00,
+    "bet10x": 50.00,
+    "currency": "BRL",
+    "comment": "Valores padrão para simulações. Ajuste conforme necessário."
+  },
+  
+  "rules": {
+    "description": "Regras V3 - Padrões Confirmados",
+    "version": "V3",
+    "pinkStrategy": {
+      "minOccurrences": 2,
+      "minConfidence": 65,
+      "momentumWindow": 25,
+      "toleranceMargin": 1,
+      "comment": "Só joga padrões com ≥2 ocorrências, confiança ≥65%, janela de 25 velas, margem ±1"
+    },
+    "purpleStrategy": {
+      "minConversionRate": 50,
+      "stopLossStreak": -2,
+      "postPinkLockCandles": 3,
+      "doubleBlueException": 1,
+      "deepDowntrendThreshold": 3,
+      "comment": "Conversão ≥50%, stop loss em 2 reds, trava 3 velas pós-rosa (exceto se double blue ≤1)"
+    },
+    "density": {
+      "high": 10,
+      "medium": 6,
+      "window": 50,
+      "comment": "Densidade ALTA: ≥10% rosas, MÉDIA: ≥6% rosas, janela de 50 velas"
+    }
+  },
+  
+  "generation": {
+    "description": "Parâmetros de geração de gráficos",
+    "houseEdge": 0.04,
+    "rtp": 0.96,
+    "formula": "(1 - houseEdge) / (1 - random())",
+    "minValue": 1.00,
+    "expectedDistribution": {
+      "blue": "~50% (<2.00x)",
+      "purple": "~40% (2.00-9.99x)",
+      "pink": "~10-12% (≥10.00x)"
+    },
+    "comment": "Usa fórmula de crash com house edge 4% (RTP 96%). Valores arredondados para 2 casas decimais."
+  },
+  
+  "validation": {
+    "description": "Critérios de validação de testes",
+    "minScenarios": 30,
+    "acceptableROI": {
+      "min": -10,
+      "max": 50,
+      "comment": "ROI entre -10% e +50% é considerado realista"
+    },
+    "winRate": {
+      "min": 40,
+      "max": 70,
+      "comment": "Taxa de acerto entre 40% e 70% é considerada saudável"
+    },
+    "maxConsecutiveLosses": 5,
+    "comment": "Validações para garantir que testes sejam realistas e não enviesados"
+  },
+  
+  "output": {
+    "description": "Configuração de saída de testes",
+    "format": "markdown",
+    "includeVisuals": true,
+    "includeStepByStep": true,
+    "includeStatistics": true,
+    "groupBy": "scenario",
+    "comment": "Formato Markdown com emojis visuais, tabela passo a passo e estatísticas consolidadas"
+  },
+  
+  "scenarios": {
+    "description": "Tipos de cenários de teste",
+    "types": [
+      {
+        "name": "balanced",
+        "description": "Gráfico equilibrado (distribuição normal)",
+        "expectedDensity": "MEDIUM",
+        "expectedROI": "0-10%"
+      },
+      {
+        "name": "high_density",
+        "description": "Gráfico com alta densidade de rosas",
+        "expectedDensity": "HIGH",
+        "expectedROI": "10-30%"
+      },
+      {
+        "name": "low_density",
+        "description": "Gráfico ruim (poucas rosas, muitas azuis)",
+        "expectedDensity": "LOW",
+        "expectedROI": "-10-0%"
+      },
+      {
+        "name": "confirmed_patterns",
+        "description": "Gráfico com padrões confirmados (≥2 ocorrências)",
+        "expectedDensity": "MEDIUM-HIGH",
+        "expectedROI": "15-40%"
+      },
+      {
+        "name": "no_patterns",
+        "description": "Gráfico sem padrões confirmados",
+        "expectedDensity": "ANY",
+        "expectedROI": "~0% (não joga)"
+      }
+    ]
+  },
+  
+  "metrics": {
+    "description": "Métricas a serem calculadas",
+    "required": [
+      "totalPlays",
+      "wins",
+      "losses",
+      "winRate",
+      "totalProfit",
+      "roi",
+      "maxDrawdown",
+      "avgProfitPerPlay",
+      "plays2x",
+      "playsPink",
+      "winRate2x",
+      "winRatePink"
+    ],
+    "optional": [
+      "sharpeRatio",
+      "maxConsecutiveWins",
+      "maxConsecutiveLosses",
+      "profitFactor"
+    ]
+  },
+  
+  "debugging": {
+    "description": "Configurações de debug",
+    "verbose": false,
+    "logDecisions": true,
+    "logPatterns": true,
+    "logDensity": false,
+    "comment": "Ative verbose para logs detalhados durante desenvolvimento"
+  }
+}
