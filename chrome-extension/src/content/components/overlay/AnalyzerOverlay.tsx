@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
+import { stealthMode } from '@src/content/services/stealthMode';
 
 export const AnalyzerOverlay = () => {
   // Conexão com o Bridge via Hook
@@ -37,6 +38,7 @@ export const AnalyzerOverlay = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isEditingBalance, setIsEditingBalance] = useState(false);
   const [balanceInput, setBalanceInput] = useState('1000.00');
+  const [isStealthMode, setIsStealthMode] = useState(false);
 
   // Draggable State - DEFAULT POSITION LEFT
   const [position, setPosition] = useState({ x: 20, y: 100 }); 
@@ -299,13 +301,33 @@ export const AnalyzerOverlay = () => {
            </div>
         </div>
 
-        {/* BOTÃO EXPANDIR */}
-        <button 
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] rounded flex items-center justify-center gap-1 transition-colors"
-        >
-          {isExpanded ? <><ChevronUp size={12}/> Ocultar Detalhes</> : <><ChevronDown size={12}/> Expandir Análise Detalhada</>}
-        </button>
+        {/* BOTÕES DE CONTROLE */}
+        <div className="flex gap-2">
+          {/* BOTÃO STEALTH MODE */}
+          <button 
+            onClick={() => {
+              const newState = stealthMode.toggle();
+              setIsStealthMode(newState);
+            }}
+            className={cn(
+              "flex-1 py-1 text-[10px] rounded flex items-center justify-center gap-1 transition-colors",
+              isStealthMode 
+                ? "bg-indigo-900 hover:bg-indigo-800 text-indigo-200 border border-indigo-500" 
+                : "bg-slate-800 hover:bg-slate-700 text-slate-400"
+            )}
+            title="Modo Discreto: Oculta logos e elementos identificáveis"
+          >
+            {isStealthMode ? '🕶️ Discreto ON' : '👁️ Discreto OFF'}
+          </button>
+
+          {/* BOTÃO EXPANDIR */}
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] rounded flex items-center justify-center gap-1 transition-colors"
+          >
+            {isExpanded ? <><ChevronUp size={12}/> Ocultar</> : <><ChevronDown size={12}/> Expandir</>}
+          </button>
+        </div>
 
       </div>
 
