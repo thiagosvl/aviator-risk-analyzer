@@ -2,14 +2,15 @@
  * Hook useGameAnalysis - Gerencia o estado e a lógica de análise em tempo real
  */
 
+import { AnalysisData } from '@src/bridge/messageTypes';
 import { domAnalyzer } from '@src/content/services/domAnalyzer';
 import { patternService } from '@src/content/services/patternService';
-import { AnalyzerConfig, GameState, PatternAnalysis } from '@src/content/types';
+import { AnalyzerConfig, GameState } from '@src/content/types';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface UseGameAnalysisReturn {
   gameState: GameState;
-  analysis: PatternAnalysis;
+  analysis: AnalysisData;
   isAnalyzing: boolean;
   error: string | null;
   startAnalysis: () => void;
@@ -27,21 +28,13 @@ export function useGameAnalysis(
     history: [],
   });
 
-  const [analysis, setAnalysis] = useState<PatternAnalysis>({
-    riskLevel: 'low',
-    confidence: 0,
-    recommendation: 'Aguardando início da análise...',
-    volatility: 0,
-    avgMultiplier: 0,
-    minMultiplier: 0,
-    maxMultiplier: 0,
-    streak: 0,
-    pinkDistance: 0,
-    avgPostPink: 0,
-    medianPostPink: 0,
-    winRate: 0,
-    lastCandles: [],
-    patterns: [],
+  const [analysis, setAnalysis] = useState<AnalysisData>({
+    recommendation: { action: 'WAIT', reason: 'Aguardando início...', riskLevel: 'LOW', confidence: 0 },
+    pinkPattern: undefined,
+    purpleStreak: 0,
+    conversionRate: 0,
+    volatilityDensity: 'LOW',
+    candlesSinceLastPink: 0
   });
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);

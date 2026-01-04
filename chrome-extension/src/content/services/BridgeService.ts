@@ -1,62 +1,63 @@
-export enum BridgeMessageType {
-  GAME_UPDATE = 'AVIATOR_ANALYZER_UPDATE',
-  PING = 'AVIATOR_ANALYZER_PING',
-}
-
-export interface BridgeMessage<T = any> {
-  type: BridgeMessageType;
-  payload: T;
-  timestamp: number;
-  source: 'aviator-spy';
-}
+import { BridgeMessage, MessageType } from '@src/bridge/messageTypes';
 
 class BridgeService {
-  private listeners: ((message: BridgeMessage) => void)[] = [];
+  private static instance: BridgeService;
+  private listeners: Map<MessageType, Function[]> = new Map();
+  private isListening = false;
 
-  constructor() {
+  private constructor() {
     this.initListener();
   }
 
+  public static getInstance(): BridgeService {
+    if (!BridgeService.instance) {
+      BridgeService.instance = new BridgeService();
+    }
+    return BridgeService.instance;
+  }
+
   private initListener() {
+    if (this.isListening) return;
+    
     window.addEventListener('message', (event) => {
-      // Security check: You might want to validate event.origin here if needed
-      // For now, we accept all messages but filter by our custom type structure
+      // Validate origin if needed (for now accept all, but filter by source)
       const data = event.data as BridgeMessage;
-      
-      if (data?.source === 'aviator-spy' && data.type) {
-        this.notifyListeners(data);
+
+      if (data && data.source === 'AVIATOR_SPY' && data.type) {
+        this.notifyListeners(data.type, data.payload);
       }
     });
+
+    this.isListening = true;
   }
 
-  /**
-   * Sends a message from the iframe to the parent window
-   */
-  public sendToParent<T>(type: BridgeMessageType, payload: T) {
-    if (window.parent && window.parent !== window) {
-      const message: BridgeMessage<T> = {
-        type,
-        payload,
-        timestamp: Date.now(),
-        source: 'aviator-spy',
-      };
-      window.parent.postMessage(message, '*'); // TargetOrigin '*' allows any parent (convenient for extension)
-    }
-  }
-
-  /**
-   * Subscribe to messages (used by the Top Window / UI)
-   */
-  public onMessage(callback: (message: BridgeMessage) => void) {
-    this.listeners.push(callback);
-    return () => {
-      this.listeners = this.listeners.filter(l => l !== callback);
+  // Send message FROM Iframe TO Top Frame
+  public sendToTop<T>(type: MessageType, payload: T) {
+    const message: BridgeMessage<T> = {
+      type,
+      payload,
+      timestamp: Date.now(),
+      source: 'AVIATOR_SPY'
     };
+
+    // Send to parent (Top Frame)
+    window.parent.postMessage(message, '*');
   }
 
-  private notifyListeners(message: BridgeMessage) {
-    this.listeners.forEach(listener => listener(message));
+  // Listen for messages (Usually in Top Frame receiving from Iframe)
+  public on<T>(type: MessageType, callback: (payload: T) => void) {
+    if (!this.listeners.has(type)) {
+      this.listeners.set(type, []);
+    }
+    this.listeners.get(type)?.push(callback);
+  }
+
+  private notifyListeners(type: MessageType, payload: any) {
+    const callbacks = this.listeners.get(type);
+    if (callbacks) {
+      callbacks.forEach(cb => cb(payload));
+    }
   }
 }
 
-export const bridgeService = new BridgeService();
+export const bridge = BridgeService.getInstance();

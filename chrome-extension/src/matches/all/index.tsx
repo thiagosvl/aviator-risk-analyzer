@@ -15,7 +15,6 @@ console.log('[Aviator Analyzer] Content script carregado!');
 const ROOT_ID = 'aviator-analyzer-root';
 
 import { ContentSpy } from '@src/content/components/spy/ContentSpy';
-import { useGameBridge } from '@src/content/hooks/useGameBridge';
 
 // Componente Wrapper para decidir qual modo usar
 const App = () => {
@@ -29,8 +28,8 @@ const App = () => {
 };
 
 const ParentOverlay = () => {
-  const controller = useGameBridge();
-  return <AnalyzerOverlay controller={controller} />;
+  // O Overlay agora gerencia seu próprio estado via useOverseer (conectado ao Bridge)
+  return <AnalyzerOverlay />;
 };
 
 const init = () => {

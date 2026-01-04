@@ -1,18 +1,18 @@
 import { useGameAnalysis } from '@src/content/hooks/useGameAnalysis';
-import { BridgeMessageType, bridgeService } from '@src/content/services/BridgeService';
+import { bridge } from '@src/content/services/BridgeService';
 import { useEffect } from 'react';
 
 export const ContentSpy = () => {
   const { gameState, analysis, startAnalysis } = useGameAnalysis();
 
-  // Start analysis immediately when mounted
+  // Start analysis immediately when mounted (in Iframe)
   useEffect(() => {
     startAnalysis();
   }, [startAnalysis]);
 
-  // Broadcast updates to the bridge
+  // Broadcast updates to the bridge (Top Frame)
   useEffect(() => {
-    bridgeService.sendToParent(BridgeMessageType.GAME_UPDATE, {
+    bridge.sendToTop('GAME_UPDATE', {
       gameState,
       analysis,
     });
