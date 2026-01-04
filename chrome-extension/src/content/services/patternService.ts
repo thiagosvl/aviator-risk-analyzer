@@ -80,9 +80,9 @@ export class PatternService {
     // streak <= -2 significa 2 ou mais azuis
     const isStopLoss = streak <= -2;
 
-    // 4.4 Sequência Roxa (Validation)
-    // Se streak >= 1 (tem roxa), validamos se vale entrar na próxima
-    const isPurpleStreakValid = streak >= 1 && purpleConversionRate >= 50;
+    // 4.4 Sequência Roxa (Validation) - V3 Melhorado
+    // Exige 2+ roxas e conversão ≥60% (ao invés de 1+ roxa e 50%)
+    const isPurpleStreakValid = streak >= 2 && purpleConversionRate >= 60;
 
     // 5. GERAR RECOMENDAÇÕES INDEPENDENTES
     const rec2x = this.decideAction2x(streak, candlesSinceLastPink, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, lockReason, values);
@@ -136,7 +136,7 @@ export class PatternService {
       const deepDowntrend = this.checkDeepDowntrend(values);
        
       if (streak === 1) {
-          // Standard Retomada (Wait for 2nd)
+          // V3 Melhorado: Aguarda 2ª roxa (não joga ainda)
           return {
                action: 'WAIT',
                reason: deepDowntrend 
@@ -144,6 +144,16 @@ export class PatternService {
                   : 'Aguardando 2ª vela roxa para confirmar.',
                riskLevel: 'MEDIUM',
                confidence: 80
+          };
+      }
+      
+      if (streak === 2 && !deepDowntrend) {
+          // V3 Melhorado: Com 2 roxas, aguarda 3ª para jogar
+          return {
+               action: 'WAIT',
+               reason: 'Aguardando 3ª vela roxa para confirmar sequência.',
+               riskLevel: 'MEDIUM',
+               confidence: 75
           };
       }
       
@@ -156,19 +166,19 @@ export class PatternService {
            };
       }
   
-      // 4. JOGO EM SEQUENCIA
-      if (streak >= 2) {
+      // 4. JOGO EM SEQUENCIA - V3 Melhorado: Exige 3+ roxas
+      if (streak >= 3) {
          if (isValidStreak) {
              return {
                  action: 'PLAY_2X',
-                 reason: 'Surfando Sequência (Conversão > 50%).',
+                 reason: 'Surfando Sequência (Conversão ≥60%).',
                  riskLevel: 'LOW',
                  confidence: 85
              };
          } else {
              return {
                  action: 'WAIT',
-                 reason: 'Sequência Suspeita (Conversão Baixa).',
+                 reason: 'Sequência Suspeita (Conversão Baixa <60%).',
                  riskLevel: 'MEDIUM',
                  confidence: 50
              };
@@ -185,7 +195,8 @@ export class PatternService {
   }
 
   private decideActionPink(pinkPattern: PatternData & { displayName?: string, occurrences?: number } | null): Recommendation {
-      if (pinkPattern && pinkPattern.confidence >= 65 && Math.abs(pinkPattern.candlesUntilMatch) <= 1) {
+      // V3 Melhorado: Confiança 75%, Intervalo mínimo 5 velas
+      if (pinkPattern && pinkPattern.confidence >= 75 && Math.abs(pinkPattern.candlesUntilMatch) <= 1 && pinkPattern.interval >= 5) {
           const typeMap: Record<string, string> = { 'DIAMOND': '💎', 'GOLD': '🥇', 'SILVER': '🥈' };
           const icon = typeMap[pinkPattern.type] || '';
           
@@ -283,9 +294,16 @@ export class PatternService {
     const frequencyMap = new Map<number, number>();
     intervals.forEach(int => frequencyMap.set(int, (frequencyMap.get(int) || 0) + 1));
 
-    // Filter Confirmed Intervals (>= 2 occurrences)
+    // Filter Confirmed Intervals - V3 Melhorado: Ocorrências por intervalo
     const confirmedIntervals = Array.from(frequencyMap.entries())
-        .filter(([_, count]) => count >= 2)
+        .filter(([interval, count]) => {
+            // Intervalos curtos (1-4): exige 4+ ocorrências (muito raro, praticamente remove)
+            if (interval < 5) return count >= 4;
+            // Intervalos médios (5-9): exige 3+ ocorrências
+            if (interval < 10) return count >= 3;
+            // Intervalos longos (10+): exige 2+ ocorrências
+            return count >= 2;
+        })
         .sort((a, b) => b[1] - a[1]); // Sort by frequency desc
 
     if (confirmedIntervals.length === 0) return null;

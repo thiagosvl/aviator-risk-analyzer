@@ -114,7 +114,7 @@ class PatternService {
     }
 
     const isStopLoss = streak <= -2;
-    const isPurpleStreakValid = streak >= 1 && purpleConversionRate >= 50;
+    const isPurpleStreakValid = streak >= 2 && purpleConversionRate >= 60;
 
     const rec2x = this.decideAction2x(streak, candlesSinceLastPink, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, lockReason, values);
     const recPink = this.decideActionPink(pinkPattern);
@@ -198,7 +198,7 @@ class PatternService {
   }
 
   private decideActionPink(pinkPattern: PatternData & { displayName?: string, occurrences?: number } | null): Recommendation {
-      if (pinkPattern && pinkPattern.confidence >= 65 && Math.abs(pinkPattern.candlesUntilMatch) <= 1) {
+      if (pinkPattern && pinkPattern.confidence >= 75 && Math.abs(pinkPattern.candlesUntilMatch) <= 1) {
           const typeMap: Record<string, string> = { 'DIAMOND': '💎', 'GOLD': '🥇', 'SILVER': '🥈' };
           const icon = typeMap[pinkPattern.type] || '';
           
@@ -377,7 +377,7 @@ console.log(`# 🎰 TESTE DE CENÁRIOS - AVIATOR ANALYZER V3\n`);
 console.log(`**Data:** ${new Date().toLocaleDateString('pt-BR')}`);
 console.log(`**Versão:** V3 (Padrões Confirmados)`);
 console.log(`**Cenários:** ${numScenarios}`);
-console.log(`**Banca Inicial:** R$ ${config.bankroll.initialBalance.toFixed(2)}`);
+console.log(`**Banca Inicial:** R$ ${config.bankroll.initial.toFixed(2)}`);
 console.log(`**Apostas:** 2x = R$ ${config.bankroll.bet2x.toFixed(2)} | 10x = R$ ${config.bankroll.bet10x.toFixed(2)}\n`);
 console.log(`---\n`);
 
@@ -386,7 +386,7 @@ const allResults: any[] = [];
 for (let s = 1; s <= numScenarios; s++) {
     const allCandles = Array.from({ length: config.simulation.totalRounds }, () => generateRoundValue());
     
-    let balance = config.bankroll.initialBalance;
+    let balance = config.bankroll.initial;
     const historyBuffer = allCandles.slice(0, config.simulation.initialRounds);
     const liveCandles = allCandles.slice(config.simulation.initialRounds);
     
@@ -484,8 +484,8 @@ for (let s = 1; s <= numScenarios; s++) {
     }
     
     // Resultados
-    const finalProfit = balance - config.bankroll.initialBalance;
-    const roi = (finalProfit / config.bankroll.initialBalance) * 100;
+    const finalProfit = balance - config.bankroll.initial;
+    const roi = (finalProfit / config.bankroll.initial) * 100;
     const winRate = totalPlays > 0 ? (wins / totalPlays) * 100 : 0;
     const winRate2x = plays2x > 0 ? (wins2x / plays2x) * 100 : 0;
     const winRatePink = playsPink > 0 ? (winsPink / playsPink) * 100 : 0;
