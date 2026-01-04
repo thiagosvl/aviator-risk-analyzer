@@ -11,7 +11,8 @@ export const useOverseer = () => {
   });
 
   const [analysis, setAnalysis] = useState<AnalysisData>({
-    recommendation: { action: 'WAIT', reason: 'Aguardando dados...', riskLevel: 'LOW', confidence: 0 },
+    recommendation2x: { action: 'WAIT', reason: 'Inicializando...', riskLevel: 'LOW', confidence: 0 },
+    recommendationPink: { action: 'WAIT', reason: 'Inicializando...', riskLevel: 'LOW', confidence: 0 },
     pinkPattern: undefined,
     purpleStreak: 0,
     conversionRate: 0,

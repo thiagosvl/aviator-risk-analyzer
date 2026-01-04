@@ -17,61 +17,8 @@ export interface BankrollStats {
   totalProfit: number;
 }
 
-export function useBankroll(gameState: GameState, analysis: AnalysisData) {
-  const [balance, setBalance] = useState(100.00); // Default start
-  const [betHistory, setBetHistory] = useState<BetResult[]>([]);
-  const [currentBet, setCurrentBet] = useState<{ action: string, target: number } | null>(null);
-  const [lastProcessedCrash, setLastProcessedCrash] = useState<number | null>(null);
+// Deprecated function removed
 
-  // Stats
-  const stats: BankrollStats = {
-    greens: betHistory.filter(b => b.profit > 0).length,
-    reds: betHistory.filter(b => b.profit < 0).length,
-    totalProfit: betHistory.reduce((acc, b) => acc + b.profit, 0)
-  };
-
-  useEffect(() => {
-    // 1. Detect Start of Round (Waiting -> Flying)
-    // Actually, checking "recommendation" during 'Waiting' is safer.
-    // If we are 'Waiting' and recommendation is PLAY, we prepare the bet.
-    
-    if (!gameState.isFlying && analysis.recommendation.action.includes('PLAY')) {
-        const target = analysis.recommendation.action === 'PLAY_10X' ? 10.0 : 2.0;
-        // Don't set state in a loop, but we can store "Intention"
-        // Better: When Flying Starts, if we had an intention, we lock it.
-    }
-
-    // Simplified Logic: Monitor transitions
-    // We rely on "gameState.isFlying" changing from true to false to resolve.
-    // But we need to know what the recommendation WAS when the flight started.
-    // This is tricky with React checks.
-    
-    // Alternative: Just check if we processed this specific history item (latest crash)
-    const latestCrash = gameState.history[0];
-    if (!latestCrash) return;
-
-    // If this is a new crash we haven't processed
-    if (latestCrash.timestamp !== lastProcessedCrash) {
-        // Resolve logic
-        // We look at the recommendation *right now*? No, that's for next round.
-        // We should have saved the recommendation from BEFORE the crash.
-        // But since this is a simple simulator, let's assume the user followed the LAST VALID recommendation they saw.
-        
-        // However, technically, when crash happens, the 'analysis' might already be updating for the next round? 
-        // No, analysis runs on 'gameState'. If gameState just updated with new crash, analysis analyzes that crash for the NEXT prediction.
-        
-        // This means we lost the "Previous Prediction". 
-        // We need a ref to store "Pending Bet".
-    }
-  }, [gameState.lastCrash]); // Trigger only on new crash?? No, trigger on flying change.
-
-  return {
-    balance,
-    setBalance,
-    history: betHistory,
-    stats
-  };
-}
 
 // Rewriting for proper logic with a Ref to hold state between renders
 import { useRef } from 'react';
@@ -84,65 +31,98 @@ export function useBankrollLogic(
     const [balance, setBalance] = useState(1000.00);
     const [history, setHistory] = useState<BetResult[]>([]);
     
-    // Stores the bet that was "placed" at the start of the current flight
-    // We also store the 'startCrash' (last known crash when we placed the bet)
-    // to verify if the crash we see later is actually new.
-    const pendingBetRef = useRef<{ action: string, target: number, amount: number, startCrash: number | null } | null>(null);
-    const wasFlyingRef = useRef(false);
+    // We store the "Planned Bets" for the UPCOMING round here.
+    // This is updated continuously by the analysis.
+    const plannedBetsRef = useRef<{ 
+        bet2x: { action: string, target: number, amount: number } | null,
+        betPink: { action: string, target: number, amount: number } | null
+    }>({ bet2x: null, betPink: null });
+    
+    // We track the timestamp of the last processed candle to avoid double-counting
+    // Initialize with 0, but we will sync it to the current latest on first effect run.
+    const lastProcessedTimeRef = useRef<number>(0);
+    const isInitializedRef = useRef<boolean>(false);
 
-    // Monitor Flying State
+    // 1. CONTINUOUSLY UPDATE PLANNED BETS BASED ON ANALYSIS
     useEffect(() => {
-        // Flying Started (False -> True)
-        if (gameState.isFlying && !wasFlyingRef.current) {
-            const action = analysis.recommendation.action;
-            const lastKnownCrash = gameState.lastCrash || 0;
-            
-            console.log('[Bankroll] Round Started. Rec:', action, 'LastCrash:', lastKnownCrash);
+        const rec2x = analysis.recommendation2x || { action: 'WAIT' };
+        const recPink = analysis.recommendationPink || { action: 'WAIT' };
+        
+        const newPlan = { bet2x: null, betPink: null } as any;
 
-            if (action === 'PLAY_2X') {
-                pendingBetRef.current = { action, target: 2.00, amount: betConfig.bet2x, startCrash: lastKnownCrash };
-            } else if (action === 'PLAY_10X') {
-                pendingBetRef.current = { action, target: 10.00, amount: betConfig.bet10x, startCrash: lastKnownCrash };
-            } else {
-                pendingBetRef.current = null; // WAIT or STOP
-            }
+        if (rec2x.action === 'PLAY_2X') {
+            newPlan.bet2x = { action: 'PLAY_2X', target: 2.00, amount: betConfig.bet2x };
         }
         
-        // Flight Ended (True -> False) -> CRASH
-        if (!gameState.isFlying && wasFlyingRef.current) {
-            // Resolve Bet
-            const crashValue = gameState.lastCrash || 0;
-            const bet = pendingBetRef.current;
-            
-            console.log('[Bankroll] Round Ended. Crash:', crashValue, 'Bet:', bet);
-            
-            if (bet) {
-                // Determine Win/Loss
-                const win = crashValue >= bet.target;
-                
-                // Profit Calculation:
-                const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
-                const newBalance = balance + profit;
-                
-                const result: BetResult = {
-                    roundId: Date.now(),
-                    action: bet.action,
-                    crashPoint: crashValue,
-                    profit: parseFloat(profit.toFixed(2)),
-                    balanceAfter: parseFloat(newBalance.toFixed(2)),
-                    timestamp: new Date().toLocaleTimeString()
-                };
-
-                setBalance(prev => parseFloat((prev + profit).toFixed(2)));
-                setHistory(prev => [result, ...prev].slice(0, 50)); 
-            }
-            
-            // Reset pending
-            pendingBetRef.current = null;
+        if (recPink.action === 'PLAY_10X') {
+            newPlan.betPink = { action: 'PLAY_10X', target: 10.00, amount: betConfig.bet10x };
         }
 
-        wasFlyingRef.current = gameState.isFlying;
-    }, [gameState.isFlying, gameState.lastCrash, analysis, betConfig]); 
+        plannedBetsRef.current = newPlan;
+    }, [analysis, betConfig]);
+
+
+    // 2. DETECT NEW ROUND (HISTORY UPDATE) AND RESOLVE
+    useEffect(() => {
+        const latestCandle = gameState.history[0];
+        
+        if (!latestCandle) return;
+
+        // Initialization: Sync to current latest to ignore past history
+        if (!isInitializedRef.current) {
+            lastProcessedTimeRef.current = latestCandle.timestamp;
+            isInitializedRef.current = true;
+            return;
+        }
+
+        // Check if this is a NEW candle
+        if (latestCandle.timestamp > lastProcessedTimeRef.current) {
+            
+            const crashValue = latestCandle.value;
+            const bets = plannedBetsRef.current;
+            
+            console.log(`[Bankroll] 🎯 NEW ROUND DETECTED: ${crashValue}x. Resolving bets...`, bets);
+
+            const activeBets = [bets.bet2x, bets.betPink].filter(Boolean);
+
+            if (activeBets.length > 0) {
+                let totalRoundProfit = 0;
+                const results: BetResult[] = [];
+
+                activeBets.forEach((bet) => {
+                    if (!bet) return;
+
+                    const win = crashValue >= bet.target;
+                    const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
+                    totalRoundProfit += profit;
+
+                    results.push({
+                        roundId: latestCandle.timestamp + Math.random(),
+                        action: bet.action,
+                        crashPoint: crashValue,
+                        profit: parseFloat(profit.toFixed(2)),
+                        balanceAfter: 0,
+                        timestamp: new Date().toLocaleTimeString()
+                    });
+                    
+                    console.log(`   > Bet ${bet.action}: ${win ? 'WIN' : 'LOSS'} (${profit > 0 ? '+' : ''}${profit})`);
+                });
+
+                setBalance(prev => {
+                    const next = parseFloat((prev + totalRoundProfit).toFixed(2));
+                    results.forEach(r => r.balanceAfter = next);
+                    return next;
+                });
+
+                setHistory(prev => [...results, ...prev].slice(0, 50)); 
+            } else {
+                 console.log(`   > No active bets for this round.`);
+            }
+
+            // Mark as processed
+            lastProcessedTimeRef.current = latestCandle.timestamp;
+        }
+    }, [gameState.history]);
 
     const stats: BankrollStats = {
         greens: history.filter(h => h.profit > 0).length,

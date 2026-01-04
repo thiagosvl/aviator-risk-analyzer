@@ -71,19 +71,13 @@ export class PatternService {
     // Se streak >= 1 (tem roxa), validamos se vale entrar na próxima
     const isPurpleStreakValid = streak >= 1 && purpleConversionRate >= 50;
 
-    // 5. GERAR RECOMENDAÇÃO (Decision Matrix)
-    const recommendation = this.decideAction(
-      streak,
-      candlesSinceLastPink,
-      isPostPinkLock,
-      isStopLoss,
-      isPurpleStreakValid,
-      pinkPattern,
-      volatilityDensity
-    );
+    // 5. GERAR RECOMENDAÇÕES INDEPENDENTES
+    const rec2x = this.decideAction2x(streak, candlesSinceLastPink, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity);
+    const recPink = this.decideActionPink(pinkPattern);
 
     return {
-      recommendation,
+      recommendation2x: rec2x,
+      recommendationPink: recPink,
       pinkPattern: pinkPattern || undefined,
       purpleStreak: streak > 0 ? streak : 0,
       conversionRate: Math.round(purpleConversionRate),
@@ -92,6 +86,100 @@ export class PatternService {
     };
   }
 
+  private decideAction2x(
+    streak: number,
+    sincePink: number,
+    isLock: boolean,
+    isStopLoss: boolean,
+    isValidStreak: boolean,
+    density: 'LOW' | 'MEDIUM' | 'HIGH'
+  ): Recommendation {
+      // 1. TRAVA PÓS-ROSA
+      if (isLock) {
+         return {
+           action: 'WAIT',
+           reason: `Trava Pós-Rosa (${sincePink}/3). Aguarde correção.`,
+           riskLevel: 'CRITICAL',
+           confidence: 100
+         };
+      }
+  
+      // 2. STOP LOSS (2 Azuis)
+      if (isStopLoss) {
+         // Regra de RETOMADA
+         return {
+           action: 'STOP',
+           reason: 'Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.',
+           riskLevel: 'HIGH',
+           confidence: 90
+         };
+      }
+  
+      // 3. RETOMADA RIGOROSA CHECK
+      if (streak === 1) {
+          if (density === 'HIGH') {
+              return {
+                  action: 'PLAY_2X',
+                  reason: 'Retomada Agressiva (Alta Densidade).',
+                  riskLevel: 'MEDIUM',
+                  confidence: 60
+              };
+          }
+          return {
+               action: 'WAIT',
+               reason: 'Aguardando 2ª vela roxa para confirmar.',
+               riskLevel: 'MEDIUM',
+               confidence: 80
+          };
+      }
+  
+      // 4. JOGO EM SEQUENCIA
+      if (streak >= 2) {
+         if (isValidStreak) {
+             return {
+                 action: 'PLAY_2X',
+                 reason: 'Surfando Sequência (Conversão > 50%).',
+                 riskLevel: 'LOW',
+                 confidence: 85
+             };
+         } else {
+             return {
+                 action: 'WAIT',
+                 reason: 'Sequência Suspeita (Conversão Baixa).',
+                 riskLevel: 'MEDIUM',
+                 confidence: 50
+             };
+         }
+      }
+  
+      // Default: Wait
+      return {
+          action: 'WAIT',
+          reason: 'Aguardando oportunidade clara.',
+          riskLevel: 'MEDIUM',
+          confidence: 50
+      };
+  }
+
+  private decideActionPink(pinkPattern: PatternData & { displayName?: string } | null): Recommendation {
+      if (pinkPattern && pinkPattern.confidence >= 60 && Math.abs(pinkPattern.candlesUntilMatch) <= 1) {
+          return {
+            action: 'PLAY_10X',
+            reason: `Padrão ${pinkPattern.displayName || pinkPattern.type} Detectado!`,
+            riskLevel: 'LOW',
+            confidence: pinkPattern.confidence
+          };
+       }
+
+       return {
+           action: 'WAIT',
+           reason: 'Buscando padrão...',
+           riskLevel: 'LOW',
+           confidence: 0
+       };
+  }
+
+  // Helper getters
   private calculateStreak(values: number[]): number {
     if (values.length === 0) return 0;
     const firstIsBlue = values[0] < 2.0;
@@ -129,7 +217,10 @@ export class PatternService {
         }
     }
 
-    return opportunities === 0 ? 0 : (conversions / opportunities) * 100;
+    // Requiere amostragem mínima para não dar 100% ou 0% aleatório
+    if (opportunities < 2) return 0;
+
+    return (conversions / opportunities) * 100;
   }
 
   private detectPinkPattern(values: number[], lastPinkIndex: number, density: string): PatternData | null {
@@ -191,113 +282,10 @@ export class PatternService {
     return null;
   }
 
-  private decideAction(
-    streak: number,
-    sincePink: number,
-    isLock: boolean,
-    isStopLoss: boolean,
-    isValidStreak: boolean,
-    pinkPattern: PatternData & { displayName?: string } | null,
-    density: 'LOW' | 'MEDIUM' | 'HIGH'
-  ): Recommendation {
-
-    // 1. PRIORIDADE MAXIMA: STOP LOSS DIÁRIO OU EMOCIONAL (Não temos acesso à banca aqui, então ignora)
-
-    // 2. PADRÃO ROSA (Independência)
-    // Se tiver padrão rosa forte, ignora travas leves
-    if (pinkPattern && pinkPattern.confidence >= 75 && Math.abs(pinkPattern.candlesUntilMatch) <= 1) {
-       return {
-         action: 'PLAY_10X',
-         reason: `Padrão ${pinkPattern.displayName || pinkPattern.type} Detectado!`,
-         riskLevel: 'LOW', // Risco baixo porque o payout é alto vs custo
-         confidence: pinkPattern.confidence
-       };
-    }
-
-    // 3. TRAVA PÓS-ROSA
-    if (isLock) {
-       return {
-         action: 'WAIT',
-         reason: `Trava Pós-Rosa (${sincePink}/3). Aguarde correção.`,
-         riskLevel: 'CRITICAL',
-         confidence: 100
-       };
-    }
-
-    // 4. STOP LOSS (2 Azuis)
-    if (isStopLoss) {
-       // Regra de RETOMADA: Só sai do Stop se:
-       // A) Vier uma Rosa (ja tratamos acima se tiver padrao, se nao, espera aparecer)
-       // B) Vierem 2 Roxas consecutivas (validando a virada)
-       
-       // Aqui estamos analisando ANTES da vela acontecer ou DEPOIS?
-       // Estamos analisando o estado ATUAL para a PROXIMA vela.
-       // Se streak é -2, a ultima foi azul. Proxima? WAIT.
-       
-       return {
-         action: 'STOP',
-         reason: 'Stop Loss Ativo (2 Azuis). Aguarde 2 Roxas ou 1 Rosa.',
-         riskLevel: 'HIGH',
-         confidence: 90
-       };
-    }
-
-    // 5. RETOMADA RIGOROSA CHECK
-    // Se estavamos em stop (o streak anterior era ruim), precisamos de confirmacao.
-    // Se streak atual é 1 (veio uma roxa), mas antes era -2... a gente espera a segunda?
-    // Sim. Regra: "Aguarde 2 roxas consecutivas".
-    // Entao se streak == 1, WAIT. Se streak == 2, PLAY.
-    if (streak === 1) {
-        // Exceção: Se densidade for ALTA, podemos arriscar na primeira?
-        // Relatório diz: "Outliers relaxam filtros".
-        if (density === 'HIGH') {
-            return {
-                action: 'PLAY_2X',
-                reason: 'Retomada Agressiva (Alta Densidade).',
-                riskLevel: 'MEDIUM',
-                confidence: 60
-            };
-        }
-        
-        return {
-             action: 'WAIT',
-             reason: 'Retomada: Aguardando 2ª vela roxa para confirmar.',
-             riskLevel: 'MEDIUM',
-             confidence: 80
-        };
-    }
-
-    // 6. JOGO EM SEQUENCIA
-    if (streak >= 2) {
-       if (isValidStreak) {
-           return {
-               action: 'PLAY_2X',
-               reason: 'Surfando Sequência (Conversão > 50%).',
-               riskLevel: 'LOW',
-               confidence: 85
-           };
-       } else {
-           return {
-               action: 'WAIT',
-               reason: 'Sequência Suspeita (Conversão Baixa).',
-               riskLevel: 'MEDIUM',
-               confidence: 50
-           };
-       }
-    }
-
-    // Default: Wait
-    return {
-        action: 'WAIT',
-        reason: 'Aguardando oportunidade clara.',
-        riskLevel: 'MEDIUM',
-        confidence: 50
-    };
-  }
-
   private getDefaultAnalysis(): AnalysisData {
     return {
-      recommendation: { action: 'WAIT', reason: 'Coletando dados...', riskLevel: 'LOW', confidence: 0 },
+      recommendation2x: { action: 'WAIT', reason: 'Coletando dados...', riskLevel: 'LOW', confidence: 0 },
+      recommendationPink: { action: 'WAIT', reason: 'Buscando padrão...', riskLevel: 'LOW', confidence: 0 },
       purpleStreak: 0,
       conversionRate: 0,
       volatilityDensity: 'LOW',

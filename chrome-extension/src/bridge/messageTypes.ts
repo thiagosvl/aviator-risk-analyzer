@@ -34,7 +34,8 @@ export interface PatternData {
 }
 
 export interface AnalysisData {
-  recommendation: Recommendation;
+  recommendation2x: Recommendation;
+  recommendationPink: Recommendation;
   pinkPattern?: PatternData;
   purpleStreak: number;
   conversionRate: number;
