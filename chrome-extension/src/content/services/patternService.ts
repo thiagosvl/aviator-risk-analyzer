@@ -82,7 +82,7 @@ export class PatternService {
 
     // 4.4 Sequência Roxa (Validation) - V3 Melhorado
     // Exige 2+ roxas e conversão ≥60% (ao invés de 1+ roxa e 50%)
-    const isPurpleStreakValid = streak >= 2 && purpleConversionRate >= 60;
+    const isPurpleStreakValid = streak >= 2 && purpleConversionRate >= 55;
 
     // 5. GERAR RECOMENDAÇÕES INDEPENDENTES
     const rec2x = this.decideAction2x(streak, candlesSinceLastPink, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, lockReason, values);
@@ -167,18 +167,18 @@ export class PatternService {
       }
   
       // 4. JOGO EM SEQUENCIA - V3 Melhorado: Exige 3+ roxas
-      if (streak >= 3) {
+      if (streak >= 2) {
          if (isValidStreak) {
              return {
                  action: 'PLAY_2X',
-                 reason: 'Surfando Sequência (Conversão ≥60%).',
+                 reason: 'Surfando Sequência (Conversão ≥55%).',
                  riskLevel: 'LOW',
                  confidence: 85
              };
          } else {
              return {
                  action: 'WAIT',
-                 reason: 'Sequência Suspeita (Conversão Baixa <60%).',
+                 reason: 'Sequência Suspeita (Conversão Baixa <55%).',
                  riskLevel: 'MEDIUM',
                  confidence: 50
              };
@@ -196,7 +196,7 @@ export class PatternService {
 
   private decideActionPink(pinkPattern: PatternData & { displayName?: string, occurrences?: number } | null): Recommendation {
       // V3 Melhorado: Confiança 75%, Intervalo mínimo 5 velas
-      if (pinkPattern && pinkPattern.confidence >= 75 && Math.abs(pinkPattern.candlesUntilMatch) <= 1 && pinkPattern.interval >= 5) {
+      if (pinkPattern && pinkPattern.confidence >= 70 && Math.abs(pinkPattern.candlesUntilMatch) <= 1 && pinkPattern.interval >= 3) {
           const typeMap: Record<string, string> = { 'DIAMOND': '💎', 'GOLD': '🥇', 'SILVER': '🥈' };
           const icon = typeMap[pinkPattern.type] || '';
           
@@ -298,9 +298,9 @@ export class PatternService {
     const confirmedIntervals = Array.from(frequencyMap.entries())
         .filter(([interval, count]) => {
             // Intervalos curtos (1-4): exige 4+ ocorrências (muito raro, praticamente remove)
-            if (interval < 5) return count >= 4;
-            // Intervalos médios (5-9): exige 3+ ocorrências
-            if (interval < 10) return count >= 3;
+            if (interval < 3) return count >= 4;
+            // Intervalos médios (3-9): exige 2+ ocorrências
+            if (interval < 10) return count >= 2;
             // Intervalos longos (10+): exige 2+ ocorrências
             return count >= 2;
         })

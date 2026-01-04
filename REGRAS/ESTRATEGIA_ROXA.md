@@ -1,13 +1,8 @@
-# 🟣 ESTRATÉGIA ROXA (2X) - V3 MELHORADA
+# 🟣 ESTRATÉGIA ROXA (2x) - V3 EQUILIBRADA
 
+**Versão:** V3 Equilibrada  
 **Data:** 04/01/2026  
-**Versão:** V3 Melhorada (Otimizada para maior acerto)
-
----
-
-## 🎯 OBJETIVO
-
-Surfar sequências de velas roxas (2-9.99x) com **alta taxa de conversão** e **confirmação rigorosa**.
+**Objetivo:** Surfar sequências de velas roxas (2.00x - 9.99x)
 
 ---
 
@@ -15,316 +10,208 @@ Surfar sequências de velas roxas (2-9.99x) com **alta taxa de conversão** e **
 
 | Parâmetro | Valor | Descrição |
 |-----------|-------|-----------|
-| **Aposta** | R$ 100 | Valor fixo por jogada |
-| **Alvo** | 2.00x | Multiplicador mínimo para green |
-| **Conversão Mínima** | 60% | Taxa mínima de roxas seguidas |
-| **Streak Mínimo (Validar)** | 2 roxas | Para validar sequência |
-| **Streak Mínimo (Jogar)** | 3 roxas | Para começar a jogar |
-| **Stop Loss** | 2 reds | Para após 2 azuis seguidas |
-| **Recuperação Lenta** | 3 roxas | Após 3 azuis seguidas |
-| **Trava Pós-Rosa** | 3 velas | Aguarda após rosa (≥10x) |
+| **Conversão Mínima** | 55% | Taxa mínima de conversão de roxas |
+| **Streak Mínimo (Validar)** | 2 roxas | Mínimo para validar sequência |
+| **Streak Mínimo (Jogar)** | 2 roxas | Mínimo para jogar |
+| **Stop Loss** | 2 azuis | Para após 2 reds seguidos |
+| **Trava Pós-Rosa** | 3 velas | Aguarda 3 velas após rosa |
+| **Recuperação Lenta** | 3 roxas | Após 3 azuis recentes, exige 3 roxas |
 
 ---
 
-## 🔍 REGRAS DETALHADAS
+## ✅ QUANDO JOGAR
 
-### 1. ✅ QUANDO JOGAR
+### 1. Sequência de 2+ Roxas com Conversão ≥55%
 
-**Condições (TODAS devem ser atendidas):**
+**Condições:**
+- ✅ Streak ≥ 2 roxas
+- ✅ Conversão ≥ 55% (nas últimas 25 velas)
+- ✅ Não está em trava pós-rosa
+- ✅ Não está em stop loss
 
-1. ✅ **Streak ≥3 roxas seguidas**
-   - Última vela: roxa (≥2x)
-   - Penúltima vela: roxa (≥2x)
-   - Antepenúltima vela: roxa (≥2x)
-
-2. ✅ **Conversão ≥60%**
-   - Das últimas 25 velas roxas, ≥60% foram seguidas por outra roxa
-   - Indica que sequências se sustentam
-
-3. ✅ **Sem Trava Pós-Rosa**
-   - Última rosa (≥10x) foi há ≥3 velas
-   - OU double blue ≤1 nas últimas 25 velas (exceção)
-
-4. ✅ **Sem Stop Loss**
-   - Não teve 2 azuis seguidas recentemente
-
-5. ✅ **Sem Deep Downtrend**
-   - Não teve 3 azuis seguidas recentemente
-   - OU já recuperou com 3 roxas
-
-**Se TODAS as condições forem atendidas:** ✅ **JOGA 2X**
+**Exemplo:**
+```
+🟣 🟣 🔵 🟣 🔵 🟣 🟣 🔵 🟣 🟣 ← Última vela (mais recente)
+```
+- Streak: 2 roxas (🟣🟣)
+- Conversão: 60% (6 de 10 roxas viraram sequência)
+- **Decisão:** ✅ JOGA
 
 ---
 
-### 2. ❌ QUANDO NÃO JOGAR
+## ❌ QUANDO NÃO JOGAR
 
-#### A. Aguardando 2ª Roxa
+### 1. Trava Pós-Rosa (3 velas)
 
-**Situação:** 1 roxa recente
+**Regra:** Após uma rosa (≥10x), aguarda 3 velas antes de jogar 2x.
 
-**Motivo:** "Aguardando 2ª vela roxa para confirmar."
+**Motivo:** Mercado tende a corrigir após rosas.
 
-**Regra:**
-- Exige **2+ roxas** para validar sequência
-- Com 1 roxa, ainda não sabemos se é sequência ou roxa isolada
-
-**Ação:** Aguarda próxima vela
-
----
-
-#### B. Aguardando 3ª Roxa
-
-**Situação:** 2 roxas seguidas, conversão ≥60%
-
-**Motivo:** "Aguardando 3ª vela roxa para confirmar sequência."
-
-**Regra:**
-- Exige **3+ roxas** para jogar
-- Com 2 roxas, sequência está se formando mas ainda não confirmada
-- Conversão ≥60% valida que é sequência forte
-
-**Ação:** Aguarda 3ª roxa para jogar
+**Exemplo:**
+```
+🟣 🔵 🌸 🔵 🟣 🔵 🟣 ← Última vela
+```
+- Distância da rosa: 2 velas
+- **Decisão:** ❌ NÃO JOGA (aguarde mais 1 vela)
 
 ---
 
-#### C. Sequência Suspeita (Conversão <60%)
+### 2. Stop Loss (2 Azuis Seguidas)
 
-**Situação:** 3+ roxas seguidas, conversão <60%
+**Regra:** Após 2 azuis seguidas, para e aguarda 2 roxas para retomar.
 
-**Motivo:** "Sequência Suspeita (Conversão Baixa <60%)."
+**Motivo:** Mercado em downtrend, evita perdas consecutivas.
 
-**Regra:**
-- Conversão <60% indica que roxas não se sustentam
-- Muitas roxas isoladas (roxa → azul → roxa → azul)
-- Alto risco de red
-
-**Ação:** Não joga (aguarda conversão subir)
-
----
-
-#### D. Stop Loss (2 Reds Seguidos)
-
-**Situação:** 2 azuis seguidas (2 reds)
-
-**Motivo:** "Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas."
-
-**Regra:**
-- 2 azuis seguidas indicam que sequência acabou
-- Continuar jogando = risco de 3º, 4º red (martingale perigoso)
-- **Para imediatamente**
-
-**Ação:** Aguarda **2 roxas** para retomar
+**Exemplo:**
+```
+🔵 🔵 🟣 🔵 🟣 🟣 ← Última vela
+```
+- Streak: -2 (2 azuis seguidas)
+- **Decisão:** ❌ NÃO JOGA (aguarde 2 roxas)
 
 ---
 
-#### E. Recuperação Lenta (3 Azuis Seguidas)
+### 3. Recuperação Lenta (3 Azuis Recentes)
 
-**Situação:** 3+ azuis seguidas (deep downtrend)
+**Regra:** Se houve 3+ azuis nas últimas 10 velas, exige 3 roxas para jogar (ao invés de 2).
 
-**Motivo:** "Recuperação Lenta (3 Reds Recentes). Aguarde 3 Roxas."
+**Motivo:** Mercado em recuperação lenta, precisa de mais confirmação.
 
-**Regra:**
-- 3 azuis seguidas indicam momento ruim (downtrend)
-- Exige **3 roxas** para retomar (ao invés de 2)
-- Recuperação mais rigorosa
-
-**Ação:** Aguarda **3 roxas** para retomar
-
----
-
-#### F. Trava Pós-Rosa (Aguarda 3 Velas)
-
-**Situação:** Rosa recente (≥10x), menos de 3 velas depois
-
-**Motivo:** "Trava Pós-Rosa (X/3). Aguarde correção."
-
-**Regra:**
-- Após rosa, gráfico tende a corrigir (azuis)
-- Jogar 2x logo após rosa = risco alto de red
-- **Aguarda 3 velas** antes de jogar 2x
-
-**Exceção:** Double blue ≤1 nas últimas 25 velas
-- Se double blue ≤1, trava liberada (gráfico estável)
-
-**Ação:** Aguarda 3 velas (ou exceção)
+**Exemplo:**
+```
+🟣 🟣 🔵 🔵 🔵 🟣 🔵 🟣 ← Última vela
+```
+- 3 azuis recentes (🔵🔵🔵)
+- Streak: 2 roxas
+- **Decisão:** ❌ NÃO JOGA (aguarde 3ª roxa)
 
 ---
 
-## 📈 FLUXO DE DECISÃO
+### 4. Aguardando 2ª Roxa
+
+**Regra:** Com apenas 1 roxa, aguarda 2ª para confirmar sequência.
+
+**Motivo:** 1 roxa isolada não confirma tendência.
+
+**Exemplo:**
+```
+🟣 🔵 🔵 🟣 🔵 🟣 ← Última vela
+```
+- Streak: 1 roxa
+- **Decisão:** ❌ NÃO JOGA (aguarde 2ª roxa)
+
+---
+
+### 5. Conversão Baixa (<55%)
+
+**Regra:** Se conversão < 55%, não joga mesmo com 2+ roxas.
+
+**Motivo:** Sequências fracas, alta chance de azul interromper.
+
+**Exemplo:**
+```
+🟣 🟣 🔵 🔵 🔵 🟣 🔵 🔵 🔵 🟣 ← Última vela
+```
+- Streak: 2 roxas
+- Conversão: 30% (3 de 10 roxas viraram sequência)
+- **Decisão:** ❌ NÃO JOGA (conversão baixa)
+
+---
+
+### 6. Aguardando Oportunidade Clara
+
+**Regra:** Se não há padrão claro, aguarda.
+
+**Motivo:** Não força jogadas sem setup.
+
+**Exemplo:**
+```
+🔵 🟣 🔵 🟣 🔵 🟣 🔵 🟣 ← Última vela
+```
+- Alternando azul/roxa (sem sequência)
+- **Decisão:** ❌ NÃO JOGA (aguarde sequência)
+
+---
+
+## 🎯 FLUXO DE DECISÃO
 
 ```
-Início
-  ↓
-Última vela é roxa (≥2x)?
-  ├─ Não → ❌ NÃO JOGA (aguarda roxa)
-  └─ Sim
-      ↓
-Streak ≥3 roxas?
-  ├─ Não
-  │   ├─ Streak = 1 → ❌ NÃO JOGA (aguarda 2ª roxa)
-  │   └─ Streak = 2 → ❌ NÃO JOGA (aguarda 3ª roxa)
-  └─ Sim
-      ↓
-Conversão ≥60%?
-  ├─ Não → ❌ NÃO JOGA (sequência suspeita)
-  └─ Sim
-      ↓
-Teve 2 azuis seguidas?
-  ├─ Sim → 🛑 STOP LOSS (aguarda 2 roxas)
-  └─ Não
-      ↓
-Teve 3 azuis seguidas?
-  ├─ Sim → ❌ NÃO JOGA (aguarda 3 roxas)
-  └─ Não
-      ↓
-Rosa recente (<3 velas)?
-  ├─ Sim
-  │   ├─ Double blue ≤1? → Sim → ✅ JOGA (exceção)
-  │   └─ Não → ❌ NÃO JOGA (trava pós-rosa)
-  └─ Não
-      ↓
-✅ JOGA 2X
+┌─────────────────────┐
+│ Analisar Histórico  │
+└──────────┬──────────┘
+           │
+           ▼
+    ┌──────────────┐
+    │ Trava Pós-   │ ──── SIM ──► ❌ NÃO JOGA
+    │ Rosa (3)?    │
+    └──────┬───────┘
+           │ NÃO
+           ▼
+    ┌──────────────┐
+    │ Stop Loss    │ ──── SIM ──► ❌ NÃO JOGA
+    │ (2 Azuis)?   │
+    └──────┬───────┘
+           │ NÃO
+           ▼
+    ┌──────────────┐
+    │ 3 Azuis      │ ──── SIM ──► Exige 3 Roxas
+    │ Recentes?    │
+    └──────┬───────┘
+           │ NÃO
+           ▼
+    ┌──────────────┐
+    │ Streak ≥ 2?  │ ──── NÃO ──► ❌ NÃO JOGA
+    └──────┬───────┘
+           │ SIM
+           ▼
+    ┌──────────────┐
+    │ Conversão    │ ──── NÃO ──► ❌ NÃO JOGA
+    │ ≥ 55%?       │
+    └──────┬───────┘
+           │ SIM
+           ▼
+    ┌──────────────┐
+    │ ✅ JOGA 2X   │
+    └──────────────┘
 ```
 
 ---
 
-## 🎓 EXEMPLOS
-
-### Exemplo 1: JOGA ✅
-
-**Gráfico (últimas 10 velas):**
-```
-1.05x 1.12x 1.34x 1.08x 1.19x 2.15x 3.42x 2.87x [AGORA]
-🔵   🔵   🔵   🔵   🔵   🟣   🟣   🟣   ❓
-```
-
-**Análise:**
-- Streak: 3 roxas ✅
-- Conversão (últimas 25): 68% ✅
-- Trava pós-rosa: Não ✅
-- Stop loss: Não ✅
-- Deep downtrend: Não ✅
-
-**Decisão:** ✅ **JOGA 2X** (R$ 100)
-
-**Motivo:** "Surfando Sequência (Conversão ≥60%)."
-
----
-
-### Exemplo 2: NÃO JOGA (Aguardando 3ª Roxa) ❌
-
-**Gráfico (últimas 10 velas):**
-```
-1.05x 1.12x 1.34x 1.08x 1.19x 1.45x 1.23x 2.15x 3.42x [AGORA]
-🔵   🔵   🔵   🔵   🔵   🔵   🔵   🟣   🟣   ❓
-```
-
-**Análise:**
-- Streak: 2 roxas ❌ (precisa 3)
-- Conversão: 65% ✅
-- Trava pós-rosa: Não ✅
-- Stop loss: Não ✅
-- Deep downtrend: Não ✅
-
-**Decisão:** ❌ **NÃO JOGA**
-
-**Motivo:** "Aguardando 3ª vela roxa para confirmar sequência."
-
----
-
-### Exemplo 3: NÃO JOGA (Sequência Suspeita) ❌
-
-**Gráfico (últimas 10 velas):**
-```
-1.05x 1.12x 2.34x 1.08x 3.19x 1.45x 2.23x 4.67x 2.15x [AGORA]
-🔵   🔵   🟣   🔵   🟣   🔵   🟣   🟣   🟣   ❓
-```
-
-**Análise:**
-- Streak: 3 roxas ✅
-- Conversão: 45% ❌ (precisa 60%)
-- Trava pós-rosa: Não ✅
-- Stop loss: Não ✅
-- Deep downtrend: Não ✅
-
-**Decisão:** ❌ **NÃO JOGA**
-
-**Motivo:** "Sequência Suspeita (Conversão Baixa <60%)."
-
----
-
-### Exemplo 4: STOP LOSS 🛑
-
-**Gráfico (últimas 10 velas):**
-```
-2.15x 3.42x 2.87x 4.12x 1.34x 1.08x [AGORA]
-🟣   🟣   🟣   🟣   🔵   🔵   ❓
-```
-
-**Análise:**
-- Streak: -2 (2 azuis) 🛑
-- Stop loss: ✅ SIM
-
-**Decisão:** 🛑 **STOP LOSS - NÃO JOGA**
-
-**Motivo:** "Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas."
-
----
-
-## 📊 MÉTRICAS ESPERADAS
+## 📈 MÉTRICAS ESPERADAS
 
 | Métrica | Valor Esperado |
 |---------|----------------|
-| **Taxa de Acerto** | 50-60% |
-| **Jogadas/Sessão (60 velas)** | 5-15 |
-| **ROI** | +5% a +15% |
-| **Lucro/Sessão** | R$ 50 a R$ 150 |
+| **Taxa de Acerto** | 40-60% |
+| **ROI por Sessão** | +5% a +15% |
+| **Jogadas/Sessão** | 5-15 |
+| **Greens Consecutivos** | 2-4 |
+| **Reds Consecutivos** | 1-2 (stop loss) |
 
 ---
 
-## ✅ CHECKLIST RÁPIDO
+## 📝 CHECKLIST RÁPIDO
 
-Antes de jogar 2x:
+Antes de jogar 2x, verifique:
 
-- [ ] Streak ≥3 roxas?
-- [ ] Conversão ≥60%?
-- [ ] Sem trava pós-rosa (<3 velas)?
-- [ ] Sem stop loss (2 reds)?
-- [ ] Sem deep downtrend (3 azuis)?
+- [ ] Não está em trava pós-rosa (3 velas)?
+- [ ] Não está em stop loss (2 azuis)?
+- [ ] Não houve 3 azuis recentes (ou já tem 3 roxas)?
+- [ ] Tem 2+ roxas na sequência?
+- [ ] Conversão ≥ 55%?
 
-**Se TODOS ✅:** Joga 2x  
-**Se ALGUM ❌:** Não joga
+**Se TODOS marcados:** ✅ JOGA  
+**Se ALGUM desmarcado:** ❌ NÃO JOGA
 
 ---
 
 ## 🔄 HISTÓRICO DE VERSÕES
 
-### V3 Melhorada (04/01/2026)
-
-**Mudanças:**
-- Conversão mínima: 50% → **60%**
-- Streak mínimo para validar: 1 → **2 roxas**
-- Streak mínimo para jogar: 2 → **3 roxas**
-
-**Motivo:** Análise de 30 cenários mostrou taxa de acerto de 40% com regras antigas. Com novas regras, espera-se 50-60%.
-
----
-
-### V3 Original (03/01/2026)
-
-**Mudanças:**
-- Conversão mínima: Não tinha → **50%**
-- Streak mínimo: Não tinha → **1 roxa**
-- Stop loss: Não tinha → **2 reds**
-
----
-
-### V2 (02/01/2026)
-
-**Regras básicas:**
-- Surfar sequências roxas
-- Sem validação de conversão
-- Sem stop loss rigoroso
+| Versão | Data | Mudanças |
+|--------|------|----------|
+| **V3 Equilibrada** | 04/01/2026 | Conversão 55% (era 60%), Streak 2 roxas para jogar (era 3) |
+| V3 Melhorada | 04/01/2026 | Conversão 60%, Streak 3 roxas |
+| V3 | 03/01/2026 | Conversão 50%, Streak 2 roxas |
+| V2 | 02/01/2026 | Primeira versão documentada |
 
 ---
 
