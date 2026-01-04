@@ -176,6 +176,16 @@ Se QUALQUER = NÃO: AGUARDE
 
 ---
 
+### 3.5 🛡️ PROTEÇÃO "DEEP DOWNTREND" (Prioritária)
+**Cenário:** Identificada sequência de **3 ou mais velas azuis (< 2.00x)** consecutivas nas últimas 10 rodadas.
+**Diagnóstico:** Mercado em correção severa ou "quebra de padrão".
+**Ação:** **BLOQUEIA** entradas padrão de Retomada (2 Roxas).
+**Condição de Saída:**
+- Aguarde **3 Velas Roxas Consecutivas** para confirmar nova tendência estável.
+- (A regra de 2 roxas é anulada neste cenário).
+
+---
+
 ## 🌸 ESTRATÉGIA ROSA (Ataque - 10.00x @ R$50)
 
 ### Objetivo:

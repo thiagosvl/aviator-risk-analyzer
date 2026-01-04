@@ -15,9 +15,9 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useOverseer } from '@src/content/hooks/useOverseer'; // Novo Hook
 import {
-  ChevronDown,
-  ChevronUp,
-  Maximize2
+    ChevronDown,
+    ChevronUp,
+    Maximize2
 } from 'lucide-react';
 
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
@@ -38,8 +38,8 @@ export const AnalyzerOverlay = () => {
   const [isEditingBalance, setIsEditingBalance] = useState(false);
   const [balanceInput, setBalanceInput] = useState('1000.00');
 
-  // Draggable State
-  const [position, setPosition] = useState({ x: window.innerWidth - 420, y: 20 }); // Canto superior direito
+  // Draggable State - DEFAULT POSITION LEFT
+  const [position, setPosition] = useState({ x: 20, y: 100 }); 
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -114,9 +114,15 @@ export const AnalyzerOverlay = () => {
        HIGH: 'bg-orange-500 text-white',
        CRITICAL: 'bg-red-500 text-white'
      };
+     const translations: Record<string, string> = {
+       LOW: 'BAIXO',
+       MEDIUM: 'MÉDIO',
+       HIGH: 'ALTO',
+       CRITICAL: 'CRÍTICO'
+     };
      return (
-       <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ml-2", colors[rec.riskLevel])}>
-         {rec.riskLevel}
+       <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ml-2 select-none", colors[rec.riskLevel])}>
+         {translations[rec.riskLevel] || rec.riskLevel}
        </span>
      );
   };
@@ -319,7 +325,7 @@ export const AnalyzerOverlay = () => {
              <div className="text-slate-500 mb-1">Últimas 10 Velas:</div>
              <div className="flex flex-wrap gap-1">
                {gameState.history.slice(0, 10).map((val, i) => (
-                 <span key={i} className={cn("px-1 rounded font-mono font-bold", val.value >= 10 ? "bg-pink-900/40 text-pink-400 border border-pink-500/30" : val.value >= 2 ? "bg-purple-900/40 text-purple-400 border border-purple-500/30" : "bg-slate-800 text-slate-400 border border-slate-700")}>
+                 <span key={i} className={cn("px-1 rounded font-mono font-bold select-none", val.value >= 10 ? "bg-pink-900/40 text-pink-400 border border-pink-500/30" : val.value >= 2 ? "bg-purple-900/40 text-purple-400 border border-purple-500/30" : "bg-slate-900 text-blue-400 border border-slate-700")}>
                    {val.value.toFixed(2)}x
                  </span>
                ))}
@@ -396,16 +402,16 @@ export const AnalyzerOverlay = () => {
         </div>
       )}
 
-      {/* DRAGGABLE HISTORY COMPONENT INSTANCE */}
-      <DraggableHistory history={gameState.history} />
+      {/* DRAGGABLE HISTORY COMPONENT INSTANCE (Using Bankroll History) */}
+      <DraggableHistory history={history} />
     </div>
   );
 };
 
 // --- DRAGGABLE HISTORY COMPONENT ---
 const DraggableHistory = ({ history }: { history: any[] }) => {
-    // Initial position: Top right to avoid covering the game
-    const [position, setPosition] = useState({ x: window.innerWidth - 300, y: 100 });
+    // Initial position: RIGHT SIDE
+    const [position, setPosition] = useState({ x: window.innerWidth - 260, y: 100 });
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
     
@@ -443,14 +449,15 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
         };
     }, [isDragging, dragOffset]);
 
-    if (!history || history.length === 0) return null;
+    // SHOW ALWAYS (Even if empty, show container)
+    // if (!history || history.length === 0) return null;
 
     return (
         <div 
             style={{ 
                 left: position.x, 
                 top: position.y,
-                width: '200px',
+                width: '240px',
                 zIndex: 10001
             }}
             className="fixed bg-slate-950/95 border border-slate-700/50 rounded-lg shadow-2xl flex flex-col font-mono backdrop-blur-md overflow-hidden"
@@ -465,10 +472,9 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
                         <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
                         <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider group-hover:text-slate-200 transition-colors">Histórico</span>
-                </div>
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                     <span className="text-[8px] text-slate-600">DRAG ME</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider group-hover:text-slate-200 transition-colors">
+                        Histórico (Simulação)
+                    </span>
                 </div>
             </div>
 
@@ -477,25 +483,32 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
                 <table className="w-full text-[10px] border-collapse table-fixed">
                     <thead className="bg-slate-900/80 text-slate-500 sticky top-0 backdrop-blur-sm z-10 text-[9px]">
                         <tr>
-                            <th className="py-1 px-2 text-left w-1/3">HORA</th>
-                            <th className="py-1 px-1 text-center w-1/4">MULT</th>
-                            <th className="py-1 px-2 text-right w-1/3">LUCRO</th>
+                            <th className="py-1 px-2 text-left w-1/4">HORA</th>
+                            <th className="py-1 px-1 text-center w-1/4">TIPO</th>
+                            <th className="py-1 px-1 text-center w-1/4">CRASH</th>
+                            <th className="py-1 px-2 text-right w-1/4">LUCRO</th>
                         </tr>
                     </thead>
                     <tbody>
                         {history.slice(0, 50).map((h, i) => (
                              <tr key={h.roundId || i} className="border-b border-slate-800/30 hover:bg-white/5 transition-colors group">
                                  <td className="py-1 px-2 text-slate-500 font-mono tracking-tighter opacity-70 group-hover:opacity-100">
-                                     {new Date(h.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                     {h.timestamp}
                                  </td>
-                                 <td className={`py-0.5 px-1 text-center font-bold relative ${
-                                     h.value >= 10.0 ? 'text-[#fb7185] drop-shadow-[0_0_5px_rgba(251,113,133,0.3)]' : 
-                                     h.value >= 2.0 ? 'text-[#a78bfa]' : 'text-blue-400'
+                                 <td className="py-0.5 px-1 text-center font-bold text-[9px]">
+                                     {h.action === 'PLAY_10X' 
+                                        ? <span className="text-pink-400">10x</span> 
+                                        : <span className="text-purple-400">2x</span>
+                                     }
+                                 </td>
+                                 <td className={`py-0.5 px-1 text-center font-bold ${
+                                     h.crashPoint >= 10.0 ? 'text-[#fb7185] drop-shadow-[0_0_5px_rgba(251,113,133,0.3)]' : 
+                                     h.crashPoint >= 2.0 ? 'text-[#a78bfa]' : 'text-blue-400'
                                  }`}>
-                                     {h.value.toFixed(2)}x
+                                     {h.crashPoint.toFixed(2)}x
                                  </td>
-                                 <td className={`py-0.5 px-2 text-right font-bold ${h.profit > 0 ? 'text-emerald-400' : (h.profit < 0 ? 'text-red-400' : 'text-slate-700')}`}>
-                                      {h.profit !== 0 ? (h.profit > 0 ? `+${h.profit}` : h.profit) : '-'}
+                                 <td className={`py-0.5 px-2 text-right font-bold ${h.profit > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                      {h.profit > 0 ? '+' : ''}{h.profit.toFixed(2)}
                                  </td>
                              </tr>
                         ))}
@@ -503,7 +516,6 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
                 </table>
             </div>
             
-            {/* Custom Scrollbar Style */}
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 3px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

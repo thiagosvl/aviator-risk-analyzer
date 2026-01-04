@@ -60,8 +60,21 @@ export class PatternService {
     const pinkPattern = this.detectPinkPattern(values, lastPinkIndex, volatilityDensity);
     if (pinkPattern) patterns.push(pinkPattern);
 
-    // 4.2 Trava Pós-Rosa (Critical Rules)
-    const isPostPinkLock = candlesSinceLastPink < 3; 
+    // 4.2 Trava Pós-Rosa (Critical Rules) e EXCEÇÃO
+    // Regra Original: Pula 3 velas após rosa.
+    // Exceção (User V3): Se nas últimas 25, "double blue" (2 reds seguidos) ocorreu 1 ou menos vezes,
+    // significa que o mercado está pagando bem (corrigindo pouco). Nesse caso, IGNORA a trava.
+    const doubleBlueStats = this.calculateDoubleBlueStats(values, 25);
+    const isDoubleBlueSafe = doubleBlueStats <= 1; // 0 ou 1 ocorrência
+    
+    let isPostPinkLock = candlesSinceLastPink < 3; 
+
+    // APLICANDO A EXCEÇÃO:
+    let lockReason = `Trava Pós-Rosa (${candlesSinceLastPink}/3). Aguarde correção.`;
+    if (isPostPinkLock && isDoubleBlueSafe) {
+        isPostPinkLock = false; // Override lock
+        // Log ou reason poderia indicar isso, mas no fluxo normal ele vai cair nas outras regras (sequence ou wait)
+    }
 
     // 4.3 Stop Loss Check (2 Azuis seguidas)
     // streak <= -2 significa 2 ou mais azuis
@@ -72,7 +85,7 @@ export class PatternService {
     const isPurpleStreakValid = streak >= 1 && purpleConversionRate >= 50;
 
     // 5. GERAR RECOMENDAÇÕES INDEPENDENTES
-    const rec2x = this.decideAction2x(streak, candlesSinceLastPink, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity);
+    const rec2x = this.decideAction2x(streak, candlesSinceLastPink, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, lockReason, values);
     const recPink = this.decideActionPink(pinkPattern);
 
     return {
@@ -92,13 +105,15 @@ export class PatternService {
     isLock: boolean,
     isStopLoss: boolean,
     isValidStreak: boolean,
-    density: 'LOW' | 'MEDIUM' | 'HIGH'
+    density: 'LOW' | 'MEDIUM' | 'HIGH',
+    lockReason: string,
+    values: number[] // Pass values to check history
   ): Recommendation {
       // 1. TRAVA PÓS-ROSA
       if (isLock) {
          return {
            action: 'WAIT',
-           reason: `Trava Pós-Rosa (${sincePink}/3). Aguarde correção.`,
+           reason: lockReason,
            riskLevel: 'CRITICAL',
            confidence: 100
          };
@@ -116,21 +131,29 @@ export class PatternService {
       }
   
       // 3. RETOMADA RIGOROSA CHECK
+      // Check for recent Deep Downtrend (3+ Blues)
+      // Logic: If we had a bad run recently, we need stronger confirmation.
+      const deepDowntrend = this.checkDeepDowntrend(values);
+       
       if (streak === 1) {
-          if (density === 'HIGH') {
-              return {
-                  action: 'PLAY_2X',
-                  reason: 'Retomada Agressiva (Alta Densidade).',
-                  riskLevel: 'MEDIUM',
-                  confidence: 60
-              };
-          }
+          // Standard Retomada (Wait for 2nd)
           return {
                action: 'WAIT',
-               reason: 'Aguardando 2ª vela roxa para confirmar.',
+               reason: deepDowntrend 
+                  ? 'Recuperação Lenta (3 Reds Recentes). Aguarde 3 Roxas.' 
+                  : 'Aguardando 2ª vela roxa para confirmar.',
                riskLevel: 'MEDIUM',
                confidence: 80
           };
+      }
+      
+      if (streak === 2 && deepDowntrend) {
+           return {
+               action: 'WAIT',
+               reason: 'Recuperação Lenta (3 Reds Recentes). Aguarde 3 Roxas.',
+               riskLevel: 'MEDIUM',
+               confidence: 85
+           };
       }
   
       // 4. JOGO EM SEQUENCIA
@@ -161,11 +184,14 @@ export class PatternService {
       };
   }
 
-  private decideActionPink(pinkPattern: PatternData & { displayName?: string } | null): Recommendation {
+  private decideActionPink(pinkPattern: PatternData & { displayName?: string, occurrences?: number } | null): Recommendation {
       if (pinkPattern && pinkPattern.confidence >= 60 && Math.abs(pinkPattern.candlesUntilMatch) <= 1) {
+          const typeMap: Record<string, string> = { 'DIAMOND': '💎', 'GOLD': '🥇', 'SILVER': '🥈' };
+          const icon = typeMap[pinkPattern.type] || '';
+          
           return {
             action: 'PLAY_10X',
-            reason: `Padrão ${pinkPattern.displayName || pinkPattern.type} Detectado!`,
+            reason: `${icon} Padrão Intervalo ${pinkPattern.interval} (${pinkPattern.occurrences}x confirmados)`,
             riskLevel: 'LOW',
             confidence: pinkPattern.confidence
           };
@@ -173,7 +199,7 @@ export class PatternService {
 
        return {
            action: 'WAIT',
-           reason: 'Buscando padrão...',
+           reason: 'Buscando padrão confirmado...',
            riskLevel: 'LOW',
            confidence: 0
        };
@@ -189,6 +215,18 @@ export class PatternService {
       else break;
     }
     return firstIsBlue ? -count : count;
+  }
+
+  private calculateDoubleBlueStats(values: number[], lookback: number): number {
+      // Conta quantas vezes ocorreu "Double Blue" (2 velas < 2.00x seguidas) na janela
+      const slice = values.slice(0, lookback);
+      let count = 0;
+      for (let i = 0; i < slice.length - 1; i++) {
+          if (slice[i] < 2.0 && slice[i+1] < 2.0) {
+              count++;
+          }
+      }
+      return count;
   }
 
   private calculateConversionRate(values: number[], lookback: number): number {
@@ -230,7 +268,7 @@ export class PatternService {
       .map((v, i) => (v >= 10.0 ? i : -1))
       .filter(i => i !== -1);
       
-    if (pinkIndices.length < 2) return null;
+    if (pinkIndices.length < 3) return null; // Need at least 2 intervals (3 pinks)
 
     const currentDistance = lastPinkIndex;
     const intervals: number[] = [];
@@ -239,42 +277,55 @@ export class PatternService {
       intervals.push(pinkIndices[i+1] - pinkIndices[i]); 
     }
 
-    // Check matches
-    for (let i = 0; i < intervals.length; i++) {
-      const target = intervals[i];
-      const diff = Math.abs(currentDistance - target);
-      
-      if (diff <= 1) {
-        // Hierarchy
-        let type: 'DIAMOND' | 'GOLD' | 'SILVER' = 'SILVER';
-        let conf = 60;
+    // New V3 Logic: Frequency Analysis
+    const frequencyMap = new Map<number, number>();
+    intervals.forEach(int => frequencyMap.set(int, (frequencyMap.get(int) || 0) + 1));
+
+    // Filter Confirmed Intervals (>= 2 occurrences)
+    const confirmedIntervals = Array.from(frequencyMap.entries())
+        .filter(([_, count]) => count >= 2)
+        .sort((a, b) => b[1] - a[1]); // Sort by frequency desc
+
+    if (confirmedIntervals.length === 0) return null;
+
+    // Check matches against confirmed intervals
+    for (const [interval, count] of confirmedIntervals) {
+        const diff = Math.abs(currentDistance - interval);
         
-        if (i === 0) { type = 'DIAMOND'; conf = 90; } // Last interval repeated
-        else if (i <= 2) { type = 'GOLD'; conf = 75; } // Recent interval
+        if (diff <= 1) {
+            // Confidence calculation V3
+            let confidence = 50 + (count * 15);
+            confidence = Math.min(confidence, 95);
 
-        const ptNames = { 'DIAMOND': 'Alta Freq.', 'GOLD': 'Média Freq.', 'SILVER': 'Baixa Freq.' };
+            let type: 'DIAMOND' | 'GOLD' | 'SILVER' = 'SILVER';
+            if (count >= 3) type = 'DIAMOND';
+            else if (count >= 2) type = 'GOLD';
 
-        return {
-          type,
-          interval: target,
-          confidence: conf,
-          candlesUntilMatch: target - currentDistance, // Negative means passed, 0 means now
-          displayName: ptNames[type] // Adding custom prop for display if needed, but we'll use it in reason
-        };
-      }
+            return {
+                type,
+                interval,
+                confidence,
+                candlesUntilMatch: interval - currentDistance,
+                // @ts-ignore - Adding custom property not in original interface for internal display logic
+                occurrences: count, 
+                displayName: `${count}x Confirmado`
+            };
+        }
     }
     
-    // Look ahead prediction (Are we close?)
-    // Find closest interval greater than current
-    const nextTarget = intervals.find(int => int >= currentDistance);
+    // Look ahead prediction for confirmed patterns only
+    const nextTarget = confirmedIntervals.find(([int]) => int >= currentDistance);
     if (nextTarget) {
-         if (nextTarget - currentDistance <= 3) {
+         const [interval, count] = nextTarget;
+         if (interval - currentDistance <= 3) {
              return {
-                 type: 'SILVER',
-                 interval: nextTarget,
-                 confidence: 40,
-                 candlesUntilMatch: nextTarget - currentDistance,
-                 displayName: 'Baixa Freq.'
+                 type: count >= 2 ? 'GOLD' : 'SILVER',
+                 interval: interval,
+                 confidence: 50 + (count * 10), // Lower confidence for prediction
+                 candlesUntilMatch: interval - currentDistance,
+                 // @ts-ignore
+                 occurrences: count,
+                 displayName: `${count}x Previsto`
              };
          }
     }
@@ -294,8 +345,19 @@ export class PatternService {
     };
   }
 
-  public updateConfig(config: Partial<AnalyzerConfig>) {
-    this.config = { ...this.config, ...config };
+  // Implementation inside helper using values
+  private checkDeepDowntrend(values: number[]): boolean {
+      // Check last 10 candles for a sequence of 3+ blues
+      let blueStreak = 0;
+      for (let i = 0; i < Math.min(values.length, 10); i++) {
+          if (values[i] < 2.0) {
+              blueStreak++;
+              if (blueStreak >= 3) return true;
+          } else {
+              blueStreak = 0;
+          }
+      }
+      return false;
   }
 }
 
