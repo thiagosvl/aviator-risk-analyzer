@@ -13,43 +13,63 @@
 export class StealthModeService {
   private isActive: boolean = false;
   private injectedStyles: HTMLStyleElement | null = null;
-  private iframeStyleElement: HTMLStyleElement | null = null;
-  private hiddenElements: HTMLElement[] = [];
+  private isIframe: boolean;
+
+  constructor() {
+    this.isIframe = window.self !== window.top;
+    
+    // Escutar mensagens de outros frames/background
+    chrome.runtime.onMessage.addListener((message) => {
+        if (message.action === 'TOGGLE_STEALTH') {
+            if (message.state === true) {
+                this.activate(false); // false = não propagar novamente
+            } else {
+                this.deactivate(false);
+            }
+        }
+    });
+  }
 
   /**
    * Ativa o modo discreto
+   * @param propagate Se deve propagar a mensagem para outros frames (default: true)
    */
-  public activate(): void {
+  public activate(propagate = true): void {
     if (this.isActive) return;
 
-    console.log('[StealthMode] Ativando modo discreto...');
+    console.log(`[StealthMode] Ativando... (Contexto: ${this.isIframe ? 'Iframe' : 'Principal'})`);
 
-    // 1. Ocultar elementos externos (fora do iframe)
-    this.hideExternalElements();
-
-    // 2. Injetar CSS no iframe
-    this.injectIframeStyles();
+    if (this.isIframe) {
+      this.injectIframeStyles();
+    } else {
+      this.injectMainPageStyles();
+    }
 
     this.isActive = true;
-    console.log('[StealthMode] Modo discreto ativado ✅');
+
+    if (propagate) {
+        chrome.runtime.sendMessage({ action: 'TOGGLE_STEALTH', state: true }).catch(() => {});
+    }
   }
 
   /**
    * Desativa o modo discreto
+   * @param propagate Se deve propagar a mensagem para outros frames (default: true)
    */
-  public deactivate(): void {
+  public deactivate(propagate = true): void {
     if (!this.isActive) return;
 
-    console.log('[StealthMode] Desativando modo discreto...');
-
-    // 1. Restaurar elementos externos
-    this.restoreExternalElements();
-
-    // 2. Remover CSS do iframe
-    this.removeIframeStyles();
+    if (this.injectedStyles) {
+      this.injectedStyles.remove();
+      this.injectedStyles = null;
+    }
 
     this.isActive = false;
-    console.log('[StealthMode] Modo discreto desativado ✅');
+    console.log('[StealthMode] Desativado.');
+
+    if (propagate) {
+        chrome.runtime.sendMessage({ action: 'TOGGLE_STEALTH', state: false }).catch(() => {});
+    }
   }
 
   /**
@@ -72,249 +92,181 @@ export class StealthModeService {
   }
 
   /**
-   * Oculta elementos externos (fora do iframe)
+   * Injeta CSS na página principal (SorteNaBet)
    */
-  private hideExternalElements(): void {
+  private injectMainPageStyles(): void {
+    if (this.injectedStyles) return;
 
-    // Injetar CSS para ocultar
-    if (!this.injectedStyles) {
-      this.injectedStyles = document.createElement('style');
-      this.injectedStyles.id = 'aviator-stealth-mode';
-      document.head.appendChild(this.injectedStyles);
-    }
-
-    // CSS mais agressivo
+    this.injectedStyles = document.createElement('style');
+    this.injectedStyles.id = 'aviator-stealth-main';
+    
+    // CSS para SorteNaBet (Página Principal)
     this.injectedStyles.textContent = `
-      /* Ocultar logo */
+      /* Ocultar Logo e Cabeçalho */
+      .l6oz0, 
+      .divPageHeader, 
+      .ntdfP,
+      header,
       img[alt*="Sorte"],
-      img[alt*="sorte"],
-      [class*="logo"]:not(#aviator-analyzer *) {
+      .brand {
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
+        height: 0 !important;
+        overflow: hidden !important;
       }
 
-      /* Ocultar botões de ação */
+      /* Ocultar Barra de Navegação e Botões Superiores */
+      nav,
+      .nav,
+      .navbar,
+      .F2Y1D, /* Container de Ações (Depósito) */
+      .btn-deposit,
+      .btn-balance,
       button:has-text("Depositar"),
-      button:has-text("DEPOSITAR"),
-      [href*="deposit"],
-      [href*="deposito"] {
+      a[href*="torneio"],
+      a[href*="miss"] {
         display: none !important;
       }
 
-      /* Ocultar menu superior */
-      [class*="header-buttons"],
-      [class*="top-menu"],
-      [class*="nav-buttons"] {
-        opacity: 0.3 !important;
-        filter: blur(8px) !important;
-      }
-
-      /* Ocultar sidebar */
-      [class*="sidebar"]:not(#aviator-analyzer *),
-      [class*="menu-lateral"],
-      nav[class*="side"]:not(#aviator-analyzer *) {
-        opacity: 0.1 !important;
-        filter: blur(10px) !important;
-      }
-
-      /* Ocultar footer */
-      footer:not(#aviator-analyzer *),
-      [class*="footer"]:not(#aviator-analyzer *) {
+      /* Ocultar Menu Lateral */
+      #divSidebarMenu,
+      .sidebar,
+      aside {
         display: none !important;
       }
 
-      /* Destacar apenas o analyzer */
+      /* Ocultar Rodapé/Barras Inferiores (Ganhos) */
+      .Gy5Pq,
+      footer,
+      .footer {
+        display: none !important;
+      }
+
+      /* Garantir que o Analyzer fique visível */
       #aviator-analyzer {
-        z-index: 999999 !important;
-        position: relative !important;
+        z-index: 2147483647 !important; /* Max Z-Index */
+        position: fixed !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
       }
     `;
 
-    console.log('[StealthMode] Elementos externos ocultados');
+    document.head.appendChild(this.injectedStyles);
+    console.log('[StealthMode] CSS Principal injetado.');
   }
 
   /**
-   * Restaura elementos externos
-   */
-  private restoreExternalElements(): void {
-    if (this.injectedStyles) {
-      this.injectedStyles.remove();
-      this.injectedStyles = null;
-    }
-
-    this.hiddenElements.forEach(el => {
-      el.style.display = '';
-      el.style.visibility = '';
-      el.style.opacity = '';
-    });
-    this.hiddenElements = [];
-
-    console.log('[StealthMode] Elementos externos restaurados');
-  }
-
-  /**
-   * Injeta CSS no iframe do jogo
+   * Injeta CSS no Iframe do Jogo (Spribe/Aviator)
+   * Executado apenas quando o script está rodando DENTRO do iframe.
    */
   private injectIframeStyles(): void {
-    const iframe = this.findGameIframe();
-    if (!iframe) {
-      console.warn('[StealthMode] Iframe do jogo não encontrado');
-      return;
-    }
+    if (this.injectedStyles) return;
 
-    try {
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) {
-        console.warn('[StealthMode] Sem acesso ao contentDocument do iframe');
-        return;
+    this.injectedStyles = document.createElement('style');
+    this.injectedStyles.id = 'aviator-stealth-iframe';
+
+    // CSS para o Jogo (Aviator)
+    this.injectedStyles.textContent = `
+      /* Ocultar Logos Internos */
+      .game-logo,
+      .logo, 
+      .brand, 
+      img[src*="logo"],
+      svg.logo {
+        display: none !important;
+        opacity: 0 !important;
       }
 
-      // Criar elemento de estilo
-      this.iframeStyleElement = iframeDoc.createElement('style');
-      this.iframeStyleElement.id = 'aviator-stealth-iframe';
+      /* Ocultar Cabeçalho do Jogo Completo */
+      .main-header,
+      .header-left,
+      .game-header,
+      .top-bar,
+      .balance,
+      .menu-burger,
+      .provably-fair {
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+
+      /* Ocultar Chat Inteiramente */
+      .chat-container {
+        display: none !important;
+      }
+
+      /* Ocultar CONTEÚDO da lista de apostas lateral (preservando layout) */
+      .bets-block > *, 
+      .bets-widget-container > *,
+      app-bets-widget > * {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      .bets-block {
+         background: transparent !important;
+         border: none !important;
+      }
+
+      /* Discretizar APENAS o multiplicador central e aviso de voo */
+      /* Usamos .stage-board para isolar o centro e evitamos o histórico (.result-history) */
+      .stage-board .payout, 
+      .stage-board .payout-counter, 
+      .stage-board .f-headline,
+      .stage-board .font-weight-bold.payout,
+      .stage-board div[class*="payout"],
+      .stage-board .payout-wrapper,
+      .stage-board .flew-away,
+      .stage-board [class*="multiplier-board"] {
+        filter: grayscale(100%) !important;
+        opacity: 0.5 !important;
+        color: #fff !important;
+        text-shadow: none !important;
+      }
+
+      /* Botões de Aposta MUDOS + Texto "EU VOU" */
+      button.bet,
+      .bet-button,
+      .btn-success,
+      [class*="bet-button"] {
+        background: #344d5e !important; /* Muted Slate */
+        border: 1px solid #2c3e50 !important;
+        box-shadow: none !important;
+        position: relative !important;
+      }
+
+      /* Esconder texto original "Aposta" e injetar "EU VOU" */
+      [class*="bet-button"] .label,
+      button.bet .label {
+          font-size: 0 !important;
+      }
       
-      // CSS para ocultar/modificar elementos do jogo
-      this.iframeStyleElement.textContent = `
-        /* Ocultar logo UFC AVIATOR */
-        img[src*="ufc"],
-        img[src*="UFC"],
-        img[alt*="UFC"],
-        [class*="ufc"],
-        [class*="UFC"] {
-          display: none !important;
-        }
+      [class*="bet-button"] .label::before,
+      button.bet .label::before {
+          content: 'EU VOU' !important;
+          font-size: 14px !important;
+          font-weight: bold !important;
+          color: #fff !important;
+          display: block !important;
+          visibility: visible !important;
+      }
 
-        /* Ocultar logo Aviator */
-        img[src*="aviator"],
-        img[src*="Aviator"],
-        img[alt*="Aviator"],
-        [class*="aviator-logo"],
-        svg[class*="logo"] {
-          opacity: 0 !important;
-          visibility: hidden !important;
-        }
+      /* Fundo Neutro */
+      body, .main-container {
+        background-color: #000 !important;
+      }
+    `;
 
-        /* Ocultar texto "OFFICIAL PARTNERS" */
-        *:has-text("OFFICIAL PARTNERS"),
-        *:has-text("Official Partners") {
-          display: none !important;
-        }
-
-        /* Reduzir tamanho do multiplicador (menos chamativo) */
-        [class*="multiplier"],
-        [class*="coefficient"],
-        [class*="odds"] {
-          font-size: 0.6em !important;
-          opacity: 0.7 !important;
-        }
-
-        /* Ocultar logo Spribe */
-        img[src*="spribe"],
-        img[alt*="Spribe"],
-        [class*="spribe"] {
-          opacity: 0 !important;
-          visibility: hidden !important;
-        }
-
-        /* Modificar cores dos botões (menos chamativo) */
-        button[class*="bet"],
-        button[class*="aposta"] {
-          background: #2a2a2a !important;
-          color: #888 !important;
-          border: 1px solid #444 !important;
-        }
-
-        /* Ocultar lista de apostadores */
-        [class*="players-list"],
-        [class*="bets-list"],
-        [class*="apostas"] {
-          opacity: 0.3 !important;
-          filter: blur(5px) !important;
-        }
-
-        /* Ocultar histórico de apostas (dentro do jogo) */
-        [class*="bet-history"],
-        [class*="history-panel"] {
-          opacity: 0.5 !important;
-        }
-
-        /* Reduzir destaque do avião */
-        canvas,
-        [class*="game-canvas"],
-        [class*="plane"] {
-          opacity: 0.8 !important;
-          filter: grayscale(30%) !important;
-        }
-
-        /* Ocultar texto "Aviator" no rodapé */
-        footer *:has-text("Aviator"),
-        [class*="footer"] *:has-text("Aviator") {
-          display: none !important;
-        }
-
-        /* Modo discreto geral: tons mais neutros */
-        body {
-          filter: saturate(0.7) !important;
-        }
-      `;
-
-      iframeDoc.head.appendChild(this.iframeStyleElement);
-      console.log('[StealthMode] CSS injetado no iframe ✅');
-
-    } catch (error) {
-      console.error('[StealthMode] Erro ao injetar CSS no iframe:', error);
-    }
+    document.head.appendChild(this.injectedStyles);
+    console.log('[StealthMode] CSS Iframe injetado.');
   }
 
   /**
-   * Remove CSS do iframe
-   */
-  private removeIframeStyles(): void {
-    if (!this.iframeStyleElement) return;
-
-    try {
-      this.iframeStyleElement.remove();
-      this.iframeStyleElement = null;
-      console.log('[StealthMode] CSS removido do iframe');
-    } catch (error) {
-      console.error('[StealthMode] Erro ao remover CSS do iframe:', error);
-    }
-  }
-
-  /**
-   * Encontra o iframe do jogo
-   */
-  private findGameIframe(): HTMLIFrameElement | null {
-    const selectors = [
-      'iframe[src*="aviator"]',
-      'iframe[src*="spribe"]',
-      'iframe[src*="game"]',
-      'iframe[id*="game"]',
-      'iframe[class*="game"]',
-    ];
-
-    for (const selector of selectors) {
-      const iframe = document.querySelector(selector) as HTMLIFrameElement;
-      if (iframe) return iframe;
-    }
-
-    // Fallback: pegar primeiro iframe
-    return document.querySelector('iframe');
-  }
-
-  /**
-   * Monitora mudanças no DOM para re-aplicar estilos
+   * Monitora/Reaplica (Opcional, pois CSS injetado geralmente persiste)
    */
   public startMonitoring(): void {
-    if (this.isActive) {
-      // Re-aplicar a cada 5 segundos (caso o jogo recarregue)
-      setInterval(() => {
-        if (this.isActive) {
-          this.injectIframeStyles();
-        }
-      }, 5000);
-    }
+    // Monitoramento passivo se necessário (ex: SPA navigation removal)
   }
 }
 
