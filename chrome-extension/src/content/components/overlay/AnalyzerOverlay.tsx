@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
-import { stealthMode } from '@src/content/services/stealthMode';
 
 export const AnalyzerOverlay = () => {
   // Conexão com o Bridge via Hook
@@ -34,11 +33,11 @@ export const AnalyzerOverlay = () => {
   const { balance, setBalance, history, stats } = useBankrollLogic(gameState, analysis, { bet2x, bet10x });
   
   const [isVisible, setIsVisible] = useState(true);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [showConfig, setShowConfig] = useState(false);
+  const [showDetails, setShowDetails] = useState(true); // Default OPEN
   const [isMinimized, setIsMinimized] = useState(false);
   const [isEditingBalance, setIsEditingBalance] = useState(false);
   const [balanceInput, setBalanceInput] = useState('1000.00');
-  const [isStealthMode, setIsStealthMode] = useState(false);
 
   // Draggable State - DEFAULT POSITION LEFT
   const [position, setPosition] = useState({ x: 20, y: 100 }); 
@@ -210,7 +209,7 @@ export const AnalyzerOverlay = () => {
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: isExpanded ? '400px' : '350px',
+        width: showDetails ? '400px' : '350px',
         pointerEvents: 'auto'
       }}>
       <DragShield />
@@ -301,38 +300,18 @@ export const AnalyzerOverlay = () => {
            </div>
         </div>
 
-        {/* BOTÕES DE CONTROLE */}
-        <div className="flex gap-2">
-          {/* BOTÃO STEALTH MODE */}
-          <button 
-            onClick={() => {
-              const newState = stealthMode.toggle();
-              setIsStealthMode(newState);
-            }}
-            className={cn(
-              "flex-1 py-1 text-[10px] rounded flex items-center justify-center gap-1 transition-colors",
-              isStealthMode 
-                ? "bg-indigo-900 hover:bg-indigo-800 text-indigo-200 border border-indigo-500" 
-                : "bg-slate-800 hover:bg-slate-700 text-slate-400"
-            )}
-            title="Modo Discreto: Oculta logos e elementos identificáveis"
-          >
-            {isStealthMode ? '🕶️ Discreto ON' : '👁️ Discreto OFF'}
-          </button>
-
-          {/* BOTÃO EXPANDIR */}
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex-1 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] rounded flex items-center justify-center gap-1 transition-colors"
-          >
-            {isExpanded ? <><ChevronUp size={12}/> Ocultar</> : <><ChevronDown size={12}/> Expandir</>}
-          </button>
-        </div>
+        {/* BOTÃO EXPANDIR */}
+        <button 
+          onClick={() => setShowDetails(!showDetails)}
+          className="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] rounded flex items-center justify-center gap-1 transition-colors"
+        >
+          {showDetails ? <><ChevronUp size={12}/> Ocultar Detalhes</> : <><ChevronDown size={12}/> Expandir Análise Detalhada</>}
+        </button>
 
       </div>
 
       {/* 4. CARD SECUNDÁRIO (EXPANDIDO) */}
-      {isExpanded && (
+      {showDetails && (
         <div className="bg-slate-950/95 backdrop-blur border border-slate-800 rounded-lg p-3 shadow-2xl text-xs space-y-3 animate-in slide-in-from-top-2">
              <div className="font-bold text-slate-300 border-b border-slate-800 pb-1 flex justify-between">
               <span>📊 Detalhes da Sessão</span>
@@ -381,18 +360,21 @@ export const AnalyzerOverlay = () => {
              </div>
            </div>
 
-           {/* Informações Técnicas Minimizadas */}
-           <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-500">
-              <div className="flex justify-between border-b border-slate-800 pb-1">
-                 <span>Densidade 10x:</span>
-                 <span className={analysis.volatilityDensity === 'HIGH' ? "text-emerald-400" : "text-slate-400"}>{analysis.volatilityDensity}</span>
-              </div>
-              <div className="flex justify-between border-b border-slate-800 pb-1">
-                 <span>Conversão 2x:</span>
-                 <span className={analysis.conversionRate > 50 ? "text-emerald-400" : "text-slate-400"}>{analysis.conversionRate}%</span>
-              </div>
-           </div>
-
+            {/* --- EXTRA STATS & CONFIG --- */}
+            <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-gray-400">
+                 <div className="flex justify-between border-b border-gray-700/50 pb-1">
+                    <span>Densidade 10x</span>
+                    <span className={cn("font-bold", analysis.volatilityDensity === 'HIGH' ? "text-pink-400" : "text-gray-500")}>
+                        {analysis.volatilityDensity === 'HIGH' ? 'ALTA' : analysis.volatilityDensity === 'MEDIUM' ? 'MÉDIA' : 'BAIXA'}
+                    </span>
+                 </div>
+                 <div className="flex justify-between border-b border-gray-700/50 pb-1">
+                    <span>Conversão 2x</span>
+                    <span className={cn("font-bold", analysis.conversionRate >= 50 ? "text-green-400" : "text-red-400")}>
+                        {analysis.conversionRate}%
+                    </span>
+                 </div>
+            </div>
            {/* --- STATISTICS GRID (Replacing old History) --- */}
            <div className="grid grid-cols-2 gap-2 text-xs mt-2 border-t border-slate-700/50 pt-2">
                {/* ROXO (2x) STATS */}
