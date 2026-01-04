@@ -1,0 +1,19 @@
+É possivel os cards ficarem fora do jogo? lembra que tinha 2? um dentro e um fora do iframe?
+se o de fora tambem funcionar (o de dentro ja funciona), entao vamos usa-lo fora, assim eu ganho espaço de tela para deixar os cards. Senao, mantenha dentro.
+
+Padrões que eu identifiquei e gostaria de ajustar:
+- a ideia é identificar se é um momento de "pague" ou momento de "tome".
+E precisamos ter isso em numeros tambem?
+
+Não sei exatamente qual será a nossa regua, mas um momento de tome é quando estamos tendo sequencias de velas com 3 quebras (ou seja, 3 velas azuis, abaixo de 1,99, 2.00 ou maior já é roxa, entao é pague).
+
+queremos tbm saber quais sao os padroes do historico, como quantas vezes pagou 4 seguidas, 3 seguidas, 2 seguidas, 1 seguida etc.
+
+Outro dado importante seria saber qual a diferença de uma rosa (10.00x ou maior) até as outras rosas, sabe?
+
+Aqui estamos só com ideias.
+Quero que você me faça perguntas, traga exemplos, modelos etc (faça até as velas aqui no arquivo da maneira que conseguir, ilustrando cenarios, etc). a ideia é estressar o maximo e implementar depois no sistema.
+
+Quero sugestoes tambem de possiveis padroes, tendencias etc. Sei que o jogo utiliza hash, criptografia etc, mas acaba gerando padroes e tendencias que nao sao exatas, mas pode me ajudar. A ideia PRINCIPAL é saber quais serão os criterios para o sistema dizer JOGUE, CUIDADO ou nao jogue. Entender a motivação do que é o RISCO. Entender volatilidade. Ou seja, os dados da tela precisam ajudar a tomar decisão, e nao só enfeitar. Se quiser sugerir de adicionar/editar/remover informação dos cards. fique a vontade.
+
+Utilize esse arquivo para estressar ao MAXIMO, respondendo tudo, trazendo todas ideias, sugestoes, novas perguntas etc..

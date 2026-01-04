@@ -2,12 +2,12 @@
  * Hook useGameAnalysis - Gerencia o estado e a lógica de análise em tempo real
  */
 
-import { useState, useEffect, useCallback } from 'react';
 import { domAnalyzer } from '@src/content/services/domAnalyzer';
 import { patternService } from '@src/content/services/patternService';
-import { GameState, PatternAnalysis, AnalyzerConfig } from '@src/content/types';
+import { AnalyzerConfig, GameState, PatternAnalysis } from '@src/content/types';
+import { useCallback, useEffect, useState } from 'react';
 
-interface UseGameAnalysisReturn {
+export interface UseGameAnalysisReturn {
   gameState: GameState;
   analysis: PatternAnalysis;
   isAnalyzing: boolean;
@@ -28,12 +28,18 @@ export function useGameAnalysis(
   });
 
   const [analysis, setAnalysis] = useState<PatternAnalysis>({
-    riskLevel: 'BAIXO',
+    riskLevel: 'low',
     confidence: 0,
     recommendation: 'Aguardando início da análise...',
     volatility: 0,
-    average: 0,
-    median: 0,
+    avgMultiplier: 0,
+    minMultiplier: 0,
+    maxMultiplier: 0,
+    streak: 0,
+    pinkDistance: 0,
+    avgPostPink: 0,
+    medianPostPink: 0,
+    winRate: 0,
     lastCandles: [],
     patterns: [],
   });

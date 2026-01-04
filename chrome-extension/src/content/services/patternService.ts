@@ -1,13 +1,15 @@
 /**
  * Pattern Service - Analisa padrões nas velas do Aviator
  *
- * Este módulo implementa a lógica de detecção de padrões e cálculo de risco.
- * Foco: Análise baseada no histórico COMPLETO disponível (até 60 velas).
+ * Implementa a lógica "Smart Risk" definida pelo usuário:
+ * 1. Foco no histórico PÓS-ROSA.
+ * 2. Bloqueio Rígido: 3 velas azuis após a rosa = PARA TUDO até a próxima rosa.
+ * 3. Caça-Rosa: Previsão baseada em intervalos anteriores.
  */
 
-import { calculateAverage, calculateStandardDeviation } from '@src/content/lib/utils';
+import { calculateAverage, calculateMedian, calculateStandardDeviation } from '@src/content/lib/utils';
+import type { AnalyzerConfig, DetectedPattern, GameState, PatternAnalysis, RiskLevel } from '@src/content/types';
 import { DEFAULT_CONFIG } from '@src/content/types';
-import type { GameState, PatternAnalysis, DetectedPattern, RiskLevel, AnalyzerConfig } from '@src/content/types';
 
 export class PatternService {
   private config: AnalyzerConfig;
@@ -16,40 +18,53 @@ export class PatternService {
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
-  /**
-   * Analisa o estado do jogo e retorna uma análise completa
-   * Usa TODO o histórico disponível para gerar recomendações precisas
-   */
   public analyze(gameState: GameState): PatternAnalysis {
-    const values = gameState.history.map(c => c.value);
+    // Garantir ordem: values[0] é o MAIS RECENTE
+    const values = [...gameState.history].map(c => c.value);
 
-    // Se não há histórico suficiente, retornar análise padrão
     if (values.length < 5) {
       return this.getDefaultAnalysis();
     }
 
-    console.log(`[Pattern Service] Analisando ${values.length} velas do histórico completo`);
+    console.log(`[Pattern Service] Analisando ${values.length} velas.`);
 
-    // Calcular métricas estatísticas
+    // 1. Métricas Básicas
     const avgMultiplier = calculateAverage(values) || 0.0;
     const minMultiplier = values.length > 0 ? Math.min(...values) : 0.0;
     const maxMultiplier = values.length > 0 ? Math.max(...values) : 0.0;
     const volatility = calculateStandardDeviation(values) || 0.0;
 
-    // Detectar padrões
-    const patterns = this.detectPatterns(values);
+    // 2. Métricas de ROSA e STREAK
+    const lastPinkIndex = values.findIndex(v => v >= 10.0);
+    const pinkDistance = lastPinkIndex === -1 ? values.length : lastPinkIndex;
+    
+    // Streak: Quantas da mesma cor seguidas no início?
+    // Positivo = Roxa/Rosa, Negativo = Azul
+    const streak = this.calculateStreak(values);
 
-    // Calcular nível de risco baseado no histórico completo
-    const { riskLevel, confidence } = this.calculateRisk(values, patterns, volatility);
+    const recentCandles = values.slice(0, 10);
+    const payingCount = recentCandles.filter(v => v >= 2.0).length;
+    const winRate = values.length > 0 ? (payingCount / recentCandles.length) * 100 : 0;
 
-    // Gerar recomendação
+    // Avg & Median Post Pink (Media e Mediana das roxas DEPOIS da ultima rosa)
+    let avgPostPink = 0;
+    let medianPostPink = 0;
+    const postPinkSlice = lastPinkIndex === -1 ? values : values.slice(0, lastPinkIndex);
+    const postPinkPurples = postPinkSlice.filter(v => v >= 2.0);
+    
+    if (postPinkPurples.length > 0) {
+      avgPostPink = calculateAverage(postPinkPurples) || 0;
+      medianPostPink = calculateMedian(postPinkPurples) || 0;
+    }
+
+    // 3. Detectar Padrões (incluindo o Bloqueio de Rosa)
+    const patterns = this.detectPatterns(values, lastPinkIndex);
+
+    // 4. Calcular Risco (Com OVERRIDE do Bloqueio)
+    const { riskLevel, confidence } = this.calculateRisk(values, patterns, volatility, streak, pinkDistance);
+
+    // 5. Recomendação
     const recommendation = this.generateRecommendation(riskLevel, patterns);
-
-    // Pegar últimas velas para exibição
-    const lastCandles = values.slice(0, 10); // Primeiras 10 (mais recentes)
-
-    console.log(`[Pattern Service] Risco: ${riskLevel}, Confiança: ${confidence}%`);
-    console.log(`[Pattern Service] Padrões detectados: ${patterns.length}`);
 
     return {
       riskLevel,
@@ -59,337 +74,265 @@ export class PatternService {
       avgMultiplier,
       minMultiplier,
       maxMultiplier,
-      lastCandles,
+      streak,
+      pinkDistance,
+      avgPostPink,
+      medianPostPink,
+      winRate,
+      lastCandles: values.slice(0, 10),
       patterns,
     };
   }
 
-  /**
-   * Detecta padrões específicos no histórico COMPLETO
-   */
-  private detectPatterns(values: number[]): DetectedPattern[] {
+  private calculateStreak(values: number[]): number {
+    if (values.length === 0) return 0;
+    const firstIsBlue = values[0] < 2.0;
+    let count = 0;
+
+    for (const v of values) {
+      const isBlue = v < 2.0;
+      if (isBlue === firstIsBlue) {
+        count++;
+      } else {
+        break;
+      }
+    }
+
+    return firstIsBlue ? -count : count;
+  }
+
+  private detectPatterns(values: number[], lastPinkIndex: number): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
-    const { thresholds, enabledPatterns } = this.config;
+    
+    // --- 1. BLOQUEIO PÓS-ROSA (Regra Suprema) ---
+    // Regra: Se após a última rosa houver uma sequência de 3 azuis, BLOQUEIA.
+    if (lastPinkIndex !== -1) {
+      const postPinkCandles = values.slice(0, lastPinkIndex); // Velas DEPOIS da rosa (mais recentes)
+      
+      // Procurar sequência de 3 azuis no histórico pós-rosa
+      // Se houve 3 azuis LOGO DEPOIS da rosa, ou NO MEIO, bloqueia?
+      // Comentário do user: "já quebrou +3 vezes, então eu nao jogarei... até vir outra rosa"
+      // Logo, se houver QUALQUER trinca de azuis no período pós-rosa, o bloqueio persiste.
+      
+      let hasBlueTrio = false;
+      let currentBlueRun = 0;
+      
+      // Varrendo do mais antigo (perto da rosa) para o mais recente
+      for (let i = postPinkCandles.length - 1; i >= 0; i--) {
+        if (postPinkCandles[i] < 2.0) {
+          currentBlueRun++;
+          if (currentBlueRun >= 3) {
+            hasBlueTrio = true;
+            // Não paramos o loop, pois queremos saber se o bloqueio 'passou'?
+            // O user diz: "não jogaremos mais ATÉ a proxima rosa".
+            // Então uma vez quebrado, *fica quebrado*.
+            break; 
+          }
+        } else {
+          currentBlueRun = 0;
+        }
+      }
 
-    console.log(`[Pattern Service] Detectando padrões em ${values.length} velas...`);
-
-    // Padrão: Sequência de velas baixas (últimas 5)
-    if (enabledPatterns.includes('LOW_SEQUENCE')) {
-      const lowSequence = this.detectLowSequence(values, thresholds.lowCandle);
-      if (lowSequence) patterns.push(lowSequence);
+      if (hasBlueTrio) {
+         patterns.push({
+           type: 'PINK_LOCK',
+           description: '🚫 BLOQUEIO ATIVO: Ocorreram 3 quebras (azuis) após a última Rosa. Aguarde a próxima Rosa.',
+           severity: 'danger',
+           confidence: 100
+         });
+      }
     }
 
-    // Padrão: Sequência de velas altas (últimas 5)
-    if (enabledPatterns.includes('HIGH_SEQUENCE')) {
-      const highSequence = this.detectHighSequence(values, thresholds.highCandle);
-      if (highSequence) patterns.push(highSequence);
+    // --- 2. PREVISÃO DE ROSA (Pattern Matching) ---
+    // Em vez de média, procuramos REPETIÇÃO de intervalos históricos.
+    // Quanto mais recente o padrão, maior o peso.
+    
+    const pinkIndices = values
+      .map((v, i) => (v >= 10.0 ? i : -1))
+      .filter(i => i !== -1);
+    
+    // Precisamos de pelo menos 2 rosas para ter UM intervalo anterior
+    if (pinkIndices.length >= 2) {
+      const currentDistance = pinkIndices[0]; // Distância atual desde a última rosa
+      
+      // Calcular intervalos históricos
+      // Ex: Pinks em [10, 25, 30]
+      // Int 1 (Recente): 25 - 10 = 15
+      // Int 2 (Antigo): 30 - 25 = 5
+      const intervals: number[] = [];
+      for (let i = 0; i < pinkIndices.length - 1; i++) {
+        intervals.push(pinkIndices[i+1] - pinkIndices[i]); // Distância entre rosa[i] e rosa[i+1]
+      }
+      
+      // Verificar se o momento atual bate com algum intervalo histórico
+      // Prioridade: Recente > Antigo
+      
+      for (let i = 0; i < intervals.length; i++) {
+        const targetInterval = intervals[i];
+        const diff = currentDistance - targetInterval;
+        
+        // Janela de +/- 1
+        if (Math.abs(diff) <= 1) {
+          let type = '🥈 POSSÍVEL';
+          let confidence = 40;
+          let weight = 'silver';
+          
+          if (i === 0) {
+            type = '💎 FORTE'; // Repetição do último
+            confidence = 90;
+            weight = 'diamond';
+          } else if (i <= 2) {
+            type = '🥇 MÉDIO'; // Repetição recente
+            confidence = 70;
+            weight = 'gold';
+          }
+          
+          let subMsg = '';
+          if (diff === -1) subMsg = '(1 antes)';
+          else if (diff === 0) subMsg = '(no alvo)';
+          else if (diff === 1) subMsg = '(1 depois)';
+
+          patterns.push({
+            type: 'PINK_PREDICTION',
+            description: `🌸 ${type}: Padrão de ${targetInterval} casas se repetindo. Momento: ${currentDistance} ${subMsg}`,
+            severity: 'info',
+            confidence
+          });
+          
+          // Se achou um padrão forte (Top 3), para de procurar para não poluir
+          if (i <= 2) break;
+        }
+      }
     }
 
-    // Padrão: Alta volatilidade (histórico completo)
-    if (enabledPatterns.includes('HIGH_VOLATILITY')) {
-      const highVol = this.detectHighVolatility(values, thresholds.highVolatility);
-      if (highVol) patterns.push(highVol);
+    // --- 3. Outros Padrões Comuns ---
+    
+    // Sequência de Azuis (Alerta Imediato se não houver bloqueio ainda)
+    const streak = this.calculateStreak(values);
+    if (streak <= -2) { // 2 ou mais azuis
+       patterns.push({
+         type: 'LOW_SEQUENCE',
+         description: `${Math.abs(streak)} velas azuis seguidas. Cuidado.`,
+         severity: streak <= -3 ? 'danger' : 'warning',
+         confidence: 90
+       });
     }
 
-    // Padrão: Tendência de descida (últimas 10)
-    if (enabledPatterns.includes('TREND_DOWN')) {
-      const trendDown = this.detectTrendDown(values);
-      if (trendDown) patterns.push(trendDown);
+    // Sequência de Roxas (Surfando)
+    if (streak >= 2) {
+      patterns.push({
+        type: 'HIGH_SEQUENCE',
+        description: `Surfando: ${streak} velas pagadoras seguidas!`,
+        severity: 'info',
+        confidence: 80
+      });
     }
-
-    // Padrão: Cluster de valores baixos (últimas 20)
-    if (enabledPatterns.includes('CLUSTER_LOW')) {
-      const clusterLow = this.detectClusterLow(values, thresholds.lowCandle);
-      if (clusterLow) patterns.push(clusterLow);
-    }
-
-    // Padrão: Muitas velas abaixo de 2x (indicador de risco)
-    const veryLowPattern = this.detectVeryLowPattern(values);
-    if (veryLowPattern) patterns.push(veryLowPattern);
-
-    // Padrão: Alternância extrema (alta volatilidade recente)
-    const alternatingPattern = this.detectAlternatingPattern(values);
-    if (alternatingPattern) patterns.push(alternatingPattern);
 
     return patterns;
   }
 
-  /**
-   * Detecta sequência de velas baixas consecutivas (últimas 5)
-   */
-  private detectLowSequence(values: number[], threshold: number): DetectedPattern | null {
-    const recent = values.slice(0, 5); // Primeiras 5 (mais recentes)
-    const lowCount = recent.filter(v => v < threshold).length;
-
-    if (lowCount >= 3) {
-      return {
-        type: 'LOW_SEQUENCE',
-        description: `${lowCount} velas baixas (< ${threshold}x) nas últimas 5 rodadas`,
-        severity: 'warning',
-        confidence: (lowCount / 5) * 100,
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Detecta sequência de velas altas consecutivas (últimas 5)
-   */
-  private detectHighSequence(values: number[], threshold: number): DetectedPattern | null {
-    const recent = values.slice(0, 5); // Primeiras 5 (mais recentes)
-    const highCount = recent.filter(v => v > threshold).length;
-
-    if (highCount >= 2) {
-      return {
-        type: 'HIGH_SEQUENCE',
-        description: `${highCount} velas altas (> ${threshold}x) nas últimas 5 rodadas`,
-        severity: 'info',
-        confidence: (highCount / 5) * 100,
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Detecta alta volatilidade no histórico completo
-   */
-  private detectHighVolatility(values: number[], threshold: number): DetectedPattern | null {
-    const stdDev = calculateStandardDeviation(values);
-
-    if (stdDev > threshold) {
-      return {
-        type: 'HIGH_VOLATILITY',
-        description: `Alta volatilidade detectada (σ = ${stdDev.toFixed(2)})`,
-        severity: 'danger',
-        confidence: Math.min((stdDev / threshold) * 50, 100),
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Detecta tendência de descida (últimas 10 velas)
-   */
-  private detectTrendDown(values: number[]): DetectedPattern | null {
-    const recent = values.slice(0, 10); // Primeiras 10 (mais recentes)
-
-    if (recent.length < 5) return null;
-
-    // Verificar se há tendência de queda
-    let decreasingCount = 0;
-    for (let i = 1; i < Math.min(recent.length, 5); i++) {
-      if (recent[i] < recent[i - 1]) {
-        decreasingCount++;
-      }
-    }
-
-    if (decreasingCount >= 3) {
-      return {
-        type: 'TREND_DOWN',
-        description: 'Tendência de queda detectada nas últimas rodadas',
-        severity: 'warning',
-        confidence: (decreasingCount / 4) * 100,
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Detecta cluster de valores baixos (últimas 20 velas)
-   */
-  private detectClusterLow(values: number[], threshold: number): DetectedPattern | null {
-    const recent = values.slice(0, 20); // Primeiras 20 (mais recentes)
-    const lowCount = recent.filter(v => v < threshold).length;
-    const percentage = (lowCount / recent.length) * 100;
-
-    if (percentage >= 50) {
-      return {
-        type: 'CLUSTER_LOW',
-        description: `${percentage.toFixed(0)}% das últimas 20 velas são baixas`,
-        severity: 'warning',
-        confidence: percentage,
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Detecta muitas velas muito baixas (< 2x) - indicador de alto risco
-   */
-  private detectVeryLowPattern(values: number[]): DetectedPattern | null {
-    const recent = values.slice(0, 10); // Primeiras 10 (mais recentes)
-    const veryLowCount = recent.filter(v => v < 2.0).length;
-
-    if (veryLowCount >= 5) {
-      return {
-        type: 'CLUSTER_LOW',
-        description: `${veryLowCount} velas abaixo de 2.0x nas últimas 10 rodadas`,
-        severity: 'danger',
-        confidence: (veryLowCount / 10) * 100,
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Detecta alternância extrema entre valores altos e baixos
-   */
-  private detectAlternatingPattern(values: number[]): DetectedPattern | null {
-    const recent = values.slice(0, 8); // Primeiras 8 (mais recentes)
-
-    if (recent.length < 6) return null;
-
-    let alternations = 0;
-    for (let i = 1; i < recent.length; i++) {
-      const diff = Math.abs(recent[i] - recent[i - 1]);
-      if (diff > 3.0) {
-        alternations++;
-      }
-    }
-
-    if (alternations >= 4) {
-      return {
-        type: 'ALTERNATING',
-        description: 'Alternância extrema entre valores altos e baixos',
-        severity: 'warning',
-        confidence: (alternations / (recent.length - 1)) * 100,
-      };
-    }
-
-    return null;
-  }
-
-  /**
-   * Calcula o nível de risco baseado no histórico COMPLETO
-   * Lógica melhorada para recomendação JOGUE/NÃO JOGUE
-   */
   private calculateRisk(
-    values: number[],
-    patterns: DetectedPattern[],
+    values: number[], 
+    patterns: DetectedPattern[], 
     volatility: number,
+    streak: number,
+    pinkDistance: number
   ): { riskLevel: RiskLevel; confidence: number } {
-    // Sistema de pontuação baseado em múltiplos fatores
-    let riskScore = 0;
-    let totalConfidence = 0;
-
-    console.log('[Pattern Service] Calculando risco...');
-
-    // 1. Análise dos padrões detectados
-    patterns.forEach(pattern => {
-      console.log(`[Pattern Service] Padrão: ${pattern.type} (${pattern.severity})`);
-
-      if (pattern.severity === 'danger') {
-        riskScore += 30;
-      } else if (pattern.severity === 'warning') {
-        riskScore += 15;
-      } else {
-        riskScore += 5;
-      }
-
-      totalConfidence += pattern.confidence;
-    });
-
-    // 2. Análise da volatilidade
-    if (volatility > this.config.thresholds.highVolatility) {
-      riskScore += 20;
-      console.log(`[Pattern Service] Alta volatilidade: +20 pontos (σ = ${volatility.toFixed(2)})`);
+    
+    // 1. CHEQUE DE BLOQUEIO (CRITICAL MODO)
+    const isLocked = patterns.some(p => p.type === 'PINK_LOCK');
+    if (isLocked) {
+      return { riskLevel: 'critical', confidence: 100 };
     }
 
-    // 3. Análise das últimas 5 velas (mais recentes)
+    // 2. Pontuação Base
+    let score = 50; // Começa neutro
+
+    // STREAK ATUAL
+    if (streak <= -3) {
+      score -= 40; 
+    } else if (streak === -2) {
+      score -= 20; 
+    } else if (streak === -1) {
+      score += 0; 
+    } else if (streak >= 2) {
+      score += 20; 
+    } else if (streak >= 4) {
+      score += 30; 
+    }
+
+    // NOTA: Removido bônus de Pink Prediction. A previsão de rosa é separada do risco de vela roxa.
+
+    // WIN RATE Recente (Últimas 5)
     const last5 = values.slice(0, 5);
-    const avgLast5 = calculateAverage(last5);
-    if (avgLast5 < 2.0) {
-      riskScore += 25;
-      console.log(`[Pattern Service] Média baixa nas últimas 5: +25 pontos (${avgLast5.toFixed(2)}x)`);
+    const bluesInLast5 = last5.filter(v => v < 2.0).length;
+    
+    if (bluesInLast5 <= 1) {
+      score += 15; // Mercado pagador
+    } else if (bluesInLast5 >= 3) {
+      score -= 15; // Mercado recolhendo (mas se não formou trinca, ainda joga-se com cuidado)
     }
 
-    // 4. Análise de sequências perigosas
-    const veryLowInLast10 = values.slice(0, 10).filter(v => v < 1.5).length;
-    if (veryLowInLast10 >= 6) {
-      riskScore += 30;
-      console.log(`[Pattern Service] Muitas velas muito baixas: +30 pontos (${veryLowInLast10}/10)`);
+    // CLAMP SCORE 0-100
+    score = Math.max(0, Math.min(100, score));
+
+    // Mapear para Níveis
+    let riskLevel: RiskLevel = 'medium';
+    if (score >= 80) riskLevel = 'low'; // Excelente (Invertido: Low Risk = High Score)
+    else if (score >= 50) riskLevel = 'medium'; // Ok
+    else riskLevel = 'high'; // Perigoso
+
+    // Se streak for -2, força no mínimo HIGH risk (Cuidado)
+    if (streak <= -2) {
+      riskLevel = 'high'; 
     }
 
-    // 5. Análise da média geral do histórico
-    const avgAll = calculateAverage(values);
-    if (avgAll < 2.5) {
-      riskScore += 15;
-      console.log(`[Pattern Service] Média geral baixa: +15 pontos (${avgAll.toFixed(2)}x)`);
-    }
-
-    console.log(`[Pattern Service] Pontuação total de risco: ${riskScore}`);
-
-    // Calcular confiança média
-    const confidence = patterns.length > 0 ? Math.min(totalConfidence / patterns.length, 100) : 60;
-
-    // Determinar nível de risco
-    let riskLevel: RiskLevel;
-    if (riskScore >= 70) {
-      riskLevel = 'critical'; // NÃO JOGUE
-    } else if (riskScore >= 45) {
-      riskLevel = 'high'; // NÃO JOGUE
-    } else if (riskScore >= 25) {
-      riskLevel = 'medium'; // CUIDADO
-    } else {
-      riskLevel = 'low'; // JOGUE
-    }
+    // Confiança baseada na consistência dos dados (Ex: volatilidade baixa = +confiança)
+    const confidence = Math.max(0, Math.min(100, 100 - (volatility * 2)));
 
     return { riskLevel, confidence: Math.round(confidence) };
   }
 
-  /**
-   * Gera recomendação textual baseada na análise
-   */
   private generateRecommendation(riskLevel: RiskLevel, patterns: DetectedPattern[]): string {
-    const recommendations: Record<RiskLevel, string> = {
-      critical: '🚫 NÃO JOGUE - Risco crítico detectado!',
-      high: '⚠️ NÃO JOGUE - Condições muito desfavoráveis',
-      medium: '⚡ CUIDADO - Jogue com cautela extrema',
-      low: '✅ JOGUE - Condições favoráveis',
-    };
+    const isLocked = patterns.some(p => p.type === 'PINK_LOCK');
+    const pinkOpportunity = patterns.find(p => p.type === 'PINK_PREDICTION');
 
-    let recommendation = recommendations[riskLevel];
-
-    // Adicionar detalhes dos padrões mais críticos
-    const criticalPatterns = patterns.filter(p => p.severity === 'danger' || p.severity === 'warning');
-
-    if (criticalPatterns.length > 0) {
-      recommendation += '\n\n' + criticalPatterns.map(p => `• ${p.description}`).join('\n');
+    if (isLocked) {
+      return '⛔ BLOQUEADO: Aguarde a próxima Rosa.';
     }
 
-    return recommendation;
+    if (pinkOpportunity) {
+      return '🌸 ALERTA: Possível Rosa Próxima! Jogue buscando proteção.';
+    }
+
+    if (riskLevel === 'low') return '✅ JOGUE: Mercado pagador.';
+    if (riskLevel === 'medium') return '⚠️ JOGUE COM CAUTELA: Proteja no 2x.';
+    if (riskLevel === 'high') return '⛔ AGUARDE: Risco alto de correção.';
+    return '⛔ NÃO JOGUE.';
   }
 
-  /**
-   * Retorna análise padrão quando não há dados suficientes
-   */
   private getDefaultAnalysis(): PatternAnalysis {
     return {
       riskLevel: 'low',
       confidence: 0,
-      recommendation: 'Aguardando dados suficientes para análise...',
-      volatility: 0.0,
-      avgMultiplier: 0.0,
-      minMultiplier: 0.0,
-      maxMultiplier: 0.0,
+      recommendation: 'Aguardando dados...',
+      volatility: 0,
+      avgMultiplier: 0,
+      minMultiplier: 0,
+      maxMultiplier: 0,
+      streak: 0,
+      pinkDistance: 0,
+      avgPostPink: 0,
+      medianPostPink: 0,
+      winRate: 0,
       lastCandles: [],
-      patterns: [],
+      patterns: []
     };
   }
 
-  /**
-   * Atualiza a configuração do analisador
-   */
-  public updateConfig(config: Partial<AnalyzerConfig>): void {
+  public updateConfig(config: Partial<AnalyzerConfig>) {
     this.config = { ...this.config, ...config };
   }
 }
 
-// Exportar instância singleton
 export const patternService = new PatternService();

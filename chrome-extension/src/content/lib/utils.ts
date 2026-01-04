@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -8,27 +8,24 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Calcula a média de um array de números
  */
-export function calculateAverage(values: number[]): number {
-  if (values.length === 0) return 0;
-  const sum = values.reduce((acc, val) => acc + val, 0);
-  return sum / values.length;
-}
+export const calculateAverage = (numbers: number[]) => {
+  if (numbers.length === 0) return 0;
+  return numbers.reduce((a, b) => a + b, 0) / numbers.length;
+};
 
 /**
  * Calcula a mediana de um array de números
  */
-export function calculateMedian(values: number[]): number {
-  if (values.length === 0) return 0;
+export const calculateMedian = (numbers: number[]) => {
+  if (numbers.length === 0) return 0;
   
-  const sorted = [...values].sort((a, b) => a - b);
+  const sorted = [...numbers].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   
-  if (sorted.length % 2 === 0) {
-    return (sorted[mid - 1] + sorted[mid]) / 2;
-  }
-  
-  return sorted[mid];
-}
+  return sorted.length % 2 !== 0 
+    ? sorted[mid] 
+    : (sorted[mid - 1] + sorted[mid]) / 2;
+};
 
 /**
  * Calcula o desvio padrão de um array de números

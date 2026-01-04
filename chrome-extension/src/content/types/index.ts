@@ -31,6 +31,13 @@ export interface PatternAnalysis {
   avgMultiplier: number;
   minMultiplier: number;
   maxMultiplier: number;
+  
+  // Smart Risk Metrics
+  streak: number; // Positive (Purple/Pink count) or Negative (Blue count)
+  pinkDistance: number; // Candles since last 10x+
+  avgPostPink: number; // Médio das roxas após a última rosa
+  medianPostPink: number; // Mediana das roxas (Valor Central/Seguro)
+  winRate: number; // % of paying candles in recent history
 
   // Últimas velas para exibição
   lastCandles: number[];
@@ -55,7 +62,9 @@ export type PatternType =
   | 'TREND_DOWN' // Tendência de descida
   | 'ALTERNATING' // Alternância entre alto/baixo
   | 'CLUSTER_LOW' // Cluster de valores baixos
-  | 'CLUSTER_HIGH'; // Cluster de valores altos
+  | 'CLUSTER_HIGH' // Cluster de valores altos
+  | 'PINK_LOCK' // Bloqueio por 3 quebras após rosa
+  | 'PINK_PREDICTION'; // Previsão de rosa próxima
 
 export interface AnalyzerConfig {
   // Número de velas a considerar na análise

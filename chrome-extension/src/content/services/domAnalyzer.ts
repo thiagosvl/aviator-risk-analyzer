@@ -38,9 +38,10 @@ export class DOMAnalyzer {
     if (iframe?.contentDocument) {
       try {
         const iframeDoc = iframe.contentDocument;
-        const iframeElements = iframeDoc.querySelectorAll('span, div');
+        const iframeElements = Array.from(iframeDoc.querySelectorAll('span, div'));
 
         for (const el of iframeElements) {
+
           const text = el.textContent?.trim() || '';
           const match = text.match(/(\d+\.?\d*)\s*x/i);
 
@@ -71,9 +72,10 @@ export class DOMAnalyzer {
     ];
 
     for (const selector of selectors) {
-      const elements = document.querySelectorAll(selector);
+      const elements = Array.from(document.querySelectorAll(selector));
 
       for (const el of elements) {
+
         const text = el.textContent?.trim() || '';
         const match = text.match(/(\d+\.?\d*)\s*x/i);
 
@@ -106,11 +108,12 @@ export class DOMAnalyzer {
     if (iframe?.contentDocument) {
       try {
         const iframeDoc = iframe.contentDocument;
-        const statusElements = iframeDoc.querySelectorAll(
+        const statusElements = Array.from(iframeDoc.querySelectorAll(
           '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"]',
-        );
+        ));
 
         for (const el of statusElements) {
+
           const text = el.textContent?.toLowerCase() || '';
 
           if (text.includes('voando') || text.includes('flying') || text.includes('em voo')) {
@@ -129,11 +132,12 @@ export class DOMAnalyzer {
     }
 
     // Fallback: procurar na página principal
-    const statusElements = document.querySelectorAll(
+    const statusElements = Array.from(document.querySelectorAll(
       '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"]',
-    );
+    ));
 
     for (const el of statusElements) {
+
       const text = el.textContent?.toLowerCase() || '';
 
       if (text.includes('voando') || text.includes('flying') || text.includes('em voo')) {
@@ -157,162 +161,134 @@ export class DOMAnalyzer {
    * Extrai o histórico de velas/crashes da página
    * FOCO: Capturar do dropdown expandido (histórico completo de até 60 velas)
    */
+  /**
+   * Extrai o histórico de velas/crashes da página
+   * FOCO: Capturar do dropdown expandido (histórico completo de até 60 velas)
+   */
   private extractHistory(): void {
     const crashes: CandleData[] = [];
     const now = Date.now();
 
-    // Tentar capturar do iframe do jogo
+    // 1. Tentar capturar do iframe do jogo
     const iframe = document.querySelector(
       'iframe[src*="aviator"], iframe[src*="spribe"], iframe[src*="game"]',
     ) as HTMLIFrameElement;
 
     if (iframe?.contentDocument) {
       try {
+        console.log('[Aviator Debug] Accessing iframe content...');
         const iframeDoc = iframe.contentDocument;
-
-        // Seletores específicos para o dropdown expandido do Aviator
-        const historySelectors = [
-          // Dropdown expandido (quando clica nos 3 pontinhos)
-          'app-stats-dropdown',
-          '.payouts-block',
-          '[class*="payout"]',
-          'app-bubble-multiplier',
-          // Linha superior (fallback)
-          '[class*="history"]',
-          '[class*="bubble"]',
-          '[class*="result"]',
-        ];
-
-        console.log('[Aviator Debug] Tentando capturar histórico do iframe...');
-
-        for (const selector of historySelectors) {
-          const containers = iframeDoc.querySelectorAll(selector);
-
-          if (containers.length > 0) {
-            console.log(`[Aviator Debug] Encontrado ${containers.length} containers com seletor: ${selector}`);
-
-            for (const container of containers) {
-              // Capturar todos os elementos filhos que podem conter multiplicadores
-              const childElements = container.querySelectorAll('*');
-
-              for (const child of childElements) {
-                const text = child.textContent?.trim() || '';
-
-                // Procurar por padrão de multiplicador
-                const matches = text.match(/(\d+\.?\d*)\s*x/gi);
-
-                if (matches) {
-                  matches.forEach(match => {
-                    const value = parseFloat(match.replace(/[^\d.]/g, ''));
-
-                    // Validar multiplicador
-                    if (value >= 1.0 && value < 10000) {
-                      // Verificar se já não foi adicionado
-                      const exists = crashes.some(c => Math.abs(c.value - value) < 0.01);
-                      if (!exists) {
-                        crashes.push({
-                          value,
-                          timestamp: now - crashes.length * 1000,
-                        });
-                      }
-                    }
-                  });
-                }
-              }
-            }
-
-            // Se encontrou dados suficientes, parar
-            if (crashes.length >= 10) break;
-          }
-        }
+        this.parseHistoryFromContext(iframeDoc, crashes, now);
       } catch (error) {
         console.log('[Aviator Debug] Erro ao acessar iframe:', error);
       }
+    } else {
+         console.log('[Aviator Debug] Iframe found but contentDocument is null (cross-origin restricted?) or iframe not found.');
     }
 
-    // Fallback: tentar capturar da página principal
+    // 2. Fallback: tentar capturar da página principal se não achou nada no iframe
     if (crashes.length === 0) {
       console.log('[Aviator Debug] Tentando capturar da página principal...');
-
-      const historySelectors = [
-        'app-stats-dropdown',
-        '.payouts-block',
-        '[class*="payout"]',
-        'app-bubble-multiplier',
-        '[class*="history"]',
-        '[class*="bubble"]',
-      ];
-
-      for (const selector of historySelectors) {
-        const containers = document.querySelectorAll(selector);
-
-        if (containers.length > 0) {
-          console.log(`[Aviator Debug] Encontrado ${containers.length} containers (página principal): ${selector}`);
-
-          for (const container of containers) {
-            const text = container.textContent || '';
-            const matches = text.match(/(\d+\.?\d*)\s*x/gi);
-
-            if (matches) {
-              matches.forEach(match => {
-                const value = parseFloat(match.replace(/[^\d.]/g, ''));
-
-                if (value >= 1.0 && value < 10000) {
-                  const exists = crashes.some(c => Math.abs(c.value - value) < 0.01);
-                  if (!exists) {
-                    crashes.push({
-                      value,
-                      timestamp: now - crashes.length * 1000,
-                    });
-                  }
-                }
-              });
-            }
-          }
-
-          if (crashes.length >= 10) break;
-        }
-      }
+      this.parseHistoryFromContext(document, crashes, now);
     }
 
-    // Atualizar histórico se encontrou dados novos
+    // 3. Atualizar Estado
     if (crashes.length > 0) {
-      console.log(`[Aviator Debug] Total de velas capturadas: ${crashes.length}`);
-      console.log(
-        '[Aviator Debug] Primeiras 10 velas:',
-        crashes
-          .slice(0, 10)
-          .map(c => c.value.toFixed(2) + 'x')
-          .join(', '),
-      );
-
-      // Remover duplicatas
-      const uniqueCrashes = crashes.filter(
-        (crash, index, self) => index === self.findIndex(c => Math.abs(c.value - crash.value) < 0.01),
-      );
-
-      // No Aviator, a vela mais recente está à ESQUERDA
-      // Inverter ordem para que a mais recente fique no índice 0
-      const orderedCrashes = uniqueCrashes.reverse();
+      // Remover duplicatas? NÃO. O histórico do Aviator pode ter valores repetidos (ex: 1.0x seguido de 1.0x).
+      // Apenas filtramos se for EXATAMENTE o mesmo identificador, mas aqui estamos extraindo valores.
+      // Assumimos que a ordem do DOM (querySelectorAll) retorna a sequência correta.
+      // Se a ordem for [Newest, Oldest...], history[0] será o mais recente.
 
       // Manter últimas 60
-      this.gameState.history = orderedCrashes.slice(0, 60);
+      this.gameState.history = crashes.slice(0, 60);
 
       // Atualizar último crash
-      if (orderedCrashes.length > 0) {
-        this.gameState.lastCrash = orderedCrashes[0].value;
+      if (this.gameState.history.length > 0) {
+        this.gameState.lastCrash = this.gameState.history[0].value;
+      }
+    } 
+  }
+
+  /**
+   * Helper para extrair histórico de um contexto (Document ou Element)
+   */
+  private parseHistoryFromContext(context: Document | Element, crashes: CandleData[], now: number) {
+     // Seletores específicos para o dropdown expandido do Aviator
+     const historySelectors = [
+      'app-stats-dropdown .payouts-block',
+      '.payouts-block',
+      'app-bubble-multiplier', 
+      '.bubble-multiplier',
+      '.payouts-block .ng-star-inserted',
+      '[class*="payout"]',
+      '[class*="history"]',
+      // Novos seletores baseados em observação visual (pills)
+      '.multiplier',
+      '.items-container',
+      '.ng-star-inserted', // Genérico, mas validado pelo contexto de números
+      'div[class*="bubble"]'
+    ];
+
+    for (const selector of historySelectors) {
+      // Tenta achar múltiplos itens diretos
+      // Usando Array.from para garantir compatibilidade
+      const items = Array.from(context.querySelectorAll(selector));
+      
+      if (items.length > 0) {
+           console.log(`[Aviator Debug] Found ${items.length} items using selector: "${selector}"`);
       }
 
-      console.log(
-        '[Aviator Debug] Histórico final (mais recente primeiro):',
-        this.gameState.history
-          .slice(0, 10)
-          .map(c => c.value.toFixed(2) + 'x')
-          .join(', '),
-      );
-      console.log(`[Aviator Debug] Total no histórico: ${this.gameState.history.length} velas`);
-    } else {
-      console.log('[Aviator Debug] Nenhuma vela capturada. Verifique se o dropdown está expandido.');
+      if (items.length > 1) {
+        // Encontrou lista de itens
+        items.forEach(item => {
+          this.parseElementValue(item, crashes, now);
+        });
+        // Se conseguimos extrair pelo menos 3 velas, consideramos sucesso e retornamos
+        if (crashes.length >= 3) {
+             console.log(`[Aviator Debug] Successfully extracted ${crashes.length} crashes using selector: "${selector}"`);
+             return;
+        }
+      }
+      
+      // Tenta achar container
+      const container = context.querySelector(selector);
+      if (container) {
+        // Tenta achar filhos com multiplicadores
+        const children = Array.from(container.querySelectorAll('*'));
+        // Filtra elementos muito profundos ou irrelevantes
+        const validChildren = children.filter(c => c.textContent && c.textContent.trim().length < 10);
+
+        if (validChildren.length > 0) {
+           validChildren.forEach(child => this.parseElementValue(child, crashes, now));
+        } else {
+           // Tenta parsear texto do container como fallback
+           this.parseTextValue(container.textContent || '', crashes, now);
+        }
+        if (crashes.length >= 3) return;
+      }
+    }
+  }
+
+  private parseElementValue(el: Element, crashes: CandleData[], now: number) {
+    const text = el.textContent?.trim() || '';
+    this.parseTextValue(text, crashes, now);
+  }
+
+  private parseTextValue(text: string, crashes: CandleData[], now: number) {
+    if (text.length > 20) return; // Ignore long text
+    
+    // Regex mais flexível (aceita vírgula e ponto)
+    const matches = text.match(/(\d+[.,]?\d*)\s*x?/gi);
+    if (matches) {
+      matches.forEach(match => {
+        // Normaliza para ponto flutuante
+        const normalized = match.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+        const val = parseFloat(normalized);
+        
+        if (!isNaN(val) && val >= 1.0 && val < 100000) {
+           crashes.push({ value: val, timestamp: now });
+        }
+      });
     }
   }
 
