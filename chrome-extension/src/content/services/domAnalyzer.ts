@@ -133,7 +133,7 @@ export class DOMAnalyzer {
 
     // Fallback: procurar na página principal
     const statusElements = Array.from(document.querySelectorAll(
-      '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"]',
+      '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"], .flew-text',
     ));
 
     for (const el of statusElements) {
@@ -145,15 +145,19 @@ export class DOMAnalyzer {
         return;
       }
 
-      if (text.includes('aguardando') || text.includes('waiting') || text.includes('próxima')) {
+      if (text.includes('aguardando') || text.includes('waiting') || text.includes('próxima') || text.includes('carregando') || text.includes('loading')) {
         this.gameState.isFlying = false;
         return;
       }
     }
 
     // Se não encontrou indicador, usar o multiplicador como referência
-    if (this.gameState.currentMultiplier <= 1.0) {
-      this.gameState.isFlying = false;
+    // Se for 1.00 ou 0, assume que não está voando (ou está no inicio/fim)
+    // Se for > 1.00, assume que está voando
+    if (this.gameState.currentMultiplier > 1.00) {
+        this.gameState.isFlying = true;
+    } else {
+        this.gameState.isFlying = false;
     }
   }
 

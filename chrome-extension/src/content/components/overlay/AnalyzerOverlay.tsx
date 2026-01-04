@@ -17,8 +17,7 @@ import { useOverseer } from '@src/content/hooks/useOverseer'; // Novo Hook
 import {
     ChevronDown,
     ChevronUp,
-    Maximize2,
-    Minimize2
+    Maximize2
 } from 'lucide-react';
 
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
@@ -27,14 +26,17 @@ export const AnalyzerOverlay = () => {
   // Conexão com o Bridge via Hook
   const { gameState, analysis } = useOverseer();
   
+  const [bet2x, setBet2x] = useState(100.00);
+  const [bet10x, setBet10x] = useState(50.00);
+
   // Bankroll Management
-  const { balance, setBalance, history, stats } = useBankrollLogic(gameState, analysis);
+  const { balance, setBalance, history, stats } = useBankrollLogic(gameState, analysis, { bet2x, bet10x });
   
   const [isVisible, setIsVisible] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isEditingBalance, setIsEditingBalance] = useState(false);
-  const [balanceInput, setBalanceInput] = useState('100.00');
+  const [balanceInput, setBalanceInput] = useState('1000.00');
 
   // Draggable State
   const [position, setPosition] = useState({ x: window.innerWidth - 420, y: 20 }); // Canto superior direito
@@ -120,6 +122,16 @@ export const AnalyzerOverlay = () => {
        </span>
      );
   };
+  
+  // Helpers para Padrão Rosa (Tradução)
+  const getPinkPatternName = (type: string) => {
+      switch(type) {
+          case 'DIAMOND': return 'Alta Freq.';
+          case 'GOLD': return 'Média Freq.';
+          case 'SILVER': return 'Baixa Freq.';
+          default: return type;
+      }
+  };
 
   // MODO MINIMIZADO
   if (isMinimized) {
@@ -165,21 +177,23 @@ export const AnalyzerOverlay = () => {
             <GripVertical className="w-4 h-4 text-slate-500"/>
             <span className="text-xs font-bold text-slate-200">Aviator Analyzer</span>
          </div>
-         <div className="flex items-center gap-1">
-            <button onClick={() => setIsMinimized(true)} className="p-1 hover:bg-slate-800 rounded text-slate-400" title="Minimizar"><Minimize2 size={14}/></button>
-            <button onClick={() => setIsVisible(false)} className="p-1 hover:bg-red-900/50 rounded text-slate-400 hover:text-red-400" title="Fechar"><X size={14}/></button>
-         </div>
+         {/* <div className="flex items-center gap-1">
+            Buttons removed by user request
+         </div> */}
       </div>
 
       <div className="bg-slate-900/95 backdrop-blur border-x border-b border-slate-700 rounded-b-lg p-3 shadow-2xl space-y-3">
         
-        {/* 1. STATUS BAR */}
+        {/* 1. STATUS BAR (Header Personalizado) */}
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
-           <div className={cn("rounded border p-1 font-bold", gameState.isFlying ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20")}>
-             {gameState.isFlying ? '🔴 VOO' : '🟢 AGUARDO'}
+           {/* Lucro da Sessão */}
+           <div className={cn("rounded border p-1 font-bold", stats.totalProfit >= 0 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-red-500/10 text-red-400 border-red-500/20")}>
+             {stats.totalProfit > 0 ? '+' : ''}R$ {stats.totalProfit.toFixed(2)}
            </div>
+           
+           {/* Info de Risco ou Status */}
            <div className="rounded border border-slate-700 bg-slate-800 p-1 text-slate-300">
-             {typeof gameState.lastCrash === 'number' ? gameState.lastCrash.toFixed(2) : '0.00'}x
+             {gameState.isFlying ? 'VOANDO' : 'AGUARDE'}
            </div>
            
            {/* CARTEIRA EDITÁVEL */}
@@ -252,7 +266,7 @@ export const AnalyzerOverlay = () => {
             {analysis.pinkPattern && (
               <div className="mt-2 rounded bg-pink-500/10 border border-pink-500/30 p-2">
                  <div className="font-bold text-pink-400 flex justify-between">
-                    <span>🌸 Padrão {analysis.pinkPattern.type}</span>
+                    <span>🌸 {getPinkPatternName(analysis.pinkPattern.type)}</span>
                     <span>{analysis.pinkPattern.confidence}% Conf.</span>
                  </div>
                  <div className="text-slate-300 mt-1 flex justify-between">
@@ -300,15 +314,42 @@ export const AnalyzerOverlay = () => {
              </div>
            </div>
 
+           <div className="mb-2 p-2 bg-slate-800/50 rounded border border-slate-700/50">
+             <div className="text-[10px] text-slate-500 mb-1 flex justify-between items-center">
+                <span>Configuração de Aposta (Simulador)</span>
+                <span className="text-[9px] opacity-70">Valores em R$</span>
+             </div>
+             <div className="flex gap-2">
+                <div className="flex-1">
+                   <label className="text-[9px] text-emerald-400 block">Alvo 2.00x</label>
+                   <input 
+                      type="number" 
+                      className="w-full bg-slate-900 border border-slate-700 rounded px-1 text-xs text-slate-200 focus:border-emerald-500 outline-none"
+                      value={bet2x}
+                      onChange={(e) => setBet2x(Number(e.target.value))}
+                   />
+                </div>
+                <div className="flex-1">
+                   <label className="text-[9px] text-pink-400 block">Alvo 10.00x</label>
+                   <input 
+                      type="number" 
+                      className="w-full bg-slate-900 border border-slate-700 rounded px-1 text-xs text-slate-200 focus:border-pink-500 outline-none"
+                      value={bet10x}
+                      onChange={(e) => setBet10x(Number(e.target.value))}
+                   />
+                </div>
+             </div>
+           </div>
+
            <div className="grid grid-cols-2 gap-2">
               <div className="bg-slate-800 p-2 rounded">
-                 <div className="text-slate-500">Streak Atual</div>
+                 <div className="text-slate-500" title="Sequência de velas Roxas (positivo) ou Azuis (negativo)">Streak (Seq. Roxa)</div>
                  <div className={cn("font-mono font-bold text-lg", analysis.purpleStreak > 0 ? "text-emerald-400" : "text-red-400")}>
                    {analysis.purpleStreak > 0 ? `+${analysis.purpleStreak}` : analysis.purpleStreak}
                  </div>
               </div>
               <div className="bg-slate-800 p-2 rounded">
-                 <div className="text-slate-500">Desde Rosa</div>
+                 <div className="text-slate-500" title="Quantas velas se passaram desde o último 10x">Dist. Rosa (Velas)</div>
                  <div className="font-mono font-bold text-lg text-pink-400">
                    {analysis.candlesSinceLastPink}
                  </div>

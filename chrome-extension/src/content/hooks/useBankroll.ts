@@ -76,24 +76,29 @@ export function useBankroll(gameState: GameState, analysis: AnalysisData) {
 // Rewriting for proper logic with a Ref to hold state between renders
 import { useRef } from 'react';
 
-export function useBankrollLogic(gameState: GameState, analysis: AnalysisData) {
+export function useBankrollLogic(
+    gameState: GameState, 
+    analysis: AnalysisData,
+    betConfig: { bet2x: number, bet10x: number } = { bet2x: 10.00, bet10x: 5.00 }
+) {
     const [balance, setBalance] = useState(100.00);
     const [history, setHistory] = useState<BetResult[]>([]);
     
-    const lastRoundRef = useRef<number>(0);
-    const pendingBetRef = useRef<{ action: string, target: number } | null>(null);
+    // Stores the bet that was "placed" at the start of the current flight
+    const pendingBetRef = useRef<{ action: string, target: number, amount: number } | null>(null);
     const wasFlyingRef = useRef(false);
 
     // Monitor Flying State
     useEffect(() => {
         // Flying Started (False -> True)
+        // We lock in the bet here based on the recommendation visible just before flight
         if (gameState.isFlying && !wasFlyingRef.current) {
-            // Lock in the bet based on current recommendation
             const action = analysis.recommendation.action;
+            
             if (action === 'PLAY_2X') {
-                pendingBetRef.current = { action, target: 2.00 };
+                pendingBetRef.current = { action, target: 2.00, amount: betConfig.bet2x };
             } else if (action === 'PLAY_10X') {
-                pendingBetRef.current = { action, target: 10.00 };
+                pendingBetRef.current = { action, target: 10.00, amount: betConfig.bet10x };
             } else {
                 pendingBetRef.current = null; // WAIT or STOP
             }
@@ -105,18 +110,20 @@ export function useBankrollLogic(gameState: GameState, analysis: AnalysisData) {
             const crashValue = gameState.lastCrash || 0;
             const bet = pendingBetRef.current;
             
-            // Check if we haven't already processed this "timestamp" implicitly
-            // (Using ref ensures we only do this on the transition edge)
-            
             if (bet) {
                 // Determine Win/Loss
                 const win = crashValue >= bet.target;
-                const profit = win ? (bet.target * 1.00) - 1.00 : -1.00; // Unity bet of 1.00
+                
+                // Profit Calculation:
+                // Win: (Amount * Multiplier) - Amount = Profit (e.g. 10 * 2.0 = 20 - 10 = +10)
+                // Loss: -Amount
+                
+                const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
                 
                 const newBalance = balance + profit;
                 
                 const result: BetResult = {
-                    roundId: Date.now(), // timestamp ID
+                    roundId: Date.now(),
                     action: bet.action,
                     crashPoint: crashValue,
                     profit: parseFloat(profit.toFixed(2)),
@@ -125,7 +132,7 @@ export function useBankrollLogic(gameState: GameState, analysis: AnalysisData) {
                 };
 
                 setBalance(prev => parseFloat((prev + profit).toFixed(2)));
-                setHistory(prev => [result, ...prev].slice(0, 50)); // Keep last 50
+                setHistory(prev => [result, ...prev].slice(0, 50)); 
             }
             
             // Reset pending
@@ -133,7 +140,7 @@ export function useBankrollLogic(gameState: GameState, analysis: AnalysisData) {
         }
 
         wasFlyingRef.current = gameState.isFlying;
-    }, [gameState.isFlying]); // Dependency ensures we run on state changes
+    }, [gameState.isFlying]); 
 
     const stats: BankrollStats = {
         greens: history.filter(h => h.profit > 0).length,
