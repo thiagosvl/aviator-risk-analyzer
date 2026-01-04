@@ -39,15 +39,24 @@ export function useBankrollLogic(
     }>({ bet2x: null, betPink: null });
     
     // We track the timestamp of the last processed candle to avoid double-counting
-    // Initialize with 0, but we will sync it to the current latest on first effect run.
     const lastProcessedTimeRef = useRef<number>(0);
     const isInitializedRef = useRef<boolean>(false);
 
+    // CACHE: Stores the planned bets indexed by the 'basis' timestamp (the latest candle timestamp when the bet was made).
+    // This robustness prevents the "Race Condition" where the Analysis updates to 'WAIT' (for the next round)
+    // before the Bankroll has a chance to resolve the current round's bet.
+    const betsCacheRef = useRef<Record<number, { bet2x: any, betPink: any }>>({});
+
     // 1. CONTINUOUSLY UPDATE PLANNED BETS BASED ON ANALYSIS
     useEffect(() => {
+        // We need the timestamp of the "basis" candle (the one we are looking at to decide).
+        // If history is empty, use 0.
+        const currentBasisTimestamp = gameState.history.length > 0 ? gameState.history[0].timestamp : 0;
+        
         const rec2x = analysis.recommendation2x || { action: 'WAIT' };
         const recPink = analysis.recommendationPink || { action: 'WAIT' };
         
+        // Default to null (no bet)
         const newPlan = { bet2x: null, betPink: null } as any;
 
         if (rec2x.action === 'PLAY_2X') {
@@ -58,8 +67,22 @@ export function useBankrollLogic(
             newPlan.betPink = { action: 'PLAY_10X', target: 10.00, amount: betConfig.bet10x };
         }
 
+        // Only write to cache if we actually have a bet to place. 
+        // If we are WAITING, we don't overwrite a potential existing PLAY for this timestamp 
+        // (though usually analysis is stable).
+        // actually if analysis flips PLAY -> WAIT -> PLAY for the same timestamp, we want the latest.
+        // But if it flips PLAY -> WAIT, does it mean we cancel?
+        // In Aviator, once you bet (which we simulate), you can't really cancel easily if the plane starts.
+        // But here we are purely strategy-based. Let's assume the LATEST decision for a timestamp is the valid one.
+        
+        // FIX: Always update the cache. If we change mind to "WAIT" (null), we should removed the "PLAY".
+        // This solves "Strategy said WAIT but Bankroll Played" bug.
+        betsCacheRef.current[currentBasisTimestamp] = newPlan;
+        
+        // We also explicitly expose the current planned bet for the UI (optional, but good for debugging)
         plannedBetsRef.current = newPlan;
-    }, [analysis, betConfig]);
+        
+    }, [analysis, betConfig, gameState.history]);
 
 
     // 2. DETECT NEW ROUND (HISTORY UPDATE) AND RESOLVE
@@ -79,17 +102,47 @@ export function useBankrollLogic(
         if (latestCandle.timestamp > lastProcessedTimeRef.current) {
             
             const crashValue = latestCandle.value;
-            const bets = plannedBetsRef.current;
             
-            console.log(`[Bankroll] 🎯 NEW ROUND DETECTED: ${crashValue}x. Resolving bets...`, bets);
+            // RESOLUTION LOGIC:
+            // The bet for this new candle would have been stored under the timestamp of the *previous* candle.
+            // i.e., "I saw Candle A, so I bet on Candle B".
+            // So we look for betsCache[Candle_A.timestamp].
+            
+            let betToResolve = { bet2x: null, betPink: null };
+            
+            // We need to find the previous candle. 
+            // Since we just unshifted 'latestCandle' into history[0], the previous one is history[1].
+            const previousCandle = gameState.history.length > 1 ? gameState.history[1] : null;
 
-            const activeBets = [bets.bet2x, bets.betPink].filter(Boolean);
+            if (previousCandle) {
+                const cached = betsCacheRef.current[previousCandle.timestamp];
+                if (cached) {
+                    betToResolve = cached;
+                    // Cleanup old cache to prevent memory leak
+                    delete betsCacheRef.current[previousCandle.timestamp]; 
+                }
+            } else {
+                // Should not happen if history is maintained correctly, but strictly:
+                // If this is the *second* candle ever seen?
+                // Fallback to plannedBetsRef if cache fails (legacy behavior)
+                // betToResolve = plannedBetsRef.current;
+            }
+
+            // Clean older keys just in case
+            const keys = Object.keys(betsCacheRef.current).map(Number);
+            if (keys.length > 10) {
+                keys.slice(0, keys.length - 10).forEach(k => delete betsCacheRef.current[k]);
+            }
+
+            console.log(`[Bankroll] 🎯 NEW ROUND DETECTED: ${crashValue}x. Resolving bets...`, betToResolve);
+
+            const activeBets = [betToResolve.bet2x, betToResolve.betPink].filter(Boolean);
 
             if (activeBets.length > 0) {
                 let totalRoundProfit = 0;
                 const results: BetResult[] = [];
 
-                activeBets.forEach((bet) => {
+                activeBets.forEach((bet: any) => {
                     if (!bet) return;
 
                     const win = crashValue >= bet.target;
@@ -98,10 +151,10 @@ export function useBankrollLogic(
 
                     results.push({
                         roundId: latestCandle.timestamp + Math.random(),
-                        action: bet.action,
+                        action: bet.action, // 'PLAY_2X' or 'PLAY_10X'
                         crashPoint: crashValue,
                         profit: parseFloat(profit.toFixed(2)),
-                        balanceAfter: 0,
+                        balanceAfter: 0, 
                         timestamp: new Date().toLocaleTimeString()
                     });
                     
@@ -124,10 +177,25 @@ export function useBankrollLogic(
         }
     }, [gameState.history]);
 
-    const stats: BankrollStats = {
-        greens: history.filter(h => h.profit > 0).length,
-        reds: history.filter(h => h.profit < 0).length,
-        totalProfit: parseFloat(history.reduce((acc, h) => acc + h.profit, 0).toFixed(2))
+    // Helper to calculate granular stats
+    const calculateStats = (filterAction: string) => {
+        const relevantHistory = history.filter(h => h.action === filterAction);
+        const attempts = relevantHistory.length;
+        const wins = relevantHistory.filter(h => h.profit > 0).length;
+        const profit = relevantHistory.reduce((acc, h) => acc + h.profit, 0);
+        return {
+            attempts,
+            wins,
+            losses: attempts - wins,
+            profit: parseFloat(profit.toFixed(2)),
+            winRate: attempts > 0 ? Math.round((wins / attempts) * 100) : 0
+        };
+    };
+
+    const stats = {
+        totalProfit: parseFloat(history.reduce((acc, h) => acc + h.profit, 0).toFixed(2)),
+        stats2x: calculateStats('PLAY_2X'),
+        statsPink: calculateStats('PLAY_10X')
     };
 
     return { balance, setBalance, history, stats };

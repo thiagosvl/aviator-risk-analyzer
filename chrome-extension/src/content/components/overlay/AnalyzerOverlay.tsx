@@ -306,16 +306,14 @@ export const AnalyzerOverlay = () => {
       {/* 4. CARD SECUNDÁRIO (EXPANDIDO) */}
       {isExpanded && (
         <div className="bg-slate-950/95 backdrop-blur border border-slate-800 rounded-lg p-3 shadow-2xl text-xs space-y-3 animate-in slide-in-from-top-2">
-           <div className="font-bold text-slate-300 border-b border-slate-800 pb-1 flex justify-between">
-             <span>📊 Detalhes da Sessão</span>
-             <span className="flex gap-2">
-                <span className="text-emerald-400">{stats.greens}G</span>
-                <span className="text-red-400">{stats.reds}R</span>
-                <span className={stats.totalProfit >= 0 ? "text-emerald-400" : "text-red-400"}>
-                    {stats.totalProfit > 0 ? '+' : ''}{stats.totalProfit.toFixed(2)}
-                </span>
-             </span>
-           </div>
+             <div className="font-bold text-slate-300 border-b border-slate-800 pb-1 flex justify-between">
+              <span>📊 Detalhes da Sessão</span>
+              <span className="flex gap-2">
+                 <span className={stats.totalProfit >= 0 ? "text-emerald-400" : "text-red-400"}>
+                     {stats.totalProfit > 0 ? '+' : ''}{stats.totalProfit.toFixed(2)}
+                 </span>
+              </span>
+            </div>
            
            <div>
              <div className="text-slate-500 mb-1">Últimas 10 Velas:</div>
@@ -367,26 +365,152 @@ export const AnalyzerOverlay = () => {
               </div>
            </div>
 
-           {/* Histórico de Apostas */}
-           {history.length > 0 && (
-               <div className="mt-2">
-                   <div className="text-slate-500 mb-1 border-t border-slate-700 pt-2">Histórico de Jogadas:</div>
-                   <div className="max-h-24 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
-                       {history.map((bet, i) => (
-                           <div key={i} className="flex justify-between items-center bg-slate-900 p-1 rounded text-[10px] border border-slate-800">
-                               <span className="text-slate-500">{bet.timestamp}</span>
-                               <span className={bet.action.includes('10X') ? "text-pink-400 font-bold" : "text-purple-400 font-bold"}>{bet.action.replace('PLAY_', '').replace('_', ' ')}</span>
-                               <span className="text-slate-300">{bet.crashPoint.toFixed(2)}x</span>
-                               <span className={cn("font-bold", bet.profit > 0 ? "text-emerald-400" : "text-red-400")}>
-                                   {bet.profit > 0 ? '+' : ''}{bet.profit.toFixed(2)}
-                               </span>
-                           </div>
-                       ))}
+           {/* --- STATISTICS GRID (Replacing old History) --- */}
+           <div className="grid grid-cols-2 gap-2 text-xs mt-2 border-t border-slate-700/50 pt-2">
+               {/* ROXO (2x) STATS */}
+               <div className="bg-[#4c1d95]/20 border border-[#8b5cf6]/30 rounded p-2 flex flex-col items-center">
+                   <span className="text-[#a78bfa] font-bold mb-1">Estratégia 2.00x</span>
+                   <div className="grid grid-cols-2 w-full gap-y-1 text-[10px] text-gray-300">
+                       <span>Tentativas:</span> <span className="text-right text-white">{stats.stats2x.attempts}</span>
+                       <span>Acertos:</span> <span className="text-right text-green-400">{stats.stats2x.wins} ({stats.stats2x.winRate}%)</span>
+                       <span>Lucro:</span> 
+                       <span className={`text-right font-bold ${stats.stats2x.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                           R$ {stats.stats2x.profit.toFixed(2)}
+                       </span>
                    </div>
                </div>
-           )}
+
+               {/* ROSA (10x) STATS */}
+               <div className="bg-[#be185d]/20 border border-[#f43f5e]/30 rounded p-2 flex flex-col items-center">
+                   <span className="text-[#fb7185] font-bold mb-1">Estratégia 10.00x</span>
+                   <div className="grid grid-cols-2 w-full gap-y-1 text-[10px] text-gray-300">
+                       <span>Tentativas:</span> <span className="text-right text-white">{stats.statsPink.attempts}</span>
+                       <span>Acertos:</span> <span className="text-right text-green-400">{stats.statsPink.wins} ({stats.statsPink.winRate}%)</span>
+                       <span>Lucro:</span> 
+                       <span className={`text-right font-bold ${stats.statsPink.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                           R$ {stats.statsPink.profit.toFixed(2)}
+                       </span>
+                   </div>
+               </div>
+           </div>
         </div>
       )}
+
+      {/* DRAGGABLE HISTORY COMPONENT INSTANCE */}
+      <DraggableHistory history={gameState.history} />
     </div>
   );
 };
+
+// --- DRAGGABLE HISTORY COMPONENT ---
+const DraggableHistory = ({ history }: { history: any[] }) => {
+    // Initial position: Top right to avoid covering the game
+    const [position, setPosition] = useState({ x: window.innerWidth - 300, y: 100 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+    
+    // Drag Handlers
+    const handleMouseDown = (e: React.MouseEvent) => {
+        setIsDragging(true);
+        setDragOffset({
+            x: e.clientX - position.x,
+            y: e.clientY - position.y
+        });
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (isDragging) {
+                setPosition({
+                    x: e.clientX - dragOffset.x,
+                    y: e.clientY - dragOffset.y
+                });
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsDragging(false);
+        };
+
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging, dragOffset]);
+
+    if (!history || history.length === 0) return null;
+
+    return (
+        <div 
+            style={{ 
+                left: position.x, 
+                top: position.y,
+                width: '200px',
+                zIndex: 10001
+            }}
+            className="fixed bg-slate-950/95 border border-slate-700/50 rounded-lg shadow-2xl flex flex-col font-mono backdrop-blur-md overflow-hidden"
+        >
+            {/* Header (Drag Handle) */}
+            <div 
+                onMouseDown={handleMouseDown}
+                className="h-7 bg-slate-900/80 flex items-center justify-between px-2 cursor-move select-none border-b border-slate-800 group"
+            >
+                <div className="flex items-center gap-1.5">
+                    <div className="flex gap-0.5">
+                        <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
+                        <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider group-hover:text-slate-200 transition-colors">Histórico</span>
+                </div>
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                     <span className="text-[8px] text-slate-600">DRAG ME</span>
+                </div>
+            </div>
+
+            {/* List Content */}
+            <div className="overflow-y-auto custom-scrollbar bg-black/20" style={{ maxHeight: 'calc(100vh - 200px)', minHeight: '150px' }}>
+                <table className="w-full text-[10px] border-collapse table-fixed">
+                    <thead className="bg-slate-900/80 text-slate-500 sticky top-0 backdrop-blur-sm z-10 text-[9px]">
+                        <tr>
+                            <th className="py-1 px-2 text-left w-1/3">HORA</th>
+                            <th className="py-1 px-1 text-center w-1/4">MULT</th>
+                            <th className="py-1 px-2 text-right w-1/3">LUCRO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {history.slice(0, 50).map((h, i) => (
+                             <tr key={h.roundId || i} className="border-b border-slate-800/30 hover:bg-white/5 transition-colors group">
+                                 <td className="py-1 px-2 text-slate-500 font-mono tracking-tighter opacity-70 group-hover:opacity-100">
+                                     {new Date(h.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                 </td>
+                                 <td className={`py-0.5 px-1 text-center font-bold relative ${
+                                     h.value >= 10.0 ? 'text-[#fb7185] drop-shadow-[0_0_5px_rgba(251,113,133,0.3)]' : 
+                                     h.value >= 2.0 ? 'text-[#a78bfa]' : 'text-blue-400'
+                                 }`}>
+                                     {h.value.toFixed(2)}x
+                                 </td>
+                                 <td className={`py-0.5 px-2 text-right font-bold ${h.profit > 0 ? 'text-emerald-400' : (h.profit < 0 ? 'text-red-400' : 'text-slate-700')}`}>
+                                      {h.profit !== 0 ? (h.profit > 0 ? `+${h.profit}` : h.profit) : '-'}
+                                 </td>
+                             </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            
+            {/* Custom Scrollbar Style */}
+            <style>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+            `}</style>
+        </div>
+    );
+};
+
