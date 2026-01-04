@@ -149,9 +149,7 @@ class PatternService {
           };
       }
   
-      const last5 = values.slice(0, 5);
-      const recentBlues = last5.filter(v => v < 2.0).length;
-      const deepDowntrend = recentBlues >= 3;
+      const deepDowntrend = this.checkDeepDowntrend(values);
   
       if (streak === 1) {
           return {
@@ -327,6 +325,19 @@ class PatternService {
     }
 
     return null;
+  }
+
+  private checkDeepDowntrend(values: number[]): boolean {
+      let blueStreak = 0;
+      for (let i = 0; i < Math.min(values.length, 10); i++) {
+          if (values[i] < 2.0) {
+              blueStreak++;
+              if (blueStreak >= 3) return true;
+          } else {
+              blueStreak = 0;
+          }
+      }
+      return false;
   }
 
   private getDefaultAnalysis(): AnalysisData {
