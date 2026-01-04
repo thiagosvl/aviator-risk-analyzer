@@ -37,8 +37,12 @@ export class PatternService {
     const pinkDensityPercent = (pinkCount / densityCheckWindow) * 100;
 
     let volatilityDensity: 'LOW' | 'MEDIUM' | 'HIGH' = 'LOW';
-    if (pinkDensityPercent >= 10) volatilityDensity = 'HIGH';
-    else if (pinkDensityPercent >= 6) volatilityDensity = 'MEDIUM';
+    // Se tiver menos de 5 velas, mantemos LOW por segurança, mas o usuário pediu para calcular com o que tem.
+    // Vou manter apenas um sanity check mínimo de 3 velas.
+    if (densityCheckWindow >= 3) {
+        if (pinkDensityPercent >= 10) volatilityDensity = 'HIGH';
+        else if (pinkDensityPercent >= 6) volatilityDensity = 'MEDIUM';
+    }
 
     // 2. CONVERSION RATE (Taxa de Conversão de Roxas)
     // Regra: Quantas roxas viraram sequência (2+)?
@@ -157,11 +161,14 @@ export class PatternService {
         if (i === 0) { type = 'DIAMOND'; conf = 90; } // Last interval repeated
         else if (i <= 2) { type = 'GOLD'; conf = 75; } // Recent interval
 
+        const ptNames = { 'DIAMOND': 'Alta Freq.', 'GOLD': 'Média Freq.', 'SILVER': 'Baixa Freq.' };
+
         return {
           type,
           interval: target,
           confidence: conf,
-          candlesUntilMatch: target - currentDistance // Negative means passed, 0 means now
+          candlesUntilMatch: target - currentDistance, // Negative means passed, 0 means now
+          displayName: ptNames[type] // Adding custom prop for display if needed, but we'll use it in reason
         };
       }
     }
@@ -175,7 +182,8 @@ export class PatternService {
                  type: 'SILVER',
                  interval: nextTarget,
                  confidence: 40,
-                 candlesUntilMatch: nextTarget - currentDistance
+                 candlesUntilMatch: nextTarget - currentDistance,
+                 displayName: 'Baixa Freq.'
              };
          }
     }
@@ -189,7 +197,7 @@ export class PatternService {
     isLock: boolean,
     isStopLoss: boolean,
     isValidStreak: boolean,
-    pinkPattern: PatternData | null,
+    pinkPattern: PatternData & { displayName?: string } | null,
     density: 'LOW' | 'MEDIUM' | 'HIGH'
   ): Recommendation {
 
@@ -200,7 +208,7 @@ export class PatternService {
     if (pinkPattern && pinkPattern.confidence >= 75 && Math.abs(pinkPattern.candlesUntilMatch) <= 1) {
        return {
          action: 'PLAY_10X',
-         reason: `Padrão ${pinkPattern.type} Detectado!`,
+         reason: `Padrão ${pinkPattern.displayName || pinkPattern.type} Detectado!`,
          riskLevel: 'LOW', // Risco baixo porque o payout é alto vs custo
          confidence: pinkPattern.confidence
        };

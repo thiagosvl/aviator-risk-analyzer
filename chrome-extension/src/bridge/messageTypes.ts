@@ -30,6 +30,7 @@ export interface PatternData {
   interval: number;
   confidence: number;
   candlesUntilMatch: number;
+  displayName?: string;
 }
 
 export interface AnalysisData {

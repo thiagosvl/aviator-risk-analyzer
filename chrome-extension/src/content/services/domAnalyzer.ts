@@ -149,6 +149,11 @@ export class DOMAnalyzer {
         this.gameState.isFlying = false;
         return;
       }
+
+      if (text.includes('voou para longe') || text.includes('flew away')) {
+        this.gameState.isFlying = false;
+        return;
+      }
     }
 
     // Se não encontrou indicador, usar o multiplicador como referência

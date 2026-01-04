@@ -79,26 +79,30 @@ import { useRef } from 'react';
 export function useBankrollLogic(
     gameState: GameState, 
     analysis: AnalysisData,
-    betConfig: { bet2x: number, bet10x: number } = { bet2x: 10.00, bet10x: 5.00 }
+    betConfig: { bet2x: number, bet10x: number } = { bet2x: 100.00, bet10x: 50.00 }
 ) {
-    const [balance, setBalance] = useState(100.00);
+    const [balance, setBalance] = useState(1000.00);
     const [history, setHistory] = useState<BetResult[]>([]);
     
     // Stores the bet that was "placed" at the start of the current flight
-    const pendingBetRef = useRef<{ action: string, target: number, amount: number } | null>(null);
+    // We also store the 'startCrash' (last known crash when we placed the bet)
+    // to verify if the crash we see later is actually new.
+    const pendingBetRef = useRef<{ action: string, target: number, amount: number, startCrash: number | null } | null>(null);
     const wasFlyingRef = useRef(false);
 
     // Monitor Flying State
     useEffect(() => {
         // Flying Started (False -> True)
-        // We lock in the bet here based on the recommendation visible just before flight
         if (gameState.isFlying && !wasFlyingRef.current) {
             const action = analysis.recommendation.action;
+            const lastKnownCrash = gameState.lastCrash || 0;
             
+            console.log('[Bankroll] Round Started. Rec:', action, 'LastCrash:', lastKnownCrash);
+
             if (action === 'PLAY_2X') {
-                pendingBetRef.current = { action, target: 2.00, amount: betConfig.bet2x };
+                pendingBetRef.current = { action, target: 2.00, amount: betConfig.bet2x, startCrash: lastKnownCrash };
             } else if (action === 'PLAY_10X') {
-                pendingBetRef.current = { action, target: 10.00, amount: betConfig.bet10x };
+                pendingBetRef.current = { action, target: 10.00, amount: betConfig.bet10x, startCrash: lastKnownCrash };
             } else {
                 pendingBetRef.current = null; // WAIT or STOP
             }
@@ -110,16 +114,14 @@ export function useBankrollLogic(
             const crashValue = gameState.lastCrash || 0;
             const bet = pendingBetRef.current;
             
+            console.log('[Bankroll] Round Ended. Crash:', crashValue, 'Bet:', bet);
+            
             if (bet) {
                 // Determine Win/Loss
                 const win = crashValue >= bet.target;
                 
                 // Profit Calculation:
-                // Win: (Amount * Multiplier) - Amount = Profit (e.g. 10 * 2.0 = 20 - 10 = +10)
-                // Loss: -Amount
-                
                 const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
-                
                 const newBalance = balance + profit;
                 
                 const result: BetResult = {
@@ -140,7 +142,7 @@ export function useBankrollLogic(
         }
 
         wasFlyingRef.current = gameState.isFlying;
-    }, [gameState.isFlying]); 
+    }, [gameState.isFlying, gameState.lastCrash, analysis, betConfig]); 
 
     const stats: BankrollStats = {
         greens: history.filter(h => h.profit > 0).length,
