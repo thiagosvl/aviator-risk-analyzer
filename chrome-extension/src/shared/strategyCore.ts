@@ -248,6 +248,15 @@ export class StrategyCore {
       scoreBreakdown.details.push(`Stop Loss (2 reds): ${penalty}`);
     }
 
+    // 9. TURBO SURF (V4.1)
+    // Se estamos surfando e a densidade roxa recente é boa, bônus de continuidade
+    const recentPurples = values.slice(0, 10).filter(v => v >= 2.0).length;
+    if (streak >= 2 && recentPurples >= 5) {
+      const bonus = 10;
+      scoreBreakdown.pattern += bonus;
+      scoreBreakdown.details.push(`Turbo Surf: +${bonus}`);
+    }
+
     // TOTAL
     scoreBreakdown.total = 
       scoreBreakdown.streak +
@@ -415,6 +424,14 @@ export class StrategyCore {
       scoreBreakdown.details.push(`Dist <3: ${weights.pink_under_3}`);
     }
 
+    // 4. SNIPER WINDOW (V4.1)
+    // Janela de oportunidade estatística entre 8 e 12 velas
+    if (pinkDistance >= 8 && pinkDistance <= 12) {
+      const bonus = 15;
+      scoreBreakdown.volatility += bonus;
+      scoreBreakdown.details.push(`Sniper Window: +${bonus}`);
+    }
+
     // TOTAL
     scoreBreakdown.total = 
       scoreBreakdown.pattern +
@@ -519,17 +536,19 @@ export class StrategyCore {
     const freq = new Map<number, number>();
     intervals.forEach(int => freq.set(int, (freq.get(int) || 0) + 1));
     
-    // V3.10: Intervalos 3-5 exigem 3+ ocorrências
+    // V4.1: Regras relaxadas para capturar padrões em janelas curtas
     const confirmed = Array.from(freq.entries()).filter(([int, count]) => {
-        if (int < 3) return count >= 4;
-        if (int >= 3 && int <= 5) return count >= 3;
-        return count >= 2;
+        if (int < 3) return count >= 3;
+        if (int >= 3 && int <= 5) return count >= 2;
+        return count >= 1;
     });
     
     // Prioriza intervalos com mais ocorrências
     for (const [int, count] of confirmed.sort((a, b) => b[1] - a[1])) {
         const diff = Math.abs(lastIdx - int);
-        if (diff <= 1) {
+        // V4.1: Margem de erro maior para intervalos longos
+        const maxDiff = int >= 12 ? 2 : 1;
+        if (diff <= maxDiff) {
             return {
               type: int >= 15 ? 'DIAMOND' : int >= 8 ? 'GOLD' : 'SILVER',
               interval: int,

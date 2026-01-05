@@ -212,7 +212,8 @@ def main():
     failed_count = 0
     
     for i, image_path in enumerate(image_files, 1):
-        output_file = os.path.join(output_dir, f"grafo_{i:03d}.txt")
+        # Usar o mesmo nome da imagem para facilitar conferência
+        output_file = os.path.join(output_dir, f"{image_path.stem}.txt")
         
         print(f"[{i}/{len(image_files)}] {image_path.name}")
         

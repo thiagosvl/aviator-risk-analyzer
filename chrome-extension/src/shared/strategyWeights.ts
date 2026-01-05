@@ -62,7 +62,7 @@ export interface StrategyWeights {
     pattern_4_plus_occurrences: number;
     pattern_3_occurrences: number;
     pattern_2_occurrences: number;
-    no_pattern: number;
+    no_pattern: number; // V4.1: Regras relaxadas para capturar padrões em janelas curtas
     
     // Zone
     zone_exact: number;
@@ -102,25 +102,25 @@ export interface StrategyWeights {
 export const WEIGHTS_BALANCED: StrategyWeights = {
   roxa: {
     // Streak
-    streak_4_plus: 40,
-    streak_3: 30,
-    streak_2: 15,
-    streak_1: 5,
+    streak_4_plus: 30,
+    streak_3: 20,
+    streak_2: 10,
+    streak_1: 0,
     
     // Conversion Rate
-    conv_60_plus: 30,
-    conv_50_59: 20,
-    conv_40_49: 10,
-    conv_under_40: -10,
+    conv_60_plus: 40,
+    conv_50_59: 30,
+    conv_40_49: 15,
+    conv_under_40: -20,
     
     // Blue Density
     blue_under_40: 20,
     blue_40_50: 10,
     blue_50_60: 0,
-    blue_over_60: -30,
+    blue_over_60: -60,
     
     // Pink Distance
-    pink_5_plus: 15,
+    pink_5_plus: 20,
     pink_3_4: 5,
     pink_under_3: -50,
     
@@ -134,15 +134,15 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     deep_downtrend: -20,
     
     // Threshold
-    threshold: 55,  // Ajustado para mais jogadas
+    threshold: 72,  // Aumentado para eliminar entradas de score 70 que estavam falhando
   },
   
   rosa: {
     // Pattern
     pattern_4_plus_occurrences: 50,
     pattern_3_occurrences: 35,
-    pattern_2_occurrences: 20,
-    no_pattern: -30,
+    pattern_2_occurrences: 25,
+    no_pattern: 0,
     
     // Zone
     zone_exact: 30,
@@ -171,7 +171,7 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     confidence_under_70: 0,
     
     // Threshold
-    threshold: 65,  // Ajustado para mais jogadas
+    threshold: 35,  // Equilíbrio entre taxa de acerto e lucro nas rosas
   }
 };
 
