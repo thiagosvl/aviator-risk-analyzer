@@ -1,0 +1,154 @@
+
+================================================================================
+TESTE EM MASSA - SISTEMA V4.1
+================================================================================
+Pasta: GRAFOS_TESTE
+Perfil: BALANCED
+Threshold 2x: 65
+Threshold Pink: 70
+================================================================================
+
+📊 Encontrados 10 grafos
+
+✅ 10_148.txt: 48 rodadas, 5 jogadas 2x, 80.0% acerto, R$ -50.00
+✅ 1_158.txt: 57 rodadas, 1 jogadas 2x, 0.0% acerto, R$ 50.00
+✅ 2_139.txt: 38 rodadas, 2 jogadas 2x, 50.0% acerto, R$ -200.00
+✅ 3_156.txt: 57 rodadas, 4 jogadas 2x, 25.0% acerto, R$ -400.00
+✅ 4_143.txt: 45 rodadas, 2 jogadas 2x, 50.0% acerto, R$ 100.00
+✅ 5_163.txt: 64 rodadas, 3 jogadas 2x, 33.3% acerto, R$ -550.00
+✅ 6_147.txt: 47 rodadas, 6 jogadas 2x, 66.7% acerto, R$ 300.00
+✅ 7_155.txt: 56 rodadas, 0 jogadas 2x, 0.0% acerto, R$ -350.00
+✅ 8_170.txt: 70 rodadas, 4 jogadas 2x, 50.0% acerto, R$ -100.00
+✅ 9_147.txt: 48 rodadas, 0 jogadas 2x, 0.0% acerto, R$ -100.00
+
+================================================================================
+RELATÓRIO CONSOLIDADO
+================================================================================
+
+📊 ESTATÍSTICAS GERAIS:
+   Grafos testados: 10
+   Rodadas totais: 530
+   Média de rodadas/grafo: 53.0
+
+🟣 ESTRATÉGIA ROXA (2x):
+   Total de jogadas: 27
+   Greens: 14
+   Losses: 13
+   Assertividade média: 51.9%
+   Taxa de entrada: 5.1%
+
+🌸 ESTRATÉGIA ROSA (10x):
+   Total de jogadas: 98
+   Greens: 7
+   Losses: 91
+   Assertividade média: 7.1%
+   Taxa de entrada: 18.5%
+
+📍 BREAKDOWN POR ZONA DE TIRO (ROSA):
+   ⏪ ANTES   : 22 jogadas, 13.6% assertividade ⚠️ MEDIANO
+   🎯 DURANTE: 49 jogadas, 4.1% assertividade ❌ PÉSSIMO
+   ⏩ DEPOIS  : 27 jogadas, 7.4% assertividade ❌ PÉSSIMO
+
+💰 FINANCEIRO:
+   Lucro total: R$ -1300.00
+   Lucro médio/grafo: R$ -130.00
+   ROI médio: -13.0%
+
+📈 DISTRIBUIÇÃO:
+   Grafos lucrativos: 3 (30.0%)
+   Grafos no empate: 0 (0.0%)
+   Grafos com prejuízo: 7 (70.0%)
+
+🏆 TOP 5 MELHORES:
+   1. 6_147.txt: R$ 300.00 (66.7% acerto, 6 jogadas)
+   2. 4_143.txt: R$ 100.00 (50.0% acerto, 2 jogadas)
+   3. 1_158.txt: R$ 50.00 (0.0% acerto, 1 jogadas)
+   4. 10_148.txt: R$ -50.00 (80.0% acerto, 5 jogadas)
+   5. 8_170.txt: R$ -100.00 (50.0% acerto, 4 jogadas)
+
+💔 TOP 5 PIORES:
+   1. 5_163.txt: R$ -550.00 (33.3% acerto, 3 jogadas)
+   2. 3_156.txt: R$ -400.00 (25.0% acerto, 4 jogadas)
+   3. 7_155.txt: R$ -350.00 (0.0% acerto, 0 jogadas)
+   4. 2_139.txt: R$ -200.00 (50.0% acerto, 2 jogadas)
+   5. 8_170.txt: R$ -100.00 (50.0% acerto, 4 jogadas)
+
+================================================================================
+AVALIAÇÃO FINAL
+================================================================================
+
+⚠️  Assertividade MEDIANA (45-54%)
+❌ PREJUÍZO médio (R$-130.00/grafo)
+❌ Taxa de vitória BAIXA (30.0%)
+
+💡 RECOMENDAÇÕES:
+
+   • Poucas jogadas (5.1%). Considere diminuir threshold para 55.
+   • Assertividade baixa. Revise pesos das features ou aumente threshold.
+   • Taxa de vitória baixa. Sistema precisa de ajustes.
+
+================================================================================
+ANÁLISE DETALHADA DE ESTRATÉGIAS E REGRAS
+================================================================================
+
+📊 BREAKDOWN POR TIPO DE ENTRADA (MOTIVO):
+
+❌ ✅ Score: 70 (Threshold: 65):
+   Total: 15 jogadas (55.6% do total)
+   Greens: 6 | Losses: 9
+   Assertividade: 40.0%
+   🚨 Estratégia RUIM. Considere remover ou revisar.
+
+✅ ✅ Score: 65 (Threshold: 65):
+   Total: 6 jogadas (22.2% do total)
+   Greens: 5 | Losses: 1
+   Assertividade: 83.3%
+   💡 Estratégia EXCELENTE! Continue usando.
+
+❌ ✅ Score: 75 (Threshold: 65):
+   Total: 4 jogadas (14.8% do total)
+   Greens: 2 | Losses: 2
+   Assertividade: 50.0%
+   ⚠️  Estratégia MEDIANA. Considere ajustar pesos.
+
+❌ ✅ Score: 90 (Threshold: 65):
+   Total: 2 jogadas (7.4% do total)
+   Greens: 1 | Losses: 1
+   Assertividade: 50.0%
+   ⚠️  Estratégia MEDIANA. Considere ajustar pesos.
+
+⚠️  DIAGNÓSTICO DE RISCO (Regras frequentes em Losses):
+
+   • Dist ≥5: presente em 13 losses (100.0% das derrotas)
+   • Blue 40-50%: presente em 9 losses (69.2% das derrotas)
+   • Conv 50-59%: presente em 8 losses (61.5% das derrotas)
+   • Vol HIGH: presente em 8 losses (61.5% das derrotas)
+   • Streak ≥4: presente em 6 losses (46.2% das derrotas)
+   • Possível Exaustão: presente em 6 losses (46.2% das derrotas)
+   • Vol MEDIUM: presente em 5 losses (38.5% das derrotas)
+   • Conv ≥60%: presente em 5 losses (38.5% das derrotas)
+   • Xadrez: presente em 4 losses (30.8% das derrotas)
+   • Blue <40%: presente em 4 losses (30.8% das derrotas)
+   • Streak=1: presente em 3 losses (23.1% das derrotas)
+   • Streak=2: presente em 2 losses (15.4% das derrotas)
+   • Streak=3: presente em 1 losses (7.7% das derrotas)
+
+================================================================================
+ANÁLISE DE PERFORMANCE GERAL
+================================================================================
+
+✅ Taxa de entrada ADEQUADA (5.1%)
+
+⚠️  ASSERTIVIDADE BAIXA (51.9%)
+   → Precisa melhorar
+   → Sugestão: Ajustar pesos ou threshold
+
+🚨 PREJUÍZO ALTO (-13.0% ROI)
+   → URGENTE: Sistema precisa de ajustes imediatos
+   → Sugestão: Aumentar threshold drasticamente
+
+❌ CONSISTÊNCIA BAIXA (30.0% grafos lucrativos)
+   → Sistema instável
+
+================================================================================
+

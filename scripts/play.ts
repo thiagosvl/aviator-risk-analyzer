@@ -31,6 +31,7 @@ let logs: {
     checklist2x?: Record<string, boolean>;
     checklistPink?: Record<string, boolean>;
     target2x?: number;
+    pinkZone?: 'before' | 'during' | 'after' | 'noPattern';
 }[] = [];
 
 let stats = { wins2x: 0, losses2x: 0, winsPink: 0, lossesPink: 0, totalProfit: 0 };
@@ -178,6 +179,36 @@ function updateDashboard() {
     content += `| 🟣 **Roxa (2x)** | ${stats.wins2x} | ${stats.losses2x} | ${stats.wins2x + stats.losses2x} | **${acc2x}%** | R$ ${lucro2x.toFixed(2)} |\n`;
     content += `| 🌸 **Rosa (10x)** | ${stats.winsPink} | ${stats.lossesPink} | ${stats.winsPink + stats.lossesPink} | **${accPink}%** | R$ ${lucroPink.toFixed(2)} |\n\n`;
 
+    // NOVO: BREAKDOWN DE ZONAS (V4.3)
+    if (stats.winsPink + stats.lossesPink > 0) {
+        content += `### 📍 Breakdown por Zona de Tiro (Rosa)\n\n`;
+        const zones = {
+            before: { total: 0, wins: 0, label: '⏪ ANTES' },
+            during: { total: 0, wins: 0, label: '🎯 DURING' },
+            after: { total: 0, wins: 0, label: '⏩ AFTER' },
+            noPattern: { total: 0, wins: 0, label: '❓ SEM PADRÃO' }
+        };
+
+        logs.forEach(log => {
+            if (log.recPink === 'SIM' && log.pinkZone) {
+                zones[log.pinkZone].total++;
+                if (log.status.includes('GREEN Pink')) zones[log.pinkZone].wins++;
+            }
+        });
+
+        content += `| Zona | Total | Greens | Assertividade | Status |\n`;
+        content += `|:-----|:------|:-------|:--------------|:-------|\n`;
+        
+        Object.entries(zones).forEach(([key, z]) => {
+            if (z.total > 0) {
+                const acc = (z.wins / z.total) * 100;
+                const status = acc >= 20 ? '✅ PROMISSOR' : acc >= 10 ? '⚠️ MEDIANO' : '❌ PÉSSIMO';
+                content += `| ${z.label} | ${z.total} | ${z.wins} | **${acc.toFixed(1)}%** | ${status} |\n`;
+            }
+        });
+        content += `\n`;
+    }
+
     // ANÁLISE DE MOTIVOS
     content += `## 🔍 ANÁLISE DE MOTIVOS (Acertos/Erros por Tipo)\n\n`;
     const motivoStats = analyzeMotivoStats();
@@ -228,8 +259,8 @@ function updateDashboard() {
     // LOG DETALHADO (COLAPSÁVEL)
     content += `<details>\n`;
     content += `<summary>📋 LOG DETALHADO DAS JOGADAS (Clique para expandir)</summary>\n\n`;
-    content += `| ID | 2x | Motivo 2x | Pink | Motivo Pink | Resultado | Lucro | Status |\n`;
-    content += `|:---|:---|:----------|:-----|:------------|:----------|:------|:-------|\n`;
+    content += `| ID | 2x | Alvo | Motivo 2x | Pink | Motivo Pink | Resultado | Lucro | Status |\n`;
+    content += `|:---|:---|:-----|:----------|:-----|:------------|:----------|:------|:-------|\n`;
     
     const formatChecklist = (cl?: Record<string, boolean>) => {
         if (!cl) return '';
@@ -237,8 +268,8 @@ function updateDashboard() {
     };
 
     logs.slice().reverse().forEach(log => {
-        const targetText = log.target2x ? `<br>🎯 Alvo: **${log.target2x.toFixed(2)}x**` : '';
-        content += `| ${log.id} | ${log.rec2x} | ${log.motivo2x}${targetText}${formatChecklist(log.checklist2x)} | ${log.recPink} | ${log.motivoPink}${formatChecklist(log.checklistPink)} | ${log.result.toFixed(2)}x | ${log.profitLabel} | ${log.status} |\n`;
+        const targetText = log.target2x ? `**${log.target2x.toFixed(2)}x**` : '-';
+        content += `| ${log.id} | ${log.rec2x} | ${targetText} | ${log.motivo2x}${formatChecklist(log.checklist2x)} | ${log.recPink} | ${log.motivoPink}${formatChecklist(log.checklistPink)} | ${log.result.toFixed(2)}x | ${log.profitLabel} | ${log.status} |\n`;
     });
 
     content += `\n</details>\n\n`;
@@ -329,7 +360,14 @@ function processResult(val: number) {
         profitLabel: profitLabel,
         checklist2x: rec2x.ruleChecklist,
         checklistPink: recPink.ruleChecklist,
-        target2x: rec2x.estimatedTarget
+        target2x: rec2x.estimatedTarget,
+        pinkZone: recPink.action === 'PLAY_10X' ? (
+            !result.pinkPattern ? 'noPattern' : (
+                result.pinkPattern.candlesUntilMatch < 0 ? 'before' : (
+                    result.pinkPattern.candlesUntilMatch === 0 ? 'during' : 'after'
+                )
+            )
+        ) : undefined
     });
 
     // 2. ATUALIZA HISTÓRICO DE ANÁLISE (Máximo 60)

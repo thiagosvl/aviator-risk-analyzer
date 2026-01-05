@@ -20,7 +20,7 @@ export interface UseGameAnalysisReturn {
 
 export const useGameAnalysis = (
   config?: Partial<AnalyzerConfig>
-): UseGameAnalysisReturn {
+): UseGameAnalysisReturn => {
   const [gameState, setGameState] = useState<GameState>({
     currentMultiplier: 1.0,
     isFlying: false,
@@ -49,6 +49,7 @@ export const useGameAnalysis = (
     try {
       // Extrair dados do DOM
       const newGameState = domAnalyzer.extractGameData();
+      
       setGameState(newGameState);
 
       // Analisar padrões
@@ -69,7 +70,6 @@ export const useGameAnalysis = (
   const startAnalysis = useCallback(() => {
     if (isAnalyzing) return;
 
-    console.log('[useGameAnalysis] Iniciando análise...');
     setIsAnalyzing(true);
 
     // Executar primeira análise imediatamente
@@ -85,8 +85,6 @@ export const useGameAnalysis = (
    * Para a análise
    */
   const stopAnalysis = useCallback(() => {
-    console.log('[useGameAnalysis] Parando análise...');
-    
     if (intervalId) {
       clearInterval(intervalId);
       setIntervalId(null);

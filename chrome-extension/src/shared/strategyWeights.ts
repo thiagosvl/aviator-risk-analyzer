@@ -102,31 +102,30 @@ export interface StrategyWeights {
 export const WEIGHTS_BALANCED: StrategyWeights = {
   roxa: {
     // Streak
-    streak_4_plus: 30,
-    streak_3: 20,
-    streak_2: 10,
-    streak_1: 0,
+    streak_4_plus: 35,
+    streak_3: 30,
+    streak_2: 15,
+    streak_1: 20,
     
     // Conversion Rate
-    conv_60_plus: 40,
-    conv_50_59: 30,
-    conv_40_49: 15,
+    conv_60_plus: 25, // Restaurado para 25 (equlíbrio)
+    conv_50_59: 15,
+    conv_40_49: 0,
     conv_under_40: -20,
-    
     // Blue Density
-    blue_under_40: 20,
+    blue_under_40: 15, // Reduzido de 20 para evitar armadilhas
     blue_40_50: 10,
     blue_50_60: 0,
     blue_over_60: -60,
     
     // Pink Distance
-    pink_5_plus: 20,
+    pink_5_plus: -10,   // Penalidade (era 0). Distância longa aumenta risco de quebra.
     pink_3_4: 5,
     pink_under_3: -50,
     
     // Volatility
     volatility_medium: 10,
-    volatility_high: 5,
+    volatility_high: -20, // Penalidade severa (era +5). Alta volatilidade = Perigo.
     volatility_low: 0,
     
     // Patterns
@@ -134,20 +133,20 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     deep_downtrend: -20,
     
     // Threshold
-    threshold: 72,  // Aumentado para eliminar entradas de score 70 que estavam falhando
+    threshold: 55,  // Reduzido para 55 para capturar volume de qualidade (scores limpos sem distância)
   },
   
   rosa: {
     // Pattern
     pattern_4_plus_occurrences: 50,
-    pattern_3_occurrences: 35,
-    pattern_2_occurrences: 25,
-    no_pattern: 0,
+    pattern_3_occurrences: 40,
+    pattern_2_occurrences: 0,
+    no_pattern: -100,
     
-    // Zone
-    zone_exact: 30,
+    // Zone (Sniper Mode)
+    zone_exact: 50,
     zone_near: 20,
-    zone_far: -20,
+    zone_far: -100, // MATAR jogadas fora de hora
     
     // Frequency
     freq_3_plus: 20,
@@ -171,7 +170,7 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     confidence_under_70: 0,
     
     // Threshold
-    threshold: 35,  // Equilíbrio entre taxa de acerto e lucro nas rosas
+    threshold: 999,  // DESATIVADO (Foco total em lucro Roxa)
   }
 };
 

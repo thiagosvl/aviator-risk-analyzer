@@ -248,13 +248,17 @@ export class StrategyCore {
       scoreBreakdown.details.push(`Stop Loss (2 reds): ${penalty}`);
     }
 
-    // 9. TURBO SURF (V4.1)
-    // Se estamos surfando e a densidade roxa recente é boa, bônus de continuidade
+    // 9. EXHAUSTION PROTECTION (V4.4)
+    // Se houver muitos roxos recentes (>= 7 em 10), o mercado pode estar saturado.
     const recentPurples = values.slice(0, 10).filter(v => v >= 2.0).length;
-    if (streak >= 2 && recentPurples >= 5) {
-      const bonus = 10;
-      scoreBreakdown.pattern += bonus;
-      scoreBreakdown.details.push(`Turbo Surf: +${bonus}`);
+    if (recentPurples >= 7) {
+      const penalty = -20;
+      scoreBreakdown.pattern += penalty;
+      scoreBreakdown.details.push(`Possível Exaustão: ${penalty}`);
+    } else if (streak >= 2 && recentPurples >= 5) {
+      // Remover bônus de Turbo Surf antigo que era armadilha
+      // Manter neutro ou pequena penalidade se necessário
+      // scoreBreakdown.details.push(`Surf observado (Neutro)`);
     }
 
     // TOTAL
@@ -270,6 +274,18 @@ export class StrategyCore {
     // DECISÃO BASEADA EM THRESHOLD
     const threshold = weights.threshold;
     
+    // NOVO: Hard block para scores extremos (V4.3)
+    if (scoreBreakdown.total > 120) {
+      return {
+        action: 'WAIT',
+        reason: `❌ Score: ${scoreBreakdown.total} (Saturação/Armadilha)`,
+        riskLevel: 'HIGH',
+        confidence: scoreBreakdown.total,
+        estimatedTarget,
+        scoreBreakdown
+      };
+    }
+
     if (scoreBreakdown.total >= threshold) {
       return {
         action: 'PLAY_2X',
@@ -531,7 +547,7 @@ export class StrategyCore {
     if (indices.length < 2) return null;
     
     const intervals: number[] = [];
-    for (let i = 0; i < indices.length - 1; i++) intervals.push(indices[i] - indices[i+1]);
+    for (let i = 0; i < indices.length - 1; i++) intervals.push(indices[i+1] - indices[i]);
     
     const freq = new Map<number, number>();
     intervals.forEach(int => freq.set(int, (freq.get(int) || 0) + 1));

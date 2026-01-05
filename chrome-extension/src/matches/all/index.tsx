@@ -108,14 +108,10 @@ const checkAndInit = () => {
   const isGameInternal = !!(gameCanvas || gameRoot || gameDropdown || payouts);
 
   if (isGameInternal) {
-    console.log('[Aviator Analyzer] Jogo detectado (IFRAME)! Inicializando Spy...');
     setTimeout(init, 500); 
   } else if (!isIframe) {
-    console.log('[Aviator Analyzer] Página Pai detectada! Inicializando Overlay UI...');
     setTimeout(init, 500);
   } else {
-      // Se estamos num iframe mas ainda não carregou... tenta de novo em breve
-      console.log('[Aviator Analyzer] Iframe sem jogo detectado. Retentando...');
       setTimeout(checkAndInit, 2000);
   }
 };
