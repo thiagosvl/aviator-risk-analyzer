@@ -89,31 +89,26 @@ const init = () => {
 
 // Aguardar o DOM estar pronto
 const checkAndInit = () => {
+  const isIframe = window.self !== window.top;
   const url = window.location.href.toLowerCase();
   
-  // Verificação de segurança: Estamos dentro do iframe do jogo?
-  // 1. O jogo Aviator (Spribe) geralmente roda em um iframe.
-  // 2. Não queremos rodar na página "pai" (Casino wrapper), pois ela não tem acesso aos dados do jogo.
-  // 3. Se window.self === window.top, provavelmente estamos no wrapper (a menos que seja o site direto da Spribe).
-  
-  const isIframe = window.self !== window.top;
-  
-  // Elementos que SÓ existem dentro do jogo
-  const gameCanvas = document.querySelector('canvas');
-  const gameRoot = document.querySelector('app-root') || document.querySelector('app-game');
-  const gameDropdown = document.querySelector('app-stats-dropdown');
-  const payouts = document.querySelector('.payouts-block');
-  
-  // Só inicializa se tiver FORTE evidência de ser o jogo
-  const isGameInternal = !!(gameCanvas || gameRoot || gameDropdown || payouts);
+  // LOG DE DEBUG PARA RASTREAMENTO
+  console.log(`[Aviator Analyzer] 🔍 Verificando Frame... (Iframe: ${isIframe} | URL: ${url.substring(0, 50)}...)`);
 
-  if (isGameInternal) {
-    setTimeout(init, 500); 
-  } else if (!isIframe) {
+  if (document.getElementById(ROOT_ID)) return;
+
+  // No TOP WINDOW, inicializamos o Overlay
+  if (!isIframe) {
+    console.log('[Aviator Analyzer] ✅ Top Window detectado. Montando Overlay...');
     setTimeout(init, 500);
-  } else {
-      setTimeout(checkAndInit, 2000);
+    return;
   }
+
+  // No IFRAME, vamos SEMPRE inicializar o ContentSpy.
+  // A própria lógica do domAnalyzer vai filtrar se não encontrar dados úteis.
+  // Isso evita que frames dinâmicos ou mascarados sejam ignorados.
+  console.log('[Aviator Analyzer] 🎯 Iframe detectado. Montando ContentSpy para monitoramento...');
+  setTimeout(init, 100);
 };
 
 if (document.readyState === 'loading') {

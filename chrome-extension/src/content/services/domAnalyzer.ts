@@ -76,9 +76,8 @@ export class DOMAnalyzer {
 
       for (const el of elements) {
         const text = el.textContent?.trim() || '';
-        // Regex para capturar numero acompanhado de x (ex: 1.05x, 10.0x) 
-        // ou apenas numero grande centralizado (multiplicador atual)
-        const match = text.match(/(\d+[.,]\d+)\s*x/i) || text.match(/^(\d+[.,]\d+)$/);
+        // Regex melhorada: suporta 1.05x, 10,0x, 2x, 100, etc.
+        const match = text.match(/(\d+[.,]?\d*)\s*x/i) || text.match(/^(\d+[.,]?\d*)$/);
 
         if (match) {
           const value = parseFloat(match[1].replace(',', '.'));
@@ -336,7 +335,11 @@ export class DOMAnalyzer {
       '.ng-star-inserted', 
       'div[class*="bubble"]',
       'div.bubble',
-      'div.payout'
+      'div.payout',
+      '.coefficient',
+      '.payouts-item',
+      '.history-payouts',
+      '.payouts-wrapper span'
     ];
 
     for (const selector of historySelectors) {

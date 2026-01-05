@@ -50,7 +50,8 @@ const manifest = {
       matches: ['<all_urls>'],
       js: ['content/all.iife.js'],
       all_frames: true,
-      run_at: 'document_end',
+      match_about_blank: true,
+      run_at: 'document_start',
     },
   ],
 
