@@ -1,0 +1,19 @@
+
+RELATÓRIO CONSOLIDADO - 04/01/2026, 20:56:16
+Perfil: BALANCED
+Threshold 2x: 55
+Threshold Pink: 65
+
+ESTATÍSTICAS:
+- Grafos: 3
+- Rodadas: 355
+- Jogadas 2x: 45
+- Assertividade 2x: 51.1%
+- Lucro médio: R$ 33.33
+- ROI médio: 3.3%
+- Taxa de vitória: 33.3%
+
+DETALHES POR GRAFO:
+grafo_001_00h-01h.txt: 6 jogadas, 33.3% acerto, R$ -200.00
+grafo_002_01h-02h.txt: 18 jogadas, 50.0% acerto, R$ 0.00
+grafo_003_02h-03h.txt: 21 jogadas, 57.1% acerto, R$ 300.00

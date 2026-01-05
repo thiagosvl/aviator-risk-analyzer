@@ -265,6 +265,84 @@ if (winRate < 60) {
     console.log(`   • Taxa de vitória baixa. Sistema precisa de ajustes.`);
 }
 
+// Análise de regras
+console.log(`\n${'='.repeat(80)}`);
+console.log(`ANÁLISE DE REGRAS`);
+console.log(`${'='.repeat(80)}\n`);
+
+// Analisar quais features mais contribuem
+if (totalPlays2x > 0) {
+    console.log(`📊 ANÁLISE DE PERFORMANCE:\n`);
+    
+    // Taxa de entrada
+    const entryRate = (totalPlays2x / totalRounds) * 100;
+    if (entryRate < 5) {
+        console.log(`   ⚠️  Taxa de entrada MUITO BAIXA (${entryRate.toFixed(1)}%)`);
+        console.log(`      → Sistema está jogando pouco demais`);
+        console.log(`      → Sugestão: Diminuir threshold em 5-10 pontos\n`);
+    } else if (entryRate > 20) {
+        console.log(`   ⚠️  Taxa de entrada MUITO ALTA (${entryRate.toFixed(1)}%)`);
+        console.log(`      → Sistema está jogando demais`);
+        console.log(`      → Sugestão: Aumentar threshold em 5-10 pontos\n`);
+    } else {
+        console.log(`   ✅ Taxa de entrada ADEQUADA (${entryRate.toFixed(1)}%)\n`);
+    }
+    
+    // Assertividade
+    if (avgAssertividade2x < 50) {
+        console.log(`   ❌ ASSERTIVIDADE CRÍTICA (${avgAssertividade2x.toFixed(1)}%)`);
+        console.log(`      → Regras estão falhando muito`);
+        console.log(`      → Sugestões:`);
+        console.log(`         1. Aumentar threshold para ser mais seletivo`);
+        console.log(`         2. Revisar pesos das features`);
+        console.log(`         3. Adicionar mais hard blocks\n`);
+    } else if (avgAssertividade2x < 60) {
+        console.log(`   ⚠️  ASSERTIVIDADE BAIXA (${avgAssertividade2x.toFixed(1)}%)`);
+        console.log(`      → Precisa melhorar`);
+        console.log(`      → Sugestão: Ajustar pesos ou threshold\n`);
+    } else if (avgAssertividade2x < 70) {
+        console.log(`   ✅ ASSERTIVIDADE BOA (${avgAssertividade2x.toFixed(1)}%)`);
+        console.log(`      → Sistema funcionando bem`);
+        console.log(`      → Pode otimizar ainda mais\n`);
+    } else {
+        console.log(`   🎉 ASSERTIVIDADE EXCELENTE (${avgAssertividade2x.toFixed(1)}%)`);
+        console.log(`      → Sistema muito bem calibrado!\n`);
+    }
+    
+    // ROI
+    if (avgROI < -10) {
+        console.log(`   🚨 PREJUÍZO ALTO (${avgROI.toFixed(1)}% ROI)`);
+        console.log(`      → URGENTE: Sistema precisa de ajustes imediatos`);
+        console.log(`      → Sugestão: Aumentar threshold drasticamente\n`);
+    } else if (avgROI < 0) {
+        console.log(`   ❌ PREJUÍZO (${avgROI.toFixed(1)}% ROI)`);
+        console.log(`      → Sistema não está lucrando`);
+        console.log(`      → Sugestão: Revisar estratégia\n`);
+    } else if (avgROI < 10) {
+        console.log(`   ⚠️  LUCRO BAIXO (${avgROI.toFixed(1)}% ROI)`);
+        console.log(`      → Pode melhorar`);
+        console.log(`      → Meta: 20-30% ROI\n`);
+    } else if (avgROI < 30) {
+        console.log(`   ✅ LUCRO BOM (${avgROI.toFixed(1)}% ROI)`);
+        console.log(`      → Sistema lucrativo!\n`);
+    } else {
+        console.log(`   🎉 LUCRO EXCELENTE (${avgROI.toFixed(1)}% ROI)`);
+        console.log(`      → Sistema muito lucrativo!\n`);
+    }
+    
+    // Consistência
+    if (winRate >= 70) {
+        console.log(`   ✅ CONSISTÊNCIA ALTA (${winRate.toFixed(1)}% grafos lucrativos)`);
+        console.log(`      → Sistema confiável\n`);
+    } else if (winRate >= 50) {
+        console.log(`   ⚠️  CONSISTÊNCIA MÉDIA (${winRate.toFixed(1)}% grafos lucrativos)`);
+        console.log(`      → Precisa melhorar estabilidade\n`);
+    } else {
+        console.log(`   ❌ CONSISTÊNCIA BAIXA (${winRate.toFixed(1)}% grafos lucrativos)`);
+        console.log(`      → Sistema instável\n`);
+    }
+}
+
 console.log(`\n${'='.repeat(80)}\n`);
 
 // Salvar relatório

@@ -134,7 +134,7 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     deep_downtrend: -20,
     
     // Threshold
-    threshold: 70,
+    threshold: 55,  // Ajustado para mais jogadas
   },
   
   rosa: {
@@ -171,7 +171,7 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     confidence_under_70: 0,
     
     // Threshold
-    threshold: 80,
+    threshold: 65,  // Ajustado para mais jogadas
   }
 };
 
@@ -185,13 +185,13 @@ export const WEIGHTS_CONSERVATIVE: StrategyWeights = {
     streak_4_plus: 50,
     streak_3: 35,
     conv_60_plus: 40,
-    threshold: 80,
+    threshold: 70,  // Conservador ajustado
   },
   rosa: {
     ...WEIGHTS_BALANCED.rosa,
     pattern_4_plus_occurrences: 60,
     zone_exact: 40,
-    threshold: 90,
+    threshold: 80,  // Conservador ajustado
   }
 };
 
@@ -206,14 +206,14 @@ export const WEIGHTS_AGGRESSIVE: StrategyWeights = {
     streak_2: 20,
     conv_50_59: 25,
     conv_40_49: 15,
-    threshold: 60,
+    threshold: 45,  // Agressivo ajustado
   },
   rosa: {
     ...WEIGHTS_BALANCED.rosa,
     pattern_3_occurrences: 40,
     pattern_2_occurrences: 25,
     zone_near: 25,
-    threshold: 70,
+    threshold: 55,  // Agressivo ajustado
   }
 };
 
