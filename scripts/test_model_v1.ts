@@ -12,7 +12,7 @@ const originalLog = console.log;
 console.log = (...args: any[]) => {
   const message = args.join(' ');
   fullOutput += message + '\n';
-  originalLog(...args);
+  // originalLog(...args); // Silenciado conforme solicitado
 };
 
 // Importar modelo (simulado aqui)
