@@ -326,6 +326,9 @@ export class DOMAnalyzer {
    */
   private parseHistoryFromContext(context: Document | Element, targetArray: number[]) {
      const historySelectors = [
+      '.payouts-block .payout',
+      '[apppayoutsmultiplier]',
+      'div[_ngcontent*="rrh"] .payout',
       'app-payouts-item',
       '.payout-item',
       '.history-item',
