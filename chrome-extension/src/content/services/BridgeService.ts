@@ -23,6 +23,7 @@ class BridgeService {
       const data = event.data as BridgeMessage;
 
       if (data && data.source === 'AVIATOR_SPY' && data.type) {
+        console.log(`[Aviator Analyzer] Bridge: Recebido ${data.type}`);
         this.notifyListeners(data.type, data.payload);
       }
     });
@@ -40,7 +41,10 @@ class BridgeService {
     };
 
     // Send to top frame (Highest window)
-    window.top?.postMessage(message, '*');
+    if (window.top) {
+        console.log(`[Aviator Analyzer] Bridge: Enviando ${type} para o topo...`);
+        window.top.postMessage(message, '*');
+    }
   }
 
   // Listen for messages (Usually in Top Frame receiving from Iframe)

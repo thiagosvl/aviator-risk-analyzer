@@ -10,6 +10,8 @@ import re
 from pathlib import Path
 import subprocess
 
+print("DEBUG: STARTING SCRIPT...", flush=True)
+
 def install_easyocr():
     """Instala easyocr se não estiver disponível"""
     try:
@@ -121,10 +123,17 @@ def extract_with_easyocr(image_path):
                         val_str = m.group(1).replace(',', '.')
                         try:
                             val = float(val_str)
-                            # Se for um valor baixo e puramente inteiro lido como decimal HH.MM
+                            # FILTRO DE TIMESTAMPS E LIXO:
+                            # 1. Se valor < 25 e tem ponto, ignora (ex: 10.30h)
                             if val < 25 and '.' in val_str and len(val_str) >= 4:
                                 continue
-                            if 1.0 <= val <= 3000:
+                            
+                            # 2. Se valor > 100 e é INTEIRO (ex: 1106, 0855), ignora pois é PROVÁVEL TIMESTAMP
+                            # Multiplicadores altos geralmente tem decimais ou teriam caído na Prioridade 1 (com 'x')
+                            if val > 100 and val.is_integer():
+                                continue
+
+                            if 1.0 <= val <= 5000:
                                 values.append(val)
                         except: pass
                         
@@ -160,39 +169,43 @@ def extract_with_tesseract(image_path):
         return None
 
 def main():
-    screenshots_dir = sys.argv[1] if len(sys.argv) > 1 else 'GRAFOS_SCREENSHOTS'
+    raw_input_path = sys.argv[1] if len(sys.argv) > 1 else 'GRAFOS_SCREENSHOTS'
     output_dir = 'GRAFOS_TESTE'
     
-    # Converter para path absoluto
-    screenshots_dir = os.path.abspath(screenshots_dir)
+    input_path = os.path.abspath(raw_input_path)
     output_dir = os.path.abspath(output_dir)
     
     print("\n" + "=" * 80)
     print("AUTO EXTRACT - OCR AUTOMÁTICO")
     print("=" * 80)
-    print(f"Pasta: {screenshots_dir}")
+    print(f"Entrada: {input_path}")
     print("=" * 80 + "\n")
     
-    # Verificar pasta
-    if not os.path.exists(screenshots_dir):
-        print(f"❌ Pasta não encontrada: {screenshots_dir}")
+    if not os.path.exists(input_path):
+        print(f"❌ Entrada não encontrada: {input_path}")
         return 1
     
     # Criar pasta de saída
     os.makedirs(output_dir, exist_ok=True)
     
-    # Encontrar imagens (usando set para evitar duplicatas em sistemas case-insensitive como Windows)
-    image_files_set = set()
-    extensions = ['*.png', '*.jpg', '*.jpeg', '*.bmp']
-    for ext in extensions:
-        # Pega tanto minusculo quanto maiusculo
-        image_files_set.update(Path(screenshots_dir).glob(ext))
-        image_files_set.update(Path(screenshots_dir).glob(ext.upper()))
+    image_files = []
     
-    image_files = sorted(list(image_files_set))
+    # Se for arquivo único
+    if os.path.isfile(input_path):
+        image_files = [Path(input_path)]
+    # Se for diretório
+    else:
+        # Encontrar imagens (usando set para evitar duplicatas em sistemas case-insensitive como Windows)
+        image_files_set = set()
+        extensions = ['*.png', '*.jpg', '*.jpeg', '*.bmp']
+        for ext in extensions:
+            # Pega tanto minusculo quanto maiusculo
+            image_files_set.update(Path(input_path).glob(ext))
+            image_files_set.update(Path(input_path).glob(ext.upper()))
+        image_files = sorted(list(image_files_set))
     
     if not image_files:
-        print(f"❌ Nenhuma imagem encontrada em {screenshots_dir}")
+        print(f"❌ Nenhuma imagem encontrada em {input_path}")
         return 1
     
     print(f"📸 Encontradas {len(image_files)} imagens\n")

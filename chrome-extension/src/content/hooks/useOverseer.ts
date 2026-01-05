@@ -17,7 +17,8 @@ export const useOverseer = () => {
     purpleStreak: 0,
     conversionRate: 0,
     volatilityDensity: 'LOW',
-    candlesSinceLastPink: 0
+    candlesSinceLastPink: 0,
+    marketStats: { bluePercent: 0, purplePercent: 0, pinkPercent: 0 }
   });
 
   useEffect(() => {

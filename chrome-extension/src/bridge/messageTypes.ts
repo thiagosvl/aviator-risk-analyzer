@@ -44,6 +44,11 @@ export interface AnalysisData {
   conversionRate: number;
   volatilityDensity: 'LOW' | 'MEDIUM' | 'HIGH';
   candlesSinceLastPink: number;
+  marketStats?: {
+    bluePercent: number;
+    purplePercent: number;
+    pinkPercent: number;
+  };
 }
 
 export interface BridgeMessage<T = any> {

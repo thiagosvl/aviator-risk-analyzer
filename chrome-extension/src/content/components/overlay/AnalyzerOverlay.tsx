@@ -41,6 +41,24 @@ const RuleChecklist = ({ checklist }: { checklist?: Record<string, boolean> }) =
   );
 };
 
+const MarketTemperature = ({ stats }: { stats?: { bluePercent: number; purplePercent: number; pinkPercent: number } }) => {
+  if (!stats) return null;
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-[10px] font-bold">
+        <span className="text-blue-400">AZUL: {stats.bluePercent}%</span>
+        <span className="text-purple-400">ROXO: {stats.purplePercent}%</span>
+        <span className="text-pink-400">ROSA: {stats.pinkPercent}%</span>
+      </div>
+      <div className="h-1.5 w-full bg-slate-900 rounded-full flex overflow-hidden border border-white/5">
+        <div style={{ width: `${stats.bluePercent}%` }} className="h-full bg-blue-500 transition-all duration-500" />
+        <div style={{ width: `${stats.purplePercent}%` }} className="h-full bg-purple-500 transition-all duration-500" />
+        <div style={{ width: `${stats.pinkPercent}%` }} className="h-full bg-pink-500 transition-all duration-500" />
+      </div>
+    </div>
+  );
+};
+
 export const AnalyzerOverlay = () => {
   // Conexão com o Bridge via Hook
   const { gameState, analysis } = useOverseer();
@@ -248,7 +266,10 @@ export const AnalyzerOverlay = () => {
          </div>
       </div>
 
-      <div className="bg-slate-950/95 backdrop-blur border-x border-b border-slate-800 rounded-b-lg p-3 shadow-2xl space-y-3">
+     <div className="bg-slate-950/95 backdrop-blur border-x border-b border-slate-800 rounded-b-lg p-3 shadow-2xl space-y-4">
+        
+        {/* 0. MARKET TEMPERATURE (V5 NEW) */}
+        <MarketTemperature stats={analysis.marketStats} />
         
         {/* 1. STATUS BAR (Lucro & Carteira) */}
         <div className="grid grid-cols-2 gap-2 text-center text-xs">
@@ -297,8 +318,8 @@ export const AnalyzerOverlay = () => {
             <div className="absolute top-0 right-0 bg-black/40 px-2 rounded-bl text-[8px] font-bold uppercase text-white/70">
                 Estratégia Defesa (2x)
             </div>
-           <div className="text-xl font-black tracking-tight mt-1">
-             {formatAction(rec2x.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
+            <div className="text-xl font-black tracking-tight mt-1">
+             {rec2x.action === 'WAIT' ? 'OFFLINE' : formatAction(rec2x.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
            </div>
             {rec2x.action === 'PLAY_2X' && rec2x.estimatedTarget && (
               <div className="mt-1 bg-emerald-500/20 rounded py-0.5 border border-emerald-500/30">
@@ -326,6 +347,14 @@ export const AnalyzerOverlay = () => {
               {getRiskBadge(recPink)}
             </div>
             <RuleChecklist checklist={recPink.ruleChecklist} />
+            
+            {/* DATA CAPTURE MONITOR */}
+            <div className="mt-1 pt-1 border-t border-white/5 flex justify-center items-center gap-1.5">
+                <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", gameState.history.length > 0 ? "bg-emerald-500" : "bg-red-500")} />
+                <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
+                    {gameState.history.length > 0 ? `Capturando: ${gameState.history[0].value.toFixed(2)}x` : 'Aguardando Dados...'}
+                </span>
+            </div>
          </div>
 
         {/* BOTÕES DE CONTROLE */}

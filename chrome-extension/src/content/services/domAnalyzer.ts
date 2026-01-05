@@ -75,20 +75,16 @@ export class DOMAnalyzer {
       const elements = Array.from(document.querySelectorAll(selector));
 
       for (const el of elements) {
-
         const text = el.textContent?.trim() || '';
-        const match = text.match(/(\d+\.?\d*)\s*x/i);
+        // Regex para capturar numero acompanhado de x (ex: 1.05x, 10.0x) 
+        // ou apenas numero grande centralizado (multiplicador atual)
+        const match = text.match(/(\d+[.,]\d+)\s*x/i) || text.match(/^(\d+[.,]\d+)$/);
 
         if (match) {
-          const value = parseFloat(match[1]);
-
-          if (value >= 1.0 && value < 10000) {
+          const value = parseFloat(match[1].replace(',', '.'));
+          if (value >= 1.0 && value < 100000) {
             this.gameState.currentMultiplier = value;
-
-            if (value > 1.0) {
-              this.gameState.isFlying = true;
-            }
-
+            if (value > 1.0) this.gameState.isFlying = true;
             return;
           }
         }
@@ -233,7 +229,14 @@ export class DOMAnalyzer {
       this.parseHistoryFromContext(document, scrapedValues);
     }
 
-    // 3. Atualizar Estado com Dedup
+    if (scrapedValues.length > 0) {
+        console.log(`[Aviator Analyzer] DOM: Foram encontradas ${scrapedValues.length} velas no histórico.`);
+    } else {
+        // Log apenas se estivermos em um contexto de iframe ou se sabemos que o jogo está ali
+        if (location.href.includes('game') || location.href.includes('aviator') || document.querySelector('iframe')) {
+            console.warn('[Aviator Analyzer] DOM: Nenhum histórico encontrado com os seletores atuais.');
+        }
+    }
     // Se scrapedValues estiver vazio, não fazemos nada.
     if (scrapedValues.length > 0) {
         // O array scrapedValues vem na ordem do DOM. Geralmente: [Mais Recente, ..., Mais Antigo]
@@ -324,32 +327,37 @@ export class DOMAnalyzer {
    */
   private parseHistoryFromContext(context: Document | Element, targetArray: number[]) {
      const historySelectors = [
-      'app-stats-dropdown .payouts-block',
-      '.payouts-block',
-      'app-bubble-multiplier', 
+      'app-payouts-item',
+      '.payout-item',
+      '.history-item',
       '.bubble-multiplier',
-      '.payouts-block .ng-star-inserted',
-      '[class*="payout"]',
-      '[class*="history"]',
       '.multiplier',
       '.items-container',
       '.ng-star-inserted', 
-      'div[class*="bubble"]'
+      'div[class*="bubble"]',
+      'div.bubble',
+      'div.payout'
     ];
 
     for (const selector of historySelectors) {
       const items = Array.from(context.querySelectorAll(selector));
       
-      if (items.length > 1) {
+      if (items.length > 0) {
+        let foundBefore = targetArray.length;
         items.forEach(item => {
           this.parseElementValue(item, targetArray);
         });
-        if (targetArray.length >= 3) return;
+        
+        // Se encontramos algo novo com este seletor, logamos
+        if (targetArray.length > foundBefore) {
+            // console.debug(`[Aviator Analyzer] Selector '${selector}' found ${targetArray.length - foundBefore} values.`);
+        }
+        
+        if (targetArray.length >= 10) return; // Já temos o suficiente para análise
       }
       
       const container = context.querySelector(selector);
-      if (container) {
-        // Fallback for container text parsing if needed
+      if (container && targetArray.length === 0) {
         const text = container.textContent || '';
         this.parseTextValue(text, targetArray);
         if (targetArray.length >= 3) return;

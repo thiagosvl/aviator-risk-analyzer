@@ -26,6 +26,11 @@ export interface AnalysisResult {
   conversionRate: number;
   volatilityDensity: 'LOW' | 'MEDIUM' | 'HIGH';
   candlesSinceLastPink: number;
+  marketStats?: {
+    bluePercent: number;
+    purplePercent: number;
+    pinkPercent: number;
+  };
 }
 
 export class StrategyCore {
@@ -60,31 +65,16 @@ export class StrategyCore {
     const has3BluesAfterPink = this.check3ConsecutiveBluesAfterPink(values);
     const isStopLoss = streak <= -2;
 
-    // 6. CALCULAR ALVO DINÂMICO
+    // 6. ESTATÍSTICAS DE MERCADO (V5 - Janela de 60 velas)
+    const marketStats = this.calculateMarketStats(values, 60);
+
+    // 7. CALCULAR ALVO DINÂMICO
     const estimatedTarget = this.calculateEstimatedTarget(values, candlesSinceLastPink);
 
-    // 7. GERAR RECOMENDAÇÕES (V4.0: Sistema de Pontuação)
-    const rec2x = this.decideAction2xV4(
-      values,
-      streak,
-      purpleConversionRate,
-      blueDensityPercent,
-      candlesSinceLastPink,
-      volatilityDensity,
-      isXadrez,
-      deepDowntrend,
-      has3BluesAfterPink,
-      isStopLoss,
-      estimatedTarget
-    );
+    // 8. GERAR RECOMENDAÇÕES (V5: Pure Rosa & Disabled Roxa)
+    const rec2x = this.decideAction2xV5();
     
-    const pinkCount25 = values.slice(0, 25).filter(v => v >= 10.0).length;
-    const recPink = this.decideActionPinkV4(
-      pinkPattern,
-      candlesSinceLastPink,
-      pinkCount25,
-      has3BluesAfterPink
-    );
+    const recPink = this.decideActionPinkV5(values);
 
     return {
       recommendation2x: rec2x,
@@ -93,7 +83,68 @@ export class StrategyCore {
       purpleStreak: streak > 0 ? streak : 0,
       conversionRate: Math.round(purpleConversionRate),
       volatilityDensity,
-      candlesSinceLastPink
+      candlesSinceLastPink,
+      marketStats
+    };
+  }
+
+  /**
+   * V5: ESTRATÉGIA ROXA DESATIVADA (Sempre WAIT)
+   * Motivo: Inconsistência nos testes históricos vs Rosa Pura.
+   */
+  private static decideAction2xV5(): Recommendation {
+    return {
+      action: 'WAIT',
+      reason: 'Estratégia Roxa desativada (Foco em Rosa V5)',
+      riskLevel: 'LOW',
+      confidence: 0
+    };
+  }
+
+  /**
+   * V5: ESTRATÉGIA ROSA PURA (Agressiva)
+   * Gatilho: Qualquer vela azul (< 2.0x)
+   */
+  private static decideActionPinkV5(values: number[]): Recommendation {
+    if (values.length === 0) return { action: 'WAIT', reason: 'Aguardando dados...', riskLevel: 'LOW', confidence: 0 };
+    
+    const lastValue = values[0];
+    const isBlueTrigger = lastValue < 2.0;
+
+    if (isBlueTrigger) {
+      return {
+        action: 'PLAY_10X',
+        reason: `🌸 V5 Sniper: Vela azul (${lastValue.toFixed(2)}x) detectada.`,
+        riskLevel: 'MEDIUM',
+        confidence: 100,
+        estimatedTarget: 10.0
+      };
+    }
+
+    return {
+      action: 'WAIT',
+      reason: 'Aguardando vela azul (Gatilho V5)',
+      riskLevel: 'LOW',
+      confidence: 0,
+      estimatedTarget: 10.0
+    };
+  }
+
+  /**
+   * V5: Cálculo de estatísticas de mercado
+   */
+  private static calculateMarketStats(values: number[], window: number) {
+    const slice = values.slice(0, window);
+    if (slice.length === 0) return { bluePercent: 0, purplePercent: 0, pinkPercent: 0 };
+
+    const blue = slice.filter(v => v < 2.0).length;
+    const pink = slice.filter(v => v >= 10.0).length;
+    const purple = slice.length - blue - pink;
+
+    return {
+      bluePercent: Math.round((blue / slice.length) * 100),
+      purplePercent: Math.round((purple / slice.length) * 100),
+      pinkPercent: Math.round((pink / slice.length) * 100)
     };
   }
 
