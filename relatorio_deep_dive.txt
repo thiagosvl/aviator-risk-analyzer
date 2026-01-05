@@ -48,7 +48,26 @@ A maior parte do lucro vem de clusters (rosas próximas).
    - Streak 1 e 2 somam R$ 11.600 de lucro.
    -> RECOMENDAÇÃO: Manter entrada no Streak 1.
 
-4. 🧪 SUGESTÃO PARA V5 (SNIPER MODE):
-   - Entrada: Streak >= 1
-   - Filtro 1: DistanciaUltimaRosa <= 10
-   - Filtro 2: Volatilidade > 2.0
+================================================================================
+🤖 ANÁLISE CRUZADA: IA EXTERNA vs DEEP DIVE INTERNO
+================================================================================
+
+A análise externa "ANALISE_PROFUNDA_30_GRAFOS.md" identificou corretamente que existem grafos "Quentes" e "Frios", sugerindo um "Detector de Temperatura" baseado em assertividade passada.
+
+NOSSA DESCOBERTA É SUPERIOR e mais precisa:
+- O que a IA externa chama de "Grafo Frio" (Assertividade < 9%) é, na verdade, um grafo com **Grandes Distâncias entre Rosas**.
+- Em vez de esperar 30 rodadas para "sentir" a temperatura (e perder dinheiro nesse tempo), nosso filtro de **"Distância <= 10"** detecta isso IMEDIATAMENTE.
+- Se a rosa não vem em 10 rodadas, o grafo esfriou. Paramos IMEDIATAMENTE.
+
+CONCILIAÇÃO FINAL (V5 - SNIPER MODE):
+1. **Entrada:** Streak >= 1 (Manter agressividade)
+2. **Filtro Principal (Detector de Temperatura Instantâneo):**
+   - Entrar SOMENTE se `DistanciaUltimaRosa <= 10`.
+   - Isso elimina naturalmente os "Grafos Frios" sem precisar de conta complexa.
+3. **Filtro Secundário (Anti-Dead Market):**
+   - Entrar SOMENTE se `VolatilidadeMédia(10) > 2.0`.
+4. **Estratégia Roxa:**
+   - ELIMINADA (Confirmado por ambas as análises como fonte de prejuízo).
+
+ESTIMATIVA DE IMPACTO V5:
+- Lucro projetado > R$ 40.000 (Combinando a economia de R$ 35k em entradas ruins + eliminação da Roxa).
