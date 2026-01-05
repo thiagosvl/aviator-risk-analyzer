@@ -241,6 +241,7 @@ export class DOMAnalyzer {
 
     if (scrapedValues.length > 0) {
         console.log(`[Aviator Analyzer] DOM: Foram encontradas ${scrapedValues.length} velas no histórico.`);
+        console.log(`[Aviator Analyzer] DOM: Primeiras 5 velas: ${scrapedValues.slice(0, 5).join(', ')}`);
     } else {
         // Log apenas se estivermos em um contexto de iframe ou se sabemos que o jogo está ali
         if (location.href.includes('game') || location.href.includes('aviator') || document.querySelector('iframe')) {
@@ -337,7 +338,15 @@ export class DOMAnalyzer {
    */
   private parseHistoryFromContext(context: Document | Element, targetArray: number[]) {
      const historySelectors = [
+      // Dropdown expandido (histórico completo - até 60 velas)
       '.payouts-block .payout',
+      'app-stats-dropdown .payouts-block .payout',
+      
+      // Histórico visível no topo (sempre presente - últimas 10-15 velas)
+      '.payout.ng-star-inserted',
+      'div.payout.ng-star-inserted',
+      
+      // Fallbacks genéricos
       '[apppayoutsmultiplier]',
       'div[_ngcontent*="rrh"] .payout',
       'app-payouts-item',
@@ -345,15 +354,9 @@ export class DOMAnalyzer {
       '.history-item',
       '.bubble-multiplier',
       '.multiplier',
-      '.items-container',
-      '.ng-star-inserted', 
-      'div[class*="bubble"]',
-      'div.bubble',
       'div.payout',
       '.coefficient',
-      '.payouts-item',
-      '.history-payouts',
-      '.payouts-wrapper span'
+      '.payouts-item'
     ];
 
     for (const selector of historySelectors) {
@@ -367,7 +370,7 @@ export class DOMAnalyzer {
         
         // Se encontramos algo novo com este seletor, logamos
         if (targetArray.length > foundBefore) {
-            // console.debug(`[Aviator Analyzer] Selector '${selector}' found ${targetArray.length - foundBefore} values.`);
+            console.log(`[Aviator Analyzer] DOM: Seletor '${selector}' encontrou ${targetArray.length - foundBefore} valores.`);
         }
         
         if (targetArray.length >= 10) return; // Já temos o suficiente para análise
@@ -391,11 +394,29 @@ export class DOMAnalyzer {
   private parseTextValue(text: string, targetArray: number[]) {
     if (text.length > 1000) return;
     
-    const matches = text.matchAll(/(\d+[.,]?\d*)\s*x/gi);
+    // Regex melhorada para capturar números com vírgulas de milhar e decimais
+    // Exemplos: 1.03x, 3,718.72x, 232.47x, 1.00x
+    const matches = text.matchAll(/([\d.,]+)\s*x/gi);
     
     for (const match of matches) {
          const raw = match[1];
-         const normalized = raw.replace(',', '.');
+         
+         // Normalizar: remover vírgulas de milhar, depois converter vírgula decimal em ponto
+         // 3,718.72 -> 3718.72 (já tem ponto decimal, remover vírgulas)
+         // 3,72 -> 3.72 (vírgula é decimal)
+         // 1.03 -> 1.03 (já está correto)
+         let normalized = raw;
+         
+         // Se tem ponto E vírgula, a vírgula é separador de milhar
+         if (raw.includes('.') && raw.includes(',')) {
+            normalized = raw.replace(/,/g, ''); // Remove todas as vírgulas
+         } 
+         // Se tem apenas vírgula, é separador decimal
+         else if (raw.includes(',')) {
+            normalized = raw.replace(',', '.'); // Substitui vírgula por ponto
+         }
+         // Se tem apenas ponto, já está no formato correto
+         
          const val = parseFloat(normalized);
          
          if (!isNaN(val) && val >= 1.0 && val < 100000) {
