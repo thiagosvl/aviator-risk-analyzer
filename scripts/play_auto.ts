@@ -1,12 +1,10 @@
+/**
+ * Versão automatizada do play.ts para testes
+ */
+
 import fs from 'fs';
 import path from 'path';
-import readline from 'readline';
 import { TestPatternService } from './generate_scenarios';
-
-/**
- * MODO JOGO / VALIDATION DASHBOARD
- * Integra o Simulator com um arquivo Markdown que atualiza em tempo real.
- */
 
 const DASHBOARD_PATH = path.join(process.cwd(), 'SESSAO_VALIDACAO.md');
 const service = new TestPatternService();
@@ -16,8 +14,8 @@ let bankroll = 1000.0;
 const BET_2X = 100.0;
 const BET_PINK = 50.0;
 
-let history: number[] = []; // Usado para a análise (limitado a 60)
-let fullSessionHistory: number[] = []; // Armazena TUDO (Memória + Futuro)
+let history: number[] = [];
+let fullSessionHistory: number[] = [];
 let logs: { 
     id: number,
     rec2x: string, 
@@ -43,8 +41,6 @@ interface MotivoStats {
     assertividade: number;
 }
 
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
 function getCandleIcon(val: number): string {
     if (val >= 10.0) return '🌸';
     if (val >= 2.0) return '🟣';
@@ -56,31 +52,31 @@ function analyzeMotivoStats(): { roxa: MotivoStats[], rosa: MotivoStats[] } {
     const motivosRosa = new Map<string, { greens: number, losses: number }>();
 
     logs.forEach(log => {
-        // Estratégia 2x (Roxa)
+        // Estratégia Roxa (2x)
         if (log.rec2x === 'SIM') {
-            const motivo = log.motivo2x.split('.')[0]; // Pega primeira frase
+            const motivo = log.motivo2x.split('.')[0].split('<br>')[0].trim();
             if (!motivosRoxa.has(motivo)) {
                 motivosRoxa.set(motivo, { greens: 0, losses: 0 });
             }
-            const stats = motivosRoxa.get(motivo)!;
-            if (log.status.includes('GREEN 2x')) {
-                stats.greens++;
-            } else if (log.status.includes('LOSS 2x')) {
-                stats.losses++;
+            const entry = motivosRoxa.get(motivo)!;
+            if (log.status.includes('✅ GREEN 2x')) {
+                entry.greens++;
+            } else if (log.status.includes('❌ LOSS 2x')) {
+                entry.losses++;
             }
         }
 
-        // Estratégia 10x (Rosa)
+        // Estratégia Rosa (10x)
         if (log.recPink === 'SIM') {
-            const motivo = log.motivoPink.split('.')[0]; // Pega primeira frase
+            const motivo = log.motivoPink.split('.')[0].split('<br>')[0].trim();
             if (!motivosRosa.has(motivo)) {
                 motivosRosa.set(motivo, { greens: 0, losses: 0 });
             }
-            const stats = motivosRosa.get(motivo)!;
-            if (log.status.includes('GREEN Pink')) {
-                stats.greens++;
-            } else if (log.status.includes('LOSS Pink')) {
-                stats.losses++;
+            const entry = motivosRosa.get(motivo)!;
+            if (log.status.includes('🌸 GREEN Pink')) {
+                entry.greens++;
+            } else if (log.status.includes('❌ LOSS Pink')) {
+                entry.losses++;
             }
         }
     });
@@ -94,7 +90,7 @@ function analyzeMotivoStats(): { roxa: MotivoStats[], rosa: MotivoStats[] } {
             assertividade: stats.greens + stats.losses > 0 
                 ? (stats.greens / (stats.greens + stats.losses)) * 100 
                 : 0
-        })).sort((a, b) => b.total - a.total); // Ordena por total de jogadas
+        })).sort((a, b) => b.total - a.total);
     };
 
     return {
@@ -108,35 +104,42 @@ function generateInsights(): string[] {
     const motivoStats = analyzeMotivoStats();
 
     // Insights Estratégia 2x (Roxa)
-    const roxaBest = motivoStats.roxa.filter(m => m.assertividade >= 60);
-    const roxaWorst = motivoStats.roxa.filter(m => m.assertividade < 40 && m.total >= 3);
+    if (motivoStats.roxa.length > 0) {
+        const melhorMotivo = motivoStats.roxa.reduce((best, current) => 
+            current.assertividade > best.assertividade ? current : best
+        );
+        const piorMotivo = motivoStats.roxa.reduce((worst, current) => 
+            current.assertividade < worst.assertividade ? current : worst
+        );
 
-    if (roxaBest.length > 0) {
-        insights.push(`✅ **Roxa - Motivos Bons:** ${roxaBest.map(m => `"${m.motivo}" (${m.assertividade.toFixed(0)}%)`).join(', ')}`);
-    }
-    if (roxaWorst.length > 0) {
-        insights.push(`❌ **Roxa - Motivos Ruins:** ${roxaWorst.map(m => `"${m.motivo}" (${m.assertividade.toFixed(0)}%)`).join(', ')} - **Considere ajustar regras!**`);
+        if (melhorMotivo.assertividade >= 70) {
+            insights.push(`✅ **Roxa:** "${melhorMotivo.motivo}" está com ${melhorMotivo.assertividade.toFixed(1)}% de acerto (${melhorMotivo.greens}/${melhorMotivo.total}). Continue usando!`);
+        }
+
+        if (piorMotivo.assertividade < 40 && piorMotivo.total >= 3) {
+            insights.push(`❌ **Roxa:** "${piorMotivo.motivo}" está com apenas ${piorMotivo.assertividade.toFixed(1)}% de acerto (${piorMotivo.greens}/${piorMotivo.total}). Considere remover ou ajustar esta regra.`);
+        }
     }
 
     // Insights Estratégia 10x (Rosa)
-    const rosaBest = motivoStats.rosa.filter(m => m.assertividade >= 40);
-    const rosaWorst = motivoStats.rosa.filter(m => m.assertividade < 30 && m.total >= 2);
+    if (motivoStats.rosa.length > 0) {
+        const melhorMotivo = motivoStats.rosa.reduce((best, current) => 
+            current.assertividade > best.assertividade ? current : best
+        );
+        const piorMotivo = motivoStats.rosa.reduce((worst, current) => 
+            current.assertividade < worst.assertividade ? current : worst
+        );
 
-    if (rosaBest.length > 0) {
-        insights.push(`✅ **Rosa - Motivos Bons:** ${rosaBest.map(m => `"${m.motivo}" (${m.assertividade.toFixed(0)}%)`).join(', ')}`);
-    }
-    if (rosaWorst.length > 0) {
-        insights.push(`❌ **Rosa - Motivos Ruins:** ${rosaWorst.map(m => `"${m.motivo}" (${m.assertividade.toFixed(0)}%)`).join(', ')} - **Considere remover padrão!**`);
+        if (melhorMotivo.assertividade >= 40) {
+            insights.push(`✅ **Rosa:** "${melhorMotivo.motivo}" está com ${melhorMotivo.assertividade.toFixed(1)}% de acerto (${melhorMotivo.greens}/${melhorMotivo.total}). Continue usando!`);
+        }
+
+        if (piorMotivo.assertividade < 25 && piorMotivo.total >= 2) {
+            insights.push(`❌ **Rosa:** "${piorMotivo.motivo}" está com apenas ${piorMotivo.assertividade.toFixed(1)}% de acerto (${piorMotivo.greens}/${piorMotivo.total}). Considere remover ou ajustar esta regra.`);
+        }
     }
 
     // Insights gerais
-    const totalJogadas = stats.wins2x + stats.losses2x + stats.winsPink + stats.lossesPink;
-    if (totalJogadas > 50) {
-        insights.push(`⚠️ **Muitas Jogadas:** ${totalJogadas} entradas. Considere ser mais seletivo.`);
-    } else if (totalJogadas < 10) {
-        insights.push(`⚠️ **Poucas Jogadas:** ${totalJogadas} entradas. Regras podem estar muito restritivas.`);
-    }
-
     if (stats.totalProfit < 0) {
         insights.push(`🔴 **Prejuízo:** R$ ${stats.totalProfit.toFixed(2)}. Revise regras urgentemente!`);
     } else if (stats.totalProfit > 200) {
@@ -248,55 +251,50 @@ function updateDashboard() {
     content += `\`\`\`\n${fullSessionHistory.join(', ')}\n\`\`\`\n`;
 
     fs.writeFileSync(DASHBOARD_PATH, content);
-}
-
-async function askQuestion(query: string): Promise<string> {
-    return new Promise((resolve) => rl.question(query, resolve));
+    console.log(`✅ Dashboard atualizado: ${DASHBOARD_PATH}`);
 }
 
 function processResult(val: number) {
-    // 1. ANÁLISE ANTES DA VELA SAIR
     const result = service.analyze(history);
     const rec2x = result.rec2x;
     const recPink = result.recPink;
-    
-    let roundProfit = 0;
-    let status2x = '';
-    let statusPink = '';
+
     let detail2x = 0;
     let detailPink = 0;
+    let roundProfit = 0;
 
-    // Lógica 2x (Independente - V3.9 Restaurado 2.0x)
     if (rec2x.action === 'PLAY_2X') {
         if (val >= 2.0) {
             detail2x = BET_2X;
+            bankroll += BET_2X;
             stats.wins2x++;
-            status2x = '✅ GREEN';
+            stats.totalProfit += BET_2X;
+            roundProfit += BET_2X;
         } else {
             detail2x = -BET_2X;
+            bankroll -= BET_2X;
             stats.losses2x++;
-            status2x = '❌ LOSS';
+            stats.totalProfit -= BET_2X;
+            roundProfit -= BET_2X;
         }
     }
 
-    // Lógica Pink (Independente)
     if (recPink.action === 'PLAY_10X') {
         if (val >= 10.0) {
-            detailPink = (BET_PINK * 9);
+            detailPink = BET_PINK * 9;
+            bankroll += BET_PINK * 9;
             stats.winsPink++;
-            statusPink = '🌸 PINK GREEN';
+            stats.totalProfit += BET_PINK * 9;
+            roundProfit += BET_PINK * 9;
         } else {
             detailPink = -BET_PINK;
+            bankroll -= BET_PINK;
             stats.lossesPink++;
-            statusPink = '❌ PINK LOSS';
+            stats.totalProfit -= BET_PINK;
+            roundProfit -= BET_PINK;
         }
     }
 
-    roundProfit = detail2x + detailPink;
-    bankroll += roundProfit;
-    stats.totalProfit += roundProfit;
-
-    // Construir label de lucro detalhado
     let profitLabel = '';
     if (rec2x.action === 'PLAY_2X' && recPink.action === 'PLAY_10X') {
         profitLabel = `2x: ${detail2x > 0 ? '+' : ''}${detail2x} | Pk: ${detailPink > 0 ? '+' : ''}${detailPink}`;
@@ -308,7 +306,6 @@ function processResult(val: number) {
         profitLabel = `R$ 0.00`;
     }
 
-    // Construir status consolidado (V3.9: Granular Failure)
     let finalStatus = '';
     const s2x = rec2x.action === 'PLAY_2X' ? (val >= 2.0 ? '✅ GREEN 2x' : '❌ LOSS 2x') : '⏳ WAIT 2x';
     const sPk = recPink.action === 'PLAY_10X' ? (val >= 10.0 ? '🌸 GREEN Pink' : '❌ LOSS Pink') : '⏳ WAIT Pink';
@@ -329,40 +326,26 @@ function processResult(val: number) {
         checklistPink: recPink.ruleChecklist
     });
 
-    // 2. ATUALIZA HISTÓRICO DE ANÁLISE (Máximo 60)
     history.unshift(val);
     if (history.length > 60) history.pop();
 
-    // 3. ATUALIZA HISTÓRICO TOTAL DA SESSÃO
     fullSessionHistory.unshift(val);
 }
 
-async function main() {
-    console.clear();
-    console.log('\x1b[36m%s\x1b[0m', '--- MODO RETROSPECTIVA: VALIDAÇÃO EM MASSA ---');
-    console.log('Este modo processa uma lista de resultados futuros de uma vez.\n');
+// DADOS DO TESTE
+const memory = [4.02, 7.15, 6.85, 11.27, 2.30, 3.80, 2.04, 1.57, 1.41, 1.29, 1.00, 1.05, 130.14, 7.61, 1.11, 1.51, 1.78, 1.14, 3.11, 1.22, 1.27, 1.92, 3.36, 3.83, 2.19, 2.22, 1.01, 1.40, 2.74, 26.17, 1.98, 2.38, 1.02, 1.88, 1.17, 1.44, 1.45, 3.50, 1.12, 1.39, 10.07, 1.78, 4.56, 2.08, 1.02, 1.17, 1.27, 1.09, 1.24, 1.18, 2.96, 2.23, 2.36, 1.13, 9.61, 11.59, 14.33, 3.42, 1.21, 1.06];
 
-    const memoryInput = await askQuestion('1. Cole o HISTÓRICO PASSADO (Memória inicial): ');
-    if (memoryInput.trim()) {
-        history = memoryInput.split(/[,|\s]+/).map(p => parseFloat(p)).filter(n => !isNaN(n));
-        fullSessionHistory = [...history]; // Inicia o histórico visual com a memória
-    }
+const sequence = [16.93, 1.70, 2.95, 1.62, 5.27, 2.60, 2.06, 2.62, 1.57, 4.44, 1.16, 1.21, 2.70, 1.84, 5.84, 4.24, 16.61, 2.72, 1.02, 1.18, 2.09, 1.00, 1.74, 1.04, 2.78, 1.47, 2.60, 1.09, 1.15, 1.98, 2.18, 1.68, 1.45, 24.63, 1.73, 2.06, 4.99, 3.06, 4.99, 4.32, 1.31, 1.84, 2.73, 1.50, 2.75, 2.06, 1.61, 1.85, 1.29, 11.87, 1.72, 1.74, 1.18, 1.00, 3.54, 1.02, 1.68, 6.37, 3.29, 4.85, 4.92, 1.00, 1.58, 4.65, 1.51, 3.27, 1.06, 7.31, 7.00, 30.10, 1.97, 1.20, 1.00, 16.16, 1.48, 1.30, 1.96, 25.46, 1.00, 3.35, 1.08, 1.91, 29.54, 3.98, 2.10, 2.18, 1.06, 2.39, 1.43, 5.71, 1.17, 1.97, 2.74, 1.00, 1.54, 1.27, 1.02, 4.25];
 
-    const futureInput = await askQuestion('\n2. Cole a LISTA DE RESULTADOS (O que aconteceu depois): ');
-    if (futureInput.trim()) {
-        const futureResults = futureInput.split(/[,|\s]+/).map(p => parseFloat(p)).filter(n => !isNaN(n));
-        
-        console.log(`\n⚙️ Processando ${futureResults.length} rodadas...`);
-        
-        for (const val of futureResults) {
-            processResult(val);
-        }
+console.log('🚀 Executando teste automatizado...\n');
+history = [...memory];
+fullSessionHistory = [...memory];
 
-        updateDashboard();
-        console.log(`\x1b[32m\n✅ TESTE CONCLUÍDO! Visualize os resultados em: SESSAO_VALIDACAO.md\x1b[0m\n`);
-    }
-    
-    rl.close();
+console.log(`⚙️ Processando ${sequence.length} rodadas...`);
+
+for (const val of sequence) {
+    processResult(val);
 }
 
-main().catch(console.error);
+updateDashboard();
+console.log(`\n✅ TESTE CONCLUÍDO! Visualize os resultados em: SESSAO_VALIDACAO.md\n`);

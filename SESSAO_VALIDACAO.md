@@ -1,38 +1,50 @@
-# 🚁 DASHBOARD DE VALIDAÇÃO AVIATOR - MODO RETROSPECTIVA
+# 🎯 DASHBOARD DE VALIDAÇÃO - MODO RETROSPECTIVA
 
-> **Status:** Simulação Concluída | **Banca Final:** R$ 1100.00 | 🟢 **Lucro Total:** R$ 100.00
+**Status:** ✅ Concluída | **Banca Final:** R$ 1100.00 | **Lucro:** 🟢 R$ 100.00
 
-## 📊 ESTATÍSTICAS DO TESTE
-| Estratégia | Greens | Losses | Assertividade |
-| :--- | :--- | :--- | :--- |
-| **Roxa (2x)** | 7 | 6 | 53.8% |
-| **Rosa (10x)** | 0 | 0 | 0% |
+---
 
-## 📜 HISTÓRICO VISUAL COMPLETO (Sessão)
-🟣 🔵 🔵 🔵 🔵 🟣 🔵 🔵 🟣 🔵  
-🟣 🔵 🟣 🟣 🟣 🌸 🔵 🔵 🟣 🔵  
-🌸 🔵 🔵 🔵 🌸 🔵 🔵 🔵 🌸 🟣  
-🟣 🔵 🟣 🔵 🟣 🔵 🔵 🟣 🟣 🟣  
-🟣 🔵 🔵 🟣 🔵 🔵 🔵 🔵 🌸 🔵  
-🔵 🔵 🟣 🟣 🔵 🟣 🔵 🔵 🟣 🟣  
-🟣 🟣 🟣 🔵 🌸 🔵 🔵 🟣 🔵 🔵  
-🔵 🟣 🔵 🟣 🔵 🔵 🔵 🟣 🔵 🔵  
-🟣 🌸 🟣 🟣 🔵 🟣 🔵 🔵 🟣 🔵  
-🟣 🟣 🟣 🟣 🔵 🟣 🔵 🌸 🟣 🟣  
-🟣 🌸 🟣 🟣 🟣 🔵 🔵 🔵 🔵 🔵  
-🌸 🟣 🔵 🔵 🔵 🔵 🟣 🔵 🔵 🔵  
-🟣 🟣 🟣 🟣 🔵 🔵 🟣 🌸 🔵 🟣  
-🔵 🔵 🔵 🔵 🔵 🟣 🔵 🔵 🌸 🔵  
-🟣 🟣 🔵 🔵 🔵 🔵 🔵 🔵 🟣 🟣  
-🟣 🔵 🟣 🌸 🌸 🟣 🔵 🔵  
+## 📊 ESTATÍSTICAS GERAIS
 
-*Nota: Mostrando o histórico consolidado (Memória + Simulação).* 
+| Estratégia | Greens | Losses | Total | Assertividade | Lucro |
+|:-----------|:-------|:-------|:------|:--------------|:------|
+| 🟣 **Roxa (2x)** | 7 | 6 | 13 | **53.8%** | R$ 100.00 |
+| 🌸 **Rosa (10x)** | 0 | 0 | 0 | **0%** | R$ 0.00 |
 
---- 
+## 🔍 ANÁLISE DE MOTIVOS (Acertos/Erros por Tipo)
 
-## 📈 LOG COMPLETO DAS JOGADAS (Passo a Passo)
-| ID | Entrada 2x | Motivo 2x | Entrada Pink | Motivo Pink | Resultado | Lucro | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+### 🟣 Estratégia Roxa (2x)
+
+| Motivo | Greens | Losses | Total | Assertividade |
+|:-------|:-------|:-------|:------|:--------------|
+| ⚠️ Surfando Sequência Confirmada | 7 | 6 | 13 | **53.8%** |
+
+## 💡 INSIGHTS E RECOMENDAÇÕES
+
+- ✅ Nenhum ajuste urgente necessário.
+
+---
+
+## 📜 HISTÓRICO VISUAL (Sessão Completa)
+
+🟣 🔵 🔵 🔵 🔵 🟣 🔵 🔵 🟣 🔵 🟣 🔵 🟣 🟣 🟣 🌸 🔵 🔵 🟣 🔵
+🌸 🔵 🔵 🔵 🌸 🔵 🔵 🔵 🌸 🟣 🟣 🔵 🟣 🔵 🟣 🔵 🔵 🟣 🟣 🟣
+🟣 🔵 🔵 🟣 🔵 🔵 🔵 🔵 🌸 🔵 🔵 🔵 🟣 🟣 🔵 🟣 🔵 🔵 🟣 🟣
+🟣 🟣 🟣 🔵 🌸 🔵 🔵 🟣 🔵 🔵 🔵 🟣 🔵 🟣 🔵 🔵 🔵 🟣 🔵 🔵
+🟣 🌸 🟣 🟣 🔵 🟣 🔵 🔵 🟣 🔵 🟣 🟣 🟣 🟣 🔵 🟣 🔵 🌸 🟣 🟣
+🟣 🌸 🟣 🟣 🟣 🔵 🔵 🔵 🔵 🔵 🌸 🟣 🔵 🔵 🔵 🔵 🟣 🔵 🔵 🔵
+🟣 🟣 🟣 🟣 🔵 🔵 🟣 🌸 🔵 🟣 🔵 🔵 🔵 🔵 🔵 🟣 🔵 🔵 🌸 🔵
+🟣 🟣 🔵 🔵 🔵 🔵 🔵 🔵 🟣 🟣 🟣 🔵 🟣 🌸 🌸 🟣 🔵 🔵
+
+*Total: 158 velas*
+
+---
+
+<details>
+<summary>📋 LOG DETALHADO DAS JOGADAS (Clique para expandir)</summary>
+
+| ID | 2x | Motivo 2x | Pink | Motivo Pink | Resultado | Lucro | Status |
+|:---|:---|:----------|:-----|:------------|:----------|:------|:-------|
 | 98 | NÃO | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>❌ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.25x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 97 | NÃO | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>❌ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.02x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 96 | NÃO | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>❌ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.27x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
@@ -44,7 +56,7 @@
 | 90 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 5.71x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 89 | NÃO | Aguardando 2ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.43x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 88 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.39x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
-| 87 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.06x | (2x: -100) | ❌ LOSS 2x | ⏳ WAIT Pink |
+| 87 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.06x | 2x: -100 | ❌ LOSS 2x | ⏳ WAIT Pink |
 | 86 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Trava Pós-Rosa (2/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.18x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 85 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Trava Pós-Rosa (1/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.10x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 84 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Trava Pós-Rosa (0/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 3.98x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
@@ -69,9 +81,9 @@
 | 65 | NÃO | Aguardando 2ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.51x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 64 | NÃO | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>❌ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.65x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 63 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.58x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
-| 62 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.00x | (2x: -100) | ❌ LOSS 2x | ⏳ WAIT Pink |
-| 61 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.92x | (2x: +100) | ✅ GREEN 2x | ⏳ WAIT Pink |
-| 60 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.85x | (2x: +100) | ✅ GREEN 2x | ⏳ WAIT Pink |
+| 62 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.00x | 2x: -100 | ❌ LOSS 2x | ⏳ WAIT Pink |
+| 61 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.92x | 2x: +100 | ✅ GREEN 2x | ⏳ WAIT Pink |
+| 60 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.85x | 2x: +100 | ✅ GREEN 2x | ⏳ WAIT Pink |
 | 59 | NÃO | Recuperação Lenta (3 Reds Recentes).<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 3.29x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 58 | NÃO | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>❌ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 6.37x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 57 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.68x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
@@ -90,9 +102,9 @@
 | 44 | NÃO | Aguardando 2ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.50x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 43 | NÃO | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>❌ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Aguardando 2ª Rosa na janela (Ative: 1/2).<br>❌ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.73x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 42 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.84x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
-| 41 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.31x | (2x: -100) | ❌ LOSS 2x | ⏳ WAIT Pink |
-| 40 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.32x | (2x: +100) | ✅ GREEN 2x | ⏳ WAIT Pink |
-| 39 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.99x | (2x: +100) | ✅ GREEN 2x | ⏳ WAIT Pink |
+| 41 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.31x | 2x: -100 | ❌ LOSS 2x | ⏳ WAIT Pink |
+| 40 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.32x | 2x: +100 | ✅ GREEN 2x | ⏳ WAIT Pink |
+| 39 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.99x | 2x: +100 | ✅ GREEN 2x | ⏳ WAIT Pink |
 | 38 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 3.06x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 37 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Trava Pós-Rosa (2/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.99x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 36 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Trava Pós-Rosa (1/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.06x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
@@ -112,8 +124,8 @@
 | 22 | NÃO | Aguardando 2ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.00x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 21 | NÃO | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>❌ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.09x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 20 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Trava Pós-Rosa (2/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.18x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
-| 19 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Trava Pós-Rosa (1/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.02x | (2x: -100) | ❌ LOSS 2x | ⏳ WAIT Pink |
-| 18 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Trava Pós-Rosa (0/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.72x | (2x: +100) | ✅ GREEN 2x | ⏳ WAIT Pink |
+| 19 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Trava Pós-Rosa (1/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.02x | 2x: -100 | ❌ LOSS 2x | ⏳ WAIT Pink |
+| 18 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Trava Pós-Rosa (0/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.72x | 2x: +100 | ✅ GREEN 2x | ⏳ WAIT Pink |
 | 17 | NÃO | Aguardando 3ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 16.61x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 16 | NÃO | Aguardando 2ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.24x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 15 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 5.84x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
@@ -122,18 +134,24 @@
 | 12 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.21x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 11 | NÃO | Aguardando 2ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.16x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 10 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 4.44x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
-| 9 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.57x | (2x: -100) | ❌ LOSS 2x | ⏳ WAIT Pink |
-| 8 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.62x | (2x: +100) | ✅ GREEN 2x | ⏳ WAIT Pink |
+| 9 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.57x | 2x: -100 | ❌ LOSS 2x | ⏳ WAIT Pink |
+| 8 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.62x | 2x: +100 | ✅ GREEN 2x | ⏳ WAIT Pink |
 | 7 | NÃO | Aguardando 3ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.06x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 6 | NÃO | Aguardando 2ª vela roxa.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.60x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 5 | NÃO | Buscando sinal claro.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 5.27x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 4 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Trava Pós-Rosa (2/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.62x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
 | 3 | NÃO | Aguardando correção pós-rosa.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>❌ Padrão Confirmado | NÃO | Trava Pós-Rosa (1/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 2.95x | R$ 0.00 | ⏳ WAIT 2x | ⏳ WAIT Pink |
-| 2 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Trava Pós-Rosa (0/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.70x | (2x: -100) | ❌ LOSS 2x | ⏳ WAIT Pink |
-| 1 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 16.93x | (2x: +100) | ✅ GREEN 2x | ⏳ WAIT Pink |
+| 2 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>❌ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Trava Pós-Rosa (0/3).<br>✅ Frequência (2 Pinks em 25)<br>❌ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 1.70x | 2x: -100 | ❌ LOSS 2x | ⏳ WAIT Pink |
+| 1 | SIM | Surfando Sequência Confirmada.<br>✅ Mercado Aberto (Blue < 60%)<br>✅ Fora da Trava Pós-Rosa<br>✅ Sem Stop Loss<br>✅ Padrão Confirmado | NÃO | Buscando padrão confirmado...<br>✅ Frequência (2 Pinks em 25)<br>✅ Trava Pós-Rosa<br>❌ Padrão Sniper Identificado<br>❌ Dentro da Zona de Tiro | 16.93x | 2x: +100 | ✅ GREEN 2x | ⏳ WAIT Pink |
 
+</details>
 
-## 📝 LISTA CONSOLIDADA (Para novos testes)
-> Copie a lista abaixo para usar como 'Histórico Passado' em uma nova validação:
+---
 
-`4.25, 1.02, 1.27, 1.54, 1, 2.74, 1.97, 1.17, 5.71, 1.43, 2.39, 1.06, 2.18, 2.1, 3.98, 29.54, 1.91, 1.08, 3.35, 1, 25.46, 1.96, 1.3, 1.48, 16.16, 1, 1.2, 1.97, 30.1, 7, 7.31, 1.06, 3.27, 1.51, 4.65, 1.58, 1, 4.92, 4.85, 3.29, 6.37, 1.68, 1.02, 3.54, 1, 1.18, 1.74, 1.72, 11.87, 1.29, 1.85, 1.61, 2.06, 2.75, 1.5, 2.73, 1.84, 1.31, 4.32, 4.99, 3.06, 4.99, 2.06, 1.73, 24.63, 1.45, 1.68, 2.18, 1.98, 1.15, 1.09, 2.6, 1.47, 2.78, 1.04, 1.74, 1, 2.09, 1.18, 1.02, 2.72, 16.61, 4.24, 5.84, 1.84, 2.7, 1.21, 1.16, 4.44, 1.57, 2.62, 2.06, 2.6, 5.27, 1.62, 2.95, 1.7, 16.93, 4.02, 7.15, 6.85, 11.27, 2.3, 3.8, 2.04, 1.57, 1.41, 1.29, 1, 1.05, 130.14, 7.61, 1.11, 1.51, 1.78, 1.14, 3.11, 1.22, 1.27, 1.92, 3.36, 3.83, 2.19, 2.22, 1.01, 1.4, 2.74, 26.17, 1.98, 2.38, 1.02, 1.88, 1.17, 1.44, 1.45, 3.5, 1.12, 1.39, 10.07, 1.78, 4.56, 2.08, 1.02, 1.17, 1.27, 1.09, 1.24, 1.18, 2.96, 2.23, 2.36, 1.13, 9.61, 11.59, 14.33, 3.42, 1.21, 1.06`
+## 📝 LISTA CONSOLIDADA (Para Novos Testes)
+
+> Copie a lista abaixo para usar como "Histórico Passado" em uma nova validação:
+
+```
+4.25, 1.02, 1.27, 1.54, 1, 2.74, 1.97, 1.17, 5.71, 1.43, 2.39, 1.06, 2.18, 2.1, 3.98, 29.54, 1.91, 1.08, 3.35, 1, 25.46, 1.96, 1.3, 1.48, 16.16, 1, 1.2, 1.97, 30.1, 7, 7.31, 1.06, 3.27, 1.51, 4.65, 1.58, 1, 4.92, 4.85, 3.29, 6.37, 1.68, 1.02, 3.54, 1, 1.18, 1.74, 1.72, 11.87, 1.29, 1.85, 1.61, 2.06, 2.75, 1.5, 2.73, 1.84, 1.31, 4.32, 4.99, 3.06, 4.99, 2.06, 1.73, 24.63, 1.45, 1.68, 2.18, 1.98, 1.15, 1.09, 2.6, 1.47, 2.78, 1.04, 1.74, 1, 2.09, 1.18, 1.02, 2.72, 16.61, 4.24, 5.84, 1.84, 2.7, 1.21, 1.16, 4.44, 1.57, 2.62, 2.06, 2.6, 5.27, 1.62, 2.95, 1.7, 16.93, 4.02, 7.15, 6.85, 11.27, 2.3, 3.8, 2.04, 1.57, 1.41, 1.29, 1, 1.05, 130.14, 7.61, 1.11, 1.51, 1.78, 1.14, 3.11, 1.22, 1.27, 1.92, 3.36, 3.83, 2.19, 2.22, 1.01, 1.4, 2.74, 26.17, 1.98, 2.38, 1.02, 1.88, 1.17, 1.44, 1.45, 3.5, 1.12, 1.39, 10.07, 1.78, 4.56, 2.08, 1.02, 1.17, 1.27, 1.09, 1.24, 1.18, 2.96, 2.23, 2.36, 1.13, 9.61, 11.59, 14.33, 3.42, 1.21, 1.06
+```
