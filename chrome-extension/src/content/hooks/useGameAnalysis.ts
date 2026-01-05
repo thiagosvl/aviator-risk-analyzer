@@ -18,7 +18,7 @@ export interface UseGameAnalysisReturn {
   updateConfig: (config: Partial<AnalyzerConfig>) => void;
 }
 
-export function useGameAnalysis(
+export const useGameAnalysis = (
   config?: Partial<AnalyzerConfig>
 ): UseGameAnalysisReturn {
   const [gameState, setGameState] = useState<GameState>({
@@ -29,7 +29,8 @@ export function useGameAnalysis(
   });
 
   const [analysis, setAnalysis] = useState<AnalysisData>({
-    recommendation: { action: 'WAIT', reason: 'Aguardando início...', riskLevel: 'LOW', confidence: 0 },
+    recommendation2x: { action: 'WAIT', reason: 'Aguardando início...', riskLevel: 'LOW', confidence: 0 },
+    recommendationPink: { action: 'WAIT', reason: 'Aguardando início...', riskLevel: 'LOW', confidence: 0 },
     pinkPattern: undefined,
     purpleStreak: 0,
     conversionRate: 0,

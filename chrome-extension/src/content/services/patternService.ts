@@ -1,6 +1,6 @@
 import { AnalysisData } from '@src/bridge/messageTypes';
 import { AnalyzerConfig, DEFAULT_CONFIG } from '@src/content/types';
-import { StrategyCore } from '../shared/strategyCore';
+import { StrategyCore } from '../../shared/strategyCore';
 
 export class PatternService {
   private config: AnalyzerConfig;
@@ -9,7 +9,10 @@ export class PatternService {
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
-  public analyze(values: number[]): AnalysisData {
+  public analyze(gameState: { history?: Array<{ value?: number } | number> }): AnalysisData {
+    // Extrair valores do histórico
+    const values = gameState.history?.map((c) => (typeof c === 'number' ? c : c.value || 0)) || [];
+    
     if (!values || values.length === 0) {
       return this.getEmptyAnalysis();
     }
@@ -28,6 +31,10 @@ export class PatternService {
       volatilityDensity: result.volatilityDensity,
       candlesSinceLastPink: result.candlesSinceLastPink
     };
+  }
+
+  public updateConfig(config: Partial<AnalyzerConfig>) {
+    this.config = { ...this.config, ...config };
   }
 
   private getPatternDisplayName(type: string): string {
@@ -50,3 +57,6 @@ export class PatternService {
     };
   }
 }
+
+// Singleton instance
+export const patternService = new PatternService();
