@@ -21,6 +21,9 @@ interface GraphResult {
   profit: number;
   roi: number;
   reasonsBreakdown: Map<string, { total: number; wins: number; losses: number }>;
+  rulesInLosses: Map<string, number>; // Quantas vezes cada regra apareceu em um loss
+  maxDrawdown: number;
+  pinkZoneBreakdown: Map<string, { total: number; wins: number; losses: number }>;
 }
 
 // Capturar todo o output do console
@@ -72,7 +75,7 @@ console.log(`📊 Encontrados ${files.length} grafos\n`);
 const results: GraphResult[] = [];
 const BET_2X = 100.0;
 const BET_PINK = 50.0;
-const MEMORY_SIZE = 25;
+const MEMORY_SIZE = 100; // Aumentado para 100 para permitir detecção de padrões de 60+ velas
 
 for (const file of files) {
     const filepath = path.join(graphsDir, file);
@@ -97,6 +100,10 @@ for (const file of files) {
     let playsPink = 0, winsPink = 0, lossesPink = 0;
     let bankroll = 1000.0;
     const reasonsBreakdown = new Map<string, { total: number; wins: number; losses: number }>();
+    const rulesInLosses = new Map<string, number>();
+    const pinkZoneBreakdown = new Map<string, { total: number; wins: number; losses: number }>();
+    let maxDrawdown = 0;
+    let peak = bankroll;
     
     for (let i = 0; i < totalRounds; i++) {
         const memory = chronological.slice(i, i + MEMORY_SIZE);
@@ -124,17 +131,51 @@ for (const file of files) {
                 losses2x++;
                 stats.losses++;
                 bankroll -= BET_2X;
+                
+                // Track rules active during loss
+                if (analysis.recommendation2x.scoreBreakdown) {
+                    analysis.recommendation2x.scoreBreakdown.details.forEach(detail => {
+                        const ruleName = detail.split(':')[0];
+                        rulesInLosses.set(ruleName, (rulesInLosses.get(ruleName) || 0) + 1);
+                    });
+                }
             }
+            
+            if (bankroll > peak) peak = bankroll;
+            const dd = peak - bankroll;
+            if (dd > maxDrawdown) maxDrawdown = dd;
         }
         
         // Rosa
         if (analysis.recommendationPink.action === 'PLAY_10X') {
             playsPink++;
+            
+            // Rastrear zona (V4.3)
+            const pattern = analysis.pinkPattern;
+            let zone: 'before' | 'during' | 'after' | 'noPattern';
+            
+            if (!pattern) {
+                zone = 'noPattern';
+            } else {
+                const diff = pattern.candlesUntilMatch;
+                if (diff < 0) zone = 'before';
+                else if (diff === 0) zone = 'during';
+                else zone = 'after';
+            }
+            
+            if (!pinkZoneBreakdown.has(zone)) {
+                pinkZoneBreakdown.set(zone, { total: 0, wins: 0, losses: 0 });
+            }
+            const zoneStats = pinkZoneBreakdown.get(zone)!;
+            zoneStats.total++;
+            
             if (nextValue >= 10.0) {
                 winsPink++;
+                zoneStats.wins++;
                 bankroll += (BET_PINK * 9);
             } else {
                 lossesPink++;
+                zoneStats.losses++;
                 bankroll -= BET_PINK;
             }
         }
@@ -159,7 +200,12 @@ for (const file of files) {
         assertividadePink,
         profit,
         roi,
-        reasonsBreakdown
+        profit,
+        roi,
+        reasonsBreakdown,
+        rulesInLosses,
+        maxDrawdown,
+        pinkZoneBreakdown
     });
     
     console.log(`✅ ${file}: ${totalRounds} rodadas, ${plays2x} jogadas 2x, ${assertividade2x.toFixed(1)}% acerto, R$ ${profit.toFixed(2)}`);
@@ -203,6 +249,35 @@ console.log(`   Greens: ${totalWinsPink}`);
 console.log(`   Losses: ${totalLossesPink}`);
 console.log(`   Assertividade média: ${totalPlaysPink > 0 ? avgAssertividadePink.toFixed(1) : 'N/A'}%`);
 console.log(`   Taxa de entrada: ${((totalPlaysPink / totalRounds) * 100).toFixed(1)}%`);
+
+// Breakdown de Zonas Rosa (V4.3)
+if (totalPlaysPink > 0) {
+    const globalPinkZones = new Map<string, { total: number; wins: number; losses: number }>();
+    results.forEach(r => {
+        r.pinkZoneBreakdown.forEach((stats, zone) => {
+            if (!globalPinkZones.has(zone)) {
+                globalPinkZones.set(zone, { total: 0, wins: 0, losses: 0 });
+            }
+            const global = globalPinkZones.get(zone)!;
+            global.total += stats.total;
+            global.wins += stats.wins;
+            global.losses += stats.losses;
+        });
+    });
+
+    console.log(`\n📍 BREAKDOWN POR ZONA DE TIRO (ROSA):`);
+    const zones: ('before' | 'during' | 'after' | 'noPattern')[] = ['before', 'during', 'after', 'noPattern'];
+    const zoneLabels = { before: '⏪ ANTES', during: '🎯 DURANTE', after: '⏩ DEPOIS', noPattern: '❓ SEM PADRÃO' };
+    
+    zones.forEach(zone => {
+        const stats = globalPinkZones.get(zone);
+        if (stats && stats.total > 0) {
+            const acc = (stats.wins / stats.total) * 100;
+            const status = acc >= 20 ? '✅ PROMISSOR' : acc >= 10 ? '⚠️ MEDIANO' : '❌ PÉSSIMO';
+            console.log(`   ${zoneLabels[zone].padEnd(10)}: ${stats.total} jogadas, ${acc.toFixed(1)}% assertividade ${status}`);
+        }
+    });
+}
 
 console.log(`\n💰 FINANCEIRO:`);
 console.log(`   Lucro total: R$ ${totalProfit.toFixed(2)}`);
@@ -335,6 +410,26 @@ if (globalReasons.size > 0) {
     });
 } else {
     console.log(`⚠️  Nenhuma jogada realizada para análise.\n`);
+}
+
+// Análise de Regras Perigosas (Presença em Losses)
+const globalRulesInLosses = new Map<string, number>();
+results.forEach(r => {
+    r.rulesInLosses.forEach((count, rule) => {
+        globalRulesInLosses.set(rule, (globalRulesInLosses.get(rule) || 0) + count);
+    });
+});
+
+if (globalRulesInLosses.size > 0) {
+    console.log(`⚠️  DIAGNÓSTICO DE RISCO (Regras frequentes em Losses):\n`);
+    const sortedRules = Array.from(globalRulesInLosses.entries())
+        .sort((a, b) => b[1] - a[1]);
+    
+    sortedRules.forEach(([rule, count]) => {
+        const perc = ((count / totalLosses2x) * 100).toFixed(1);
+        console.log(`   • ${rule}: presente em ${count} losses (${perc}% das derrotas)`);
+    });
+    console.log('');
 }
 
 // Análise de performance geral

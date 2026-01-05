@@ -25,6 +25,7 @@ export interface Recommendation {
   target?: number; // 2.0 or 10.0
   ruleChecklist?: Record<string, boolean>;
   estimatedTarget?: number;
+  scoreBreakdown?: any; 
 }
 
 export interface PatternData {

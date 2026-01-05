@@ -20,7 +20,6 @@ class BridgeService {
     if (this.isListening) return;
     
     window.addEventListener('message', (event) => {
-      // Validate origin if needed (for now accept all, but filter by source)
       const data = event.data as BridgeMessage;
 
       if (data && data.source === 'AVIATOR_SPY' && data.type) {
@@ -40,8 +39,8 @@ class BridgeService {
       source: 'AVIATOR_SPY'
     };
 
-    // Send to parent (Top Frame)
-    window.parent.postMessage(message, '*');
+    // Send to top frame (Highest window)
+    window.top?.postMessage(message, '*');
   }
 
   // Listen for messages (Usually in Top Frame receiving from Iframe)

@@ -13,7 +13,6 @@ import { useEffect, useRef, useState } from 'react';
  * Roda na janela pai e recebe dados via Bridge.
  */
 
-import { useOverseer } from '@src/content/hooks/useOverseer'; // Novo Hook
 import {
     ChevronDown,
     ChevronUp,
@@ -21,6 +20,7 @@ import {
 } from 'lucide-react';
 
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
+import { useOverseer } from '@src/content/hooks/useOverseer';
 import { stealthMode } from '@src/content/services/stealthMode';
 
 const RuleChecklist = ({ checklist }: { checklist?: Record<string, boolean> }) => {
@@ -300,7 +300,7 @@ export const AnalyzerOverlay = () => {
            <div className="text-xl font-black tracking-tight mt-1">
              {formatAction(rec2x.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
            </div>
-            {rec2x.action !== 'STOP' && rec2x.estimatedTarget && (
+            {rec2x.action === 'PLAY_2X' && rec2x.estimatedTarget && (
               <div className="mt-1 bg-emerald-500/20 rounded py-0.5 border border-emerald-500/30">
                 <div className="text-[9px] font-bold text-emerald-400 leading-none">ALVO DINÂMICO</div>
                 <div className="text-sm font-black text-white italic tracking-tighter">Sair em {rec2x.estimatedTarget.toFixed(2)}x</div>
@@ -535,10 +535,11 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
                 <table className="w-full text-[10px] border-collapse table-fixed">
                     <thead className="bg-slate-900/80 text-slate-500 sticky top-0 backdrop-blur-sm z-10 text-[9px]">
                         <tr>
-                            <th className="py-1 px-2 text-left w-1/4">HORA</th>
-                            <th className="py-1 px-1 text-center w-1/4">TIPO</th>
-                            <th className="py-1 px-1 text-center w-1/4">CRASH</th>
-                            <th className="py-1 px-2 text-right w-1/4">LUCRO</th>
+                            <th className="py-1 px-2 text-left w-1/5">HORA</th>
+                            <th className="py-1 px-1 text-center w-1/5">TIPO</th>
+                            <th className="py-1 px-1 text-center w-1/5">ALVO</th>
+                            <th className="py-1 px-1 text-center w-1/5">CRASH</th>
+                            <th className="py-1 px-2 text-right w-1/5">LUCRO</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -552,6 +553,9 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
                                         ? <span className="text-pink-400">10x</span> 
                                         : <span className="text-purple-400">2x</span>
                                      }
+                                 </td>
+                                 <td className="py-0.5 px-1 text-center font-mono text-white/50">
+                                     {h.target ? `${h.target.toFixed(2)}x` : '-'}
                                  </td>
                                  <td className={`py-0.5 px-1 text-center font-bold ${
                                      h.crashPoint >= 10.0 ? 'text-[#fb7185] drop-shadow-[0_0_5px_rgba(251,113,133,0.3)]' : 

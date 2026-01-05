@@ -12,7 +12,8 @@ export class TestPatternService {
         const result = StrategyCore.analyze(values);
         return {
             rec2x: result.recommendation2x,
-            recPink: result.recommendationPink
+            recPink: result.recommendationPink,
+            pinkPattern: result.pinkPattern
         };
     }
 }
