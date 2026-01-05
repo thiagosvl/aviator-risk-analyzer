@@ -15,6 +15,18 @@ console.log = (...args: any[]) => {
   // originalLog(...args); // Silenciado conforme solicitado
 };
 
+// Configuração de Teste (AJUSTE AQUI)
+const CONFIG = {
+  rosa: {
+    target: 10.0, // Multiplicador alvo (ex: 10.0x)
+    bet: 50,      // Valor da aposta
+  },
+  roxa: {
+    target: 2.0,  // Multiplicador alvo (ex: 2.0x)
+    bet: 100,     // Valor da aposta
+  }
+};
+
 // Importar modelo (simulado aqui)
 interface Decision {
   playRosa: boolean;
@@ -61,22 +73,23 @@ const files = fs.readdirSync(graphsDir)
 
 console.log(`\n${'='.repeat(120)}`);
 console.log(`TESTE DO MODELO V1 - TODOS OS GRAFOS`);
+console.log(`Configuração: Rosa ${CONFIG.rosa.target}x / Roxa ${CONFIG.roxa.target}x`);
 console.log(`${'='.repeat(120)}\n`);
 
 // Documentar regras utilizadas
 console.log(`📋 REGRAS UTILIZADAS:\n`);
 console.log(`🌸 ESTRATÉGIA ROSA (Agressiva):`);
 console.log(`   Regra: Jogar quando última vela < 2.00x (blue)`);
-console.log(`   Aposta: R$ 50`);
-console.log(`   Ganho: R$ 500 (se ≥10.00x)`);
-console.log(`   Breakeven: 10% assertividade`);
+console.log(`   Aposta: R$ ${CONFIG.rosa.bet}`);
+console.log(`   Ganho: R$ ${CONFIG.rosa.bet * CONFIG.rosa.target} (se ≥${CONFIG.rosa.target.toFixed(2)}x)`);
+console.log(`   Breakeven: ${(100/CONFIG.rosa.target).toFixed(1)}% assertividade`);
 console.log(`   Lógica: Rosas tendem a vir após blues (52.4% das vezes)\n`);
 
 console.log(`🟣 ESTRATÉGIA ROXA (Conservadora):`);
 console.log(`   Regra: Jogar quando Purple% ≥60 E Streak ≥2 E Trend=UP`);
-console.log(`   Aposta: R$ 100`);
-console.log(`   Ganho: R$ 200 (se ≥2.00x)`);
-console.log(`   Breakeven: 50% assertividade`);
+console.log(`   Aposta: R$ ${CONFIG.roxa.bet}`);
+console.log(`   Ganho: R$ ${CONFIG.roxa.bet * CONFIG.roxa.target} (se ≥${CONFIG.roxa.target.toFixed(2)}x)`);
+console.log(`   Breakeven: ${(100/CONFIG.roxa.target).toFixed(1)}% assertividade`);
 console.log(`   Lógica: Momentum positivo forte indica alta probabilidade\n`);
 
 console.log(`${'='.repeat(120)}\n`);
@@ -106,19 +119,19 @@ for (const file of files) {
     
     if (decision.playRosa) {
       rosaJogadas++;
-      rosaInvestido += 50;
-      if (nextValue >= 10.0) {
+      rosaInvestido += CONFIG.rosa.bet;
+      if (nextValue >= CONFIG.rosa.target) {
         rosaGreens++;
-        rosaRecebido += 500;
+        rosaRecebido += CONFIG.rosa.bet * CONFIG.rosa.target;
       }
     }
     
     if (decision.playRoxa) {
       roxaJogadas++;
-      roxaInvestido += 100;
-      if (nextValue >= 2.0) {
+      roxaInvestido += CONFIG.roxa.bet;
+      if (nextValue >= CONFIG.roxa.target) {
         roxaGreens++;
-        roxaRecebido += 200;
+        roxaRecebido += CONFIG.roxa.bet * CONFIG.roxa.target;
       }
     }
   }
@@ -151,43 +164,54 @@ const totalAssertRosa = totalRosaJogadas > 0 ? (totalRosaGreens / totalRosaJogad
 const totalAssertRoxa = totalRoxaJogadas > 0 ? (totalRoxaGreens / totalRoxaJogadas * 100) : 0;
 const totalSaldo = totalRosaSaldo + totalRoxaSaldo;
 
+// Cálculos de ROI baseados nos valores investidos reais
+const totalInvestidoRosa = totalRosaJogadas * CONFIG.rosa.bet;
+const totalInvestidoRoxa = totalRoxaJogadas * CONFIG.roxa.bet;
+const totalInvestidoGlobal = totalInvestidoRosa + totalInvestidoRoxa;
+
+const totalRecebidoRosa = totalRosaGreens * (CONFIG.rosa.bet * CONFIG.rosa.target);
+const totalRecebidoRoxa = totalRoxaGreens * (CONFIG.roxa.bet * CONFIG.roxa.target);
+const totalRecebidoGlobal = totalRecebidoRosa + totalRecebidoRoxa;
+
 console.log(`${'='.repeat(120)}`);
-console.log(`RESUMO GERAL - 10 GRAFOS`);
+console.log(`RESUMO GERAL - ${files.length} GRAFOS`);
 console.log(`${'='.repeat(120)}\n`);
 
 console.log(`🌸 ROSA (Última vela < 2x):`);
 console.log(`   Jogadas: ${totalRosaJogadas}`);
 console.log(`   Greens: ${totalRosaGreens} (${totalAssertRosa.toFixed(1)}%)`);
 console.log(`   Losses: ${totalRosaJogadas - totalRosaGreens}`);
-console.log(`   Investido: R$ ${(totalRosaJogadas * 50).toFixed(2)}`);
-console.log(`   Recebido: R$ ${(totalRosaGreens * 500).toFixed(2)}`);
+console.log(`   Investido: R$ ${totalInvestidoRosa.toFixed(2)}`);
+console.log(`   Recebido: R$ ${totalRecebidoRosa.toFixed(2)}`);
 console.log(`   Lucro: R$ ${totalRosaSaldo.toFixed(2)}`);
-console.log(`   ROI: ${totalRosaJogadas > 0 ? ((totalRosaSaldo / (totalRosaJogadas * 50)) * 100).toFixed(1) : 0}%`);
+console.log(`   ROI: ${totalInvestidoRosa > 0 ? ((totalRosaSaldo / totalInvestidoRosa) * 100).toFixed(1) : 0}%`);
 console.log();
 
 console.log(`🟣 ROXA (Purple% ≥60 + Streak ≥2 + Trend UP):`);
 console.log(`   Jogadas: ${totalRoxaJogadas}`);
 console.log(`   Greens: ${totalRoxaGreens} (${totalAssertRoxa.toFixed(1)}%)`);
 console.log(`   Losses: ${totalRoxaJogadas - totalRoxaGreens}`);
-console.log(`   Investido: R$ ${(totalRoxaJogadas * 100).toFixed(2)}`);
-console.log(`   Recebido: R$ ${(totalRoxaGreens * 200).toFixed(2)}`);
+console.log(`   Investido: R$ ${totalInvestidoRoxa.toFixed(2)}`);
+console.log(`   Recebido: R$ ${totalRecebidoRoxa.toFixed(2)}`);
 console.log(`   Lucro: R$ ${totalRoxaSaldo.toFixed(2)}`);
-console.log(`   ROI: ${totalRoxaJogadas > 0 ? ((totalRoxaSaldo / (totalRoxaJogadas * 100)) * 100).toFixed(1) : 0}%`);
+console.log(`   ROI: ${totalInvestidoRoxa > 0 ? ((totalRoxaSaldo / totalInvestidoRoxa) * 100).toFixed(1) : 0}%`);
 console.log();
 
 console.log(`💰 TOTAL:`);
 console.log(`   Jogadas: ${totalRosaJogadas + totalRoxaJogadas}`);
 console.log(`   Greens: ${totalRosaGreens + totalRoxaGreens}`);
 console.log(`   Assertividade: ${((totalRosaGreens + totalRoxaGreens) / (totalRosaJogadas + totalRoxaJogadas) * 100).toFixed(1)}%`);
-console.log(`   Investido: R$ ${(totalRosaJogadas * 50 + totalRoxaJogadas * 100).toFixed(2)}`);
-console.log(`   Recebido: R$ ${(totalRosaGreens * 500 + totalRoxaGreens * 200).toFixed(2)}`);
+console.log(`   Investido: R$ ${totalInvestidoGlobal.toFixed(2)}`);
+console.log(`   Recebido: R$ ${totalRecebidoGlobal.toFixed(2)}`);
 console.log(`   LUCRO: R$ ${totalSaldo.toFixed(2)}`);
-console.log(`   ROI: ${((totalSaldo / (totalRosaJogadas * 50 + totalRoxaJogadas * 100)) * 100).toFixed(1)}%`);
+console.log(`   ROI: ${totalInvestidoGlobal > 0 ? ((totalSaldo / totalInvestidoGlobal) * 100).toFixed(1) : 0}%`);
 console.log();
 
 console.log(`📊 CONTRIBUIÇÃO:`);
-console.log(`   ROSA: ${((totalRosaSaldo / totalSaldo) * 100).toFixed(1)}% do lucro`);
-console.log(`   ROXA: ${((totalRoxaSaldo / totalSaldo) * 100).toFixed(1)}% do lucro`);
+if (totalSaldo !== 0) {
+  console.log(`   ROSA: ${((totalRosaSaldo / Math.abs(totalSaldo)) * 100).toFixed(1)}% do resultado`);
+  console.log(`   ROXA: ${((totalRoxaSaldo / Math.abs(totalSaldo)) * 100).toFixed(1)}% do resultado`);
+}
 console.log();
 
 // Análise de performance
@@ -196,24 +220,24 @@ console.log(`ANÁLISE DE PERFORMANCE`);
 console.log(`${'='.repeat(120)}\n`);
 
 const winningGraphs = files.length; // Simplificado
-const totalROI = ((totalSaldo / (totalRosaJogadas * 50 + totalRoxaJogadas * 100)) * 100);
+const totalROI = totalInvestidoGlobal > 0 ? ((totalSaldo / totalInvestidoGlobal) * 100) : 0;
 
-if (totalAssertRosa >= 15) {
+if (totalAssertRosa >= (100/CONFIG.rosa.target) * 1.5) {
   console.log(`✅ ROSA: Assertividade EXCELENTE (${totalAssertRosa.toFixed(1)}%)`);
-} else if (totalAssertRosa >= 12) {
+} else if (totalAssertRosa >= (100/CONFIG.rosa.target) * 1.2) {
   console.log(`✅ ROSA: Assertividade BOA (${totalAssertRosa.toFixed(1)}%)`);
-} else if (totalAssertRosa >= 10) {
+} else if (totalAssertRosa >= (100/CONFIG.rosa.target)) {
   console.log(`⚠️  ROSA: Assertividade ACEITÁVEL (${totalAssertRosa.toFixed(1)}%)`);
 } else {
-  console.log(`❌ ROSA: Assertividade BAIXA (${totalAssertRosa.toFixed(1)}%)`);
+  console.log(`❌ ROSA: Assertividade BAIXA (${totalAssertRosa.toFixed(1)}%) - Abaixo do breakeven (${(100/CONFIG.rosa.target).toFixed(1)}%)`);
 }
 
-if (totalAssertRoxa >= 60) {
+if (totalAssertRoxa >= (100/CONFIG.roxa.target) * 1.2) {
   console.log(`✅ ROXA: Assertividade BOA (${totalAssertRoxa.toFixed(1)}%)`);
-} else if (totalAssertRoxa >= 50) {
+} else if (totalAssertRoxa >= (100/CONFIG.roxa.target)) {
   console.log(`⚠️  ROXA: Assertividade ACEITÁVEL (${totalAssertRoxa.toFixed(1)}%)`);
 } else {
-  console.log(`❌ ROXA: Assertividade BAIXA (${totalAssertRoxa.toFixed(1)}%) - Abaixo do breakeven!`);
+  console.log(`❌ ROXA: Assertividade BAIXA (${totalAssertRoxa.toFixed(1)}%) - Abaixo do breakeven (${(100/CONFIG.roxa.target).toFixed(1)}%)`);
 }
 
 console.log();

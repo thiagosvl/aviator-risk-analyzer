@@ -217,6 +217,12 @@ def main():
         
         print(f"[{i}/{len(image_files)}] {image_path.name}")
         
+        # Check if exists
+        if os.path.exists(output_file):
+            print(f"   ⏭️  Arquivo {os.path.basename(output_file)} já existe. Pulando...\n")
+            success_count += 1
+            continue
+        
         # Tentar extrair
         values = extract_with_easyocr(str(image_path))
         
