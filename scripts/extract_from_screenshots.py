@@ -134,10 +134,13 @@ def process_directory(input_dir: str, output_dir: str):
     output_path.mkdir(parents=True, exist_ok=True)
     
     # Procurar imagens
-    image_extensions = ['.png', '.jpg', '.jpeg', '.bmp']
-    images = []
+    image_extensions = ['*.png', '*.jpg', '*.jpeg', '*.bmp']
+    images_set = set()
     for ext in image_extensions:
-        images.extend(input_path.glob(f'*{ext}'))
+        images_set.update(input_path.glob(ext))
+        images_set.update(input_path.glob(ext.upper()))
+    
+    images = sorted(list(images_set))
     
     if not images:
         print(f"❌ Nenhuma imagem encontrada em {input_dir}")

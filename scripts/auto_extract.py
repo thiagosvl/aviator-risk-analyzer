@@ -26,28 +26,108 @@ def install_easyocr():
             return False
 
 def extract_with_easyocr(image_path):
-    """Extrai números usando easyocr"""
+    """Extrai números usando easyocr com escala 4x e agrupamento por grid"""
     try:
         import easyocr
+        from PIL import Image
+        import numpy as np
+        
+        # 0. Abrir e Escalar Imagem (4x para não perder pontos/vírgulas minúsculos)
+        img = Image.open(image_path).convert('RGB')
+        w, h = img.size
+        img = img.resize((w*4, h*4), Image.Resampling.LANCZOS)
+        
+        # Configuração do Reader
         reader = easyocr.Reader(['en'], gpu=False, verbose=False)
-        result = reader.readtext(image_path)
+        img_np = np.array(img)
+        # allowlist estrito ajuda a evitar lixo, mas incluímos ':' para detectar horas
+        result = reader.readtext(img_np, allowlist='0123456789.,xX:')
         
-        # Extrair texto
-        text = ' '.join([item[1] for item in result])
+        if not result:
+            return []
+
+        # 1. Coletar detecções
+        detections = []
+        for (bbox, text, prob) in result:
+            text = text.strip().lower()
+            if not text: continue
+            
+            h_det = abs(bbox[0][1] - bbox[2][1])
+            detections.append({
+                'text': text,
+                'bbox': bbox,
+                'h': h_det,
+                'y': (bbox[0][1] + bbox[2][1]) / 2, # Usar centro vertical
+                'x': (bbox[0][0] + bbox[2][0]) / 2  # Usar centro horizontal
+            })
+            
+        if not detections:
+            return []
+
+        # 2. Agrupar em faixas horizontais (Grid Rows)
+        h_values = sorted([d['h'] for d in detections])
+        median_h = h_values[len(h_values)//2]
         
-        # Extrair números
-        pattern = r'(\d+[.,]\d+)x?'
-        matches = re.findall(pattern, text)
-        
+        # Snap maior (0.7 da altura) para evitar que a mesma linha quebre em duas bandas
+        line_snap = median_h * 0.7
+        bands = {}
+        for d in detections:
+            # Agrupar pelo centro Y
+            band_idx = round(d['y'] / line_snap)
+            if band_idx not in bands: bands[band_idx] = []
+            bands[band_idx].append(d)
+            
+        # 3. Classificar bandas e extrair
         values = []
-        for match in matches:
-            try:
-                val = float(match.replace(',', '.'))
-                if 0.5 <= val <= 1000:
-                    values.append(val)
-            except:
-                continue
+        multi_pattern = r'(\d+(?:[.,]\d+)?)\s*[xX*+»_%!]'
+        pure_num_pattern = r'(\d+(?:[.,]\d+)?)'
         
+        for idx in sorted(bands.keys()):
+            band_items = bands[idx]
+            # Linhas de multiplicadores no Aviator são densas (até 32 itens)
+            # Linhas de horas também. Mas queremos apenas as de multiplicadores.
+            if len(band_items) < 3: continue 
+            
+            x_count = sum(1 for i in band_items if 'x' in i['text'])
+            colon_count = sum(1 for i in band_items if ':' in i['text'])
+            avg_h = sum(i['h'] for i in band_items) / len(band_items)
+            
+            # FILTRO DE BANDA (Linha): 
+            # Se tem mais ':' que 'x', ou se a altura média é muito baixa (<60% da mediana), é hora.
+            if colon_count > x_count or avg_h < median_h * 0.6:
+                continue
+                
+            # Banda válida -> Ordenar por X e extrair
+            row_items = sorted(band_items, key=lambda i: i['x'])
+            for d in row_items:
+                text = d['text'].replace(' ', '')
+                if ':' in text: continue
+                
+                # Prioridade 1: Match com 'x'
+                m = re.search(multi_pattern, text)
+                if m:
+                    val_str = m.group(1).replace(',', '.')
+                    try:
+                        val = float(val_str)
+                        if 1.0 <= val <= 5000:
+                            values.append(val)
+                            continue
+                    except: pass
+                
+                # Prioridade 2: Match sem 'x' (apenas se a banda for muito confiável)
+                if x_count > 3 or (len(band_items) > 10 and avg_h > median_h * 0.9):
+                    m = re.search(pure_num_pattern, text)
+                    if m:
+                        val_str = m.group(1).replace(',', '.')
+                        try:
+                            val = float(val_str)
+                            # Se for um valor baixo e puramente inteiro lido como decimal HH.MM
+                            if val < 25 and '.' in val_str and len(val_str) >= 4:
+                                continue
+                            if 1.0 <= val <= 3000:
+                                values.append(val)
+                        except: pass
+                        
         return values
     except Exception as e:
         print(f"   Erro no easyocr: {e}")
@@ -101,12 +181,15 @@ def main():
     # Criar pasta de saída
     os.makedirs(output_dir, exist_ok=True)
     
-    # Encontrar imagens
-    image_files = []
-    for ext in ['*.png', '*.jpg', '*.jpeg', '*.PNG', '*.JPG', '*.JPEG']:
-        image_files.extend(Path(screenshots_dir).glob(ext))
+    # Encontrar imagens (usando set para evitar duplicatas em sistemas case-insensitive como Windows)
+    image_files_set = set()
+    extensions = ['*.png', '*.jpg', '*.jpeg', '*.bmp']
+    for ext in extensions:
+        # Pega tanto minusculo quanto maiusculo
+        image_files_set.update(Path(screenshots_dir).glob(ext))
+        image_files_set.update(Path(screenshots_dir).glob(ext.upper()))
     
-    image_files = sorted(image_files)
+    image_files = sorted(list(image_files_set))
     
     if not image_files:
         print(f"❌ Nenhuma imagem encontrada em {screenshots_dir}")
