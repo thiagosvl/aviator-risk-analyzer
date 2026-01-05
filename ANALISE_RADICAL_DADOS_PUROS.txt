@@ -1,0 +1,490 @@
+
+================================================================================
+ANÁLISE RADICAL - DADOS PUROS
+================================================================================
+
+
+================================================================================
+📊 GRAFO: 10_148.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 148
+   Purples (≥2x): 84 (56.8%)
+   Blues (<2x): 64 (43.2%)
+   Pinks (≥10x): 18 (12.2%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 123
+   Greens: 69
+   Losses: 54
+   Assertividade: 56.1%
+   Lucro: R$ 1500.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 53
+   Greens: 29
+   Assertividade: 54.7%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 53
+   Greens: 28
+   Assertividade: 52.8%
+
+🌸 APÓS PINK:
+   Ocorrências: 17
+   Greens: 12
+   Assertividade: 70.6%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 51
+   Greens: 34
+   Assertividade: 66.7%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 20
+   Greens: 10
+   Assertividade: 50.0%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 13
+   Greens: 7
+   Assertividade: 53.8%
+   Lucro: R$ 100.00
+
+================================================================================
+📊 GRAFO: 1_158.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 157
+   Purples (≥2x): 74 (47.1%)
+   Blues (<2x): 83 (52.9%)
+   Pinks (≥10x): 13 (8.3%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 132
+   Greens: 64
+   Losses: 68
+   Assertividade: 48.5%
+   Lucro: R$ -400.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 69
+   Greens: 32
+   Assertividade: 46.4%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 53
+   Greens: 29
+   Assertividade: 54.7%
+
+🌸 APÓS PINK:
+   Ocorrências: 10
+   Greens: 3
+   Assertividade: 30.0%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 16
+   Greens: 7
+   Assertividade: 43.8%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 30
+   Greens: 15
+   Assertividade: 50.0%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 8
+   Greens: 5
+   Assertividade: 62.5%
+   Lucro: R$ 200.00
+
+================================================================================
+📊 GRAFO: 2_139.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 138
+   Purples (≥2x): 69 (50.0%)
+   Blues (<2x): 69 (50.0%)
+   Pinks (≥10x): 19 (13.8%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 113
+   Greens: 57
+   Losses: 56
+   Assertividade: 50.4%
+   Lucro: R$ 100.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 52
+   Greens: 29
+   Assertividade: 55.8%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 45
+   Greens: 16
+   Assertividade: 35.6%
+
+🌸 APÓS PINK:
+   Ocorrências: 16
+   Greens: 12
+   Assertividade: 75.0%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 36
+   Greens: 15
+   Assertividade: 41.7%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 22
+   Greens: 12
+   Assertividade: 54.5%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 16
+   Greens: 6
+   Assertividade: 37.5%
+   Lucro: R$ -400.00
+
+================================================================================
+📊 GRAFO: 3_156.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 157
+   Purples (≥2x): 80 (51.0%)
+   Blues (<2x): 77 (49.0%)
+   Pinks (≥10x): 17 (10.8%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 132
+   Greens: 69
+   Losses: 63
+   Assertividade: 52.3%
+   Lucro: R$ 600.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 65
+   Greens: 37
+   Assertividade: 56.9%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 51
+   Greens: 27
+   Assertividade: 52.9%
+
+🌸 APÓS PINK:
+   Ocorrências: 16
+   Greens: 5
+   Assertividade: 31.3%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 30
+   Greens: 15
+   Assertividade: 50.0%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 20
+   Greens: 10
+   Assertividade: 50.0%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 12
+   Greens: 6
+   Assertividade: 50.0%
+   Lucro: R$ 0.00
+
+================================================================================
+📊 GRAFO: 4_143.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 145
+   Purples (≥2x): 81 (55.9%)
+   Blues (<2x): 64 (44.1%)
+   Pinks (≥10x): 26 (17.9%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 120
+   Greens: 68
+   Losses: 52
+   Assertividade: 56.7%
+   Lucro: R$ 1600.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 57
+   Greens: 40
+   Assertividade: 70.2%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 42
+   Greens: 18
+   Assertividade: 42.9%
+
+🌸 APÓS PINK:
+   Ocorrências: 21
+   Greens: 10
+   Assertividade: 47.6%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 51
+   Greens: 30
+   Assertividade: 58.8%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 26
+   Greens: 14
+   Assertividade: 53.8%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 21
+   Greens: 16
+   Assertividade: 76.2%
+   Lucro: R$ 1100.00
+
+================================================================================
+📊 GRAFO: 5_163.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 164
+   Purples (≥2x): 75 (45.7%)
+   Blues (<2x): 89 (54.3%)
+   Pinks (≥10x): 21 (12.8%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 139
+   Greens: 63
+   Losses: 76
+   Assertividade: 45.3%
+   Lucro: R$ -1300.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 76
+   Greens: 34
+   Assertividade: 44.7%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 45
+   Greens: 16
+   Assertividade: 35.6%
+
+🌸 APÓS PINK:
+   Ocorrências: 18
+   Greens: 13
+   Assertividade: 72.2%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 6
+   Greens: 2
+   Assertividade: 33.3%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 46
+   Greens: 26
+   Assertividade: 56.5%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 2
+   Greens: 0
+   Assertividade: 0.0%
+   Lucro: R$ -200.00
+
+================================================================================
+📊 GRAFO: 6_147.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 147
+   Purples (≥2x): 84 (57.1%)
+   Blues (<2x): 63 (42.9%)
+   Pinks (≥10x): 19 (12.9%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 122
+   Greens: 70
+   Losses: 52
+   Assertividade: 57.4%
+   Lucro: R$ 1800.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 48
+   Greens: 31
+   Assertividade: 64.6%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 59
+   Greens: 31
+   Assertividade: 52.5%
+
+🌸 APÓS PINK:
+   Ocorrências: 15
+   Greens: 8
+   Assertividade: 53.3%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 65
+   Greens: 39
+   Assertividade: 60.0%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 5
+   Greens: 2
+   Assertividade: 40.0%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 22
+   Greens: 17
+   Assertividade: 77.3%
+   Lucro: R$ 1200.00
+
+================================================================================
+📊 GRAFO: 7_155.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 156
+   Purples (≥2x): 73 (46.8%)
+   Blues (<2x): 83 (53.2%)
+   Pinks (≥10x): 20 (12.8%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 131
+   Greens: 60
+   Losses: 71
+   Assertividade: 45.8%
+   Lucro: R$ -1100.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 67
+   Greens: 28
+   Assertividade: 41.8%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 47
+   Greens: 27
+   Assertividade: 57.4%
+
+🌸 APÓS PINK:
+   Ocorrências: 17
+   Greens: 5
+   Assertividade: 29.4%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 12
+   Greens: 5
+   Assertividade: 41.7%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 32
+   Greens: 16
+   Assertividade: 50.0%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 4
+   Greens: 2
+   Assertividade: 50.0%
+   Lucro: R$ 0.00
+
+================================================================================
+📊 GRAFO: 8_170.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 170
+   Purples (≥2x): 77 (45.3%)
+   Blues (<2x): 93 (54.7%)
+   Pinks (≥10x): 20 (11.8%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 145
+   Greens: 62
+   Losses: 83
+   Assertividade: 42.8%
+   Lucro: R$ -2100.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 79
+   Greens: 35
+   Assertividade: 44.3%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 48
+   Greens: 20
+   Assertividade: 41.7%
+
+🌸 APÓS PINK:
+   Ocorrências: 18
+   Greens: 7
+   Assertividade: 38.9%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 13
+   Greens: 4
+   Assertividade: 30.8%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 59
+   Greens: 26
+   Assertividade: 44.1%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 6
+   Greens: 3
+   Assertividade: 50.0%
+   Lucro: R$ 0.00
+
+================================================================================
+📊 GRAFO: 9_147.txt
+================================================================================
+
+📈 ESTATÍSTICAS GERAIS:
+   Total de velas: 148
+   Purples (≥2x): 73 (49.3%)
+   Blues (<2x): 75 (50.7%)
+   Pinks (≥10x): 25 (16.9%)
+
+🎯 BASELINE (jogar SEMPRE):
+   Rodadas: 123
+   Greens: 55
+   Losses: 68
+   Assertividade: 44.7%
+   Lucro: R$ -1300.00
+
+🔵 APÓS BLUE:
+   Ocorrências: 59
+   Greens: 30
+   Assertividade: 50.8%
+
+🟣 APÓS PURPLE:
+   Ocorrências: 43
+   Greens: 19
+   Assertividade: 44.2%
+
+🌸 APÓS PINK:
+   Ocorrências: 21
+   Greens: 6
+   Assertividade: 28.6%
+
+📊 PURPLE% ALTA (≥60%):
+   Ocorrências: 17
+   Greens: 5
+   Assertividade: 29.4%
+
+📊 BLUE% ALTA (≥60%):
+   Ocorrências: 24
+   Greens: 14
+   Assertividade: 58.3%
+
+🎯 BLUE + PURPLE% ALTA (≥60%):
+   Ocorrências: 5
+   Greens: 2
+   Assertividade: 40.0%
+   Lucro: R$ -100.00
+
+================================================================================
+FIM DA ANÁLISE
+================================================================================
+

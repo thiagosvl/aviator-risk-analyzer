@@ -126,6 +126,39 @@ export class StrategyCore {
       };
     }
     
+    // NOVO HARD BLOCK: Conversion rate muito baixa = não jogar
+    if (convRate < 50) {
+      return {
+        action: 'WAIT',
+        reason: '⛔ Conversion rate baixa (<50%). Mercado instável.',
+        riskLevel: 'HIGH',
+        confidence: 0,
+        estimatedTarget
+      };
+    }
+    
+    // NOVO HARD BLOCK: Blue density muito alta = mercado quebrado
+    if (bluePercent > 60) {
+      return {
+        action: 'WAIT',
+        reason: '⛔ Muitos blues (>60%). Mercado quebrado.',
+        riskLevel: 'HIGH',
+        confidence: 0,
+        estimatedTarget
+      };
+    }
+    
+    // NOVO HARD BLOCK: Streak extremo = reversão iminente
+    if (streak >= 7) {
+      return {
+        action: 'WAIT',
+        reason: '⚠️ Streak muito longo (≥7). Reversão iminente!',
+        riskLevel: 'HIGH',
+        confidence: 0,
+        estimatedTarget
+      };
+    }
+    
     // V4.1: Stop Loss Adaptativo
     if (isStopLoss) {
       // Verificar se histórico tem 3 blues consecutivos

@@ -1,5 +1,5 @@
 /**
- * SISTEMA DE PONTUAÇÃO V4.0 - PESOS AJUSTÁVEIS
+ * SISTEMA DE PONTUAÇÃO V4.1 - PESOS AJUSTÁVEIS
  * 
  * Cada feature contribui independentemente para o score.
  * Ajuste os pesos aqui sem mexer na lógica principal.
@@ -62,7 +62,7 @@ export interface StrategyWeights {
     pattern_4_plus_occurrences: number;
     pattern_3_occurrences: number;
     pattern_2_occurrences: number;
-    no_pattern: number; // V4.1: Regras relaxadas para capturar padrões em janelas curtas
+    no_pattern: number;
     
     // Zone
     zone_exact: number;
@@ -96,33 +96,108 @@ export interface StrategyWeights {
 }
 
 /**
- * PERFIL BALANCEADO (PADRÃO)
+ * PERFIL SNIPER (NOVO - ULTRA CONSERVADOR)
+ * Filosofia: Jogar MUITO POUCO, apenas nas MELHORES oportunidades
+ * Meta: 70%+ assertividade, 5% taxa de entrada
+ */
+export const WEIGHTS_SNIPER: StrategyWeights = {
+  roxa: {
+    // Streak: Valorizar streaks médios (3-5), evitar extremos
+    streak_4_plus: 60,  // Streak 4-5 é EXCELENTE
+    streak_3: 45,       // Streak 3 é bom
+    streak_2: 10,       // Streak 2 é fraco
+    streak_1: -20,      // Streak 1 é ruim
+    
+    // Conversion Rate: EXIGIR alta conversão
+    conv_60_plus: 60,   // Essencial!
+    conv_50_59: 20,     // Fraco
+    conv_40_49: -20,    // Ruim
+    conv_under_40: -50, // Péssimo
+    
+    // Blue Density: Evitar mercados com muitos blues
+    blue_under_40: 30,  // Poucos blues = bom
+    blue_40_50: 5,      // Médio
+    blue_50_60: -30,    // Muitos blues = ruim
+    blue_over_60: -100, // Mercado quebrado
+    
+    // Pink Distance: Distância de rosa é crítica
+    pink_5_plus: 40,    // Longe de rosa = seguro
+    pink_3_4: 15,       // Médio
+    pink_under_3: -100, // Muito perto = armadilha
+    
+    // Volatility
+    volatility_medium: 15,
+    volatility_high: 5,
+    volatility_low: -10,  // Volatilidade baixa = mercado parado
+    
+    // Patterns
+    xadrez_detected: 20,
+    deep_downtrend: -60,  // Downtrend forte = EVITAR
+    
+    // Threshold: ULTRA ALTO - jogar apenas scores excepcio nais
+    threshold: 120,  // Apenas as MELHORES oportunidades (top 5% dos casos)
+  },
+  
+  rosa: {
+    // DESATIVADO
+    pattern_4_plus_occurrences: 50,
+    pattern_3_occurrences: 35,
+    pattern_2_occurrences: 25,
+    no_pattern: 0,
+    
+    zone_exact: 30,
+    zone_near: 20,
+    zone_far: -20,
+    
+    freq_3_plus: 20,
+    freq_2: 10,
+    freq_1: 0,
+    freq_0: -50,
+    
+    pink_5_plus: 15,
+    pink_3_4: 5,
+    pink_under_3: -40,
+    
+    interval_3_5: 15,
+    interval_6_10: 10,
+    interval_over_10: 5,
+    
+    confidence_80_plus: 20,
+    confidence_70_79: 10,
+    confidence_under_70: 0,
+    
+    threshold: 999,  // DESATIVADO
+  }
+};
+
+/**
+ * PERFIL BALANCED (PADRÃO)
  * Baseado no design V4.0
  */
 export const WEIGHTS_BALANCED: StrategyWeights = {
   roxa: {
     // Streak
-    streak_4_plus: 30,
-    streak_3: 20,
+    streak_4_plus: 40,  // Aumentado: streak longo é forte indicador
+    streak_3: 25,       // Aumentado
     streak_2: 10,
     streak_1: 0,
     
     // Conversion Rate
-    conv_60_plus: 40,
+    conv_60_plus: 50,   // Aumentado: alta conversão é essencial
     conv_50_59: 30,
-    conv_40_49: 15,
-    conv_under_40: -20,
+    conv_40_49: 10,     // Reduzido
+    conv_under_40: -30, // Penalidade maior
     
     // Blue Density
-    blue_under_40: 20,
+    blue_under_40: 25,  // Aumentado: poucos blues é bom sinal
     blue_40_50: 10,
-    blue_50_60: 0,
-    blue_over_60: -60,
+    blue_50_60: -10,    // Penalidade leve
+    blue_over_60: -80,  // Penalidade maior: muitos blues = mercado ruim
     
     // Pink Distance
-    pink_5_plus: 20,
-    pink_3_4: 5,
-    pink_under_3: -50,
+    pink_5_plus: 30,    // AUMENTADO: distância de rosa é crítica
+    pink_3_4: 10,       // AUMENTADO
+    pink_under_3: -70,  // PENALIDADE MAIOR: rosa muito perto = armadilha
     
     // Volatility
     volatility_medium: 10,
@@ -130,11 +205,11 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     volatility_low: 0,
     
     // Patterns
-    xadrez_detected: 10,
-    deep_downtrend: -20,
+    xadrez_detected: 15,     // AUMENTADO: padrão xadrez é bom indicador
+    deep_downtrend: -40,     // PENALIDADE MAIOR: downtrend forte = evitar
     
     // Threshold
-    threshold: 72,  // Aumentado para eliminar entradas de score 70 que estavam falhando
+    threshold: 95,  // MUITO CONSERVADOR: Jogar apenas scores altíssimos: Threshold não é o problema. Foco em pesos mais inteligentes
   },
   
   rosa: {
@@ -171,7 +246,7 @@ export const WEIGHTS_BALANCED: StrategyWeights = {
     confidence_under_70: 0,
     
     // Threshold
-    threshold: 35,  // Equilíbrio entre taxa de acerto e lucro nas rosas
+    threshold: 999,  // DESATIVADO: 12.2% assertividade é inaceitável. Reativar apenas após implementar rastreamento de zonas
   }
 };
 
@@ -185,13 +260,13 @@ export const WEIGHTS_CONSERVATIVE: StrategyWeights = {
     streak_4_plus: 50,
     streak_3: 35,
     conv_60_plus: 40,
-    threshold: 70,  // Conservador ajustado
+    threshold: 70,
   },
   rosa: {
     ...WEIGHTS_BALANCED.rosa,
     pattern_4_plus_occurrences: 60,
     zone_exact: 40,
-    threshold: 80,  // Conservador ajustado
+    threshold: 80,
   }
 };
 
@@ -206,14 +281,14 @@ export const WEIGHTS_AGGRESSIVE: StrategyWeights = {
     streak_2: 20,
     conv_50_59: 25,
     conv_40_49: 15,
-    threshold: 45,  // Agressivo ajustado
+    threshold: 45,
   },
   rosa: {
     ...WEIGHTS_BALANCED.rosa,
     pattern_3_occurrences: 40,
     pattern_2_occurrences: 25,
     zone_near: 25,
-    threshold: 55,  // Agressivo ajustado
+    threshold: 55,
   }
 };
 
@@ -236,6 +311,7 @@ export const WEIGHTS_EXPERIMENTAL: StrategyWeights = {
  * Perfis disponíveis
  */
 export const PROFILES = {
+  sniper: WEIGHTS_SNIPER,
   balanced: WEIGHTS_BALANCED,
   conservative: WEIGHTS_CONSERVATIVE,
   aggressive: WEIGHTS_AGGRESSIVE,
@@ -247,7 +323,7 @@ export type ProfileName = keyof typeof PROFILES;
 /**
  * Perfil ativo (pode ser mudado dinamicamente)
  */
-export let ACTIVE_PROFILE: ProfileName = 'balanced';
+export let ACTIVE_PROFILE: ProfileName = 'sniper';  // MUDADO PARA SNIPER
 
 export const setActiveProfile = (profile: ProfileName): void => {
   ACTIVE_PROFILE = profile;

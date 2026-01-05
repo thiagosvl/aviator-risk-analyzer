@@ -1,0 +1,211 @@
+
+================================================================================
+TESTE EM MASSA - SISTEMA V4.1
+================================================================================
+Pasta: GRAFOS_TESTE
+Perfil: BALANCED
+Threshold 2x: 75
+Threshold Pink: 999
+================================================================================
+
+📊 Encontrados 10 grafos
+
+✅ 10_148.txt: 123 rodadas, 24 jogadas 2x, 66.7% acerto, R$ 800.00
+✅ 1_158.txt: 132 rodadas, 24 jogadas 2x, 50.0% acerto, R$ 0.00
+✅ 2_139.txt: 113 rodadas, 20 jogadas 2x, 40.0% acerto, R$ -400.00
+✅ 3_156.txt: 132 rodadas, 14 jogadas 2x, 35.7% acerto, R$ -400.00
+✅ 4_143.txt: 120 rodadas, 20 jogadas 2x, 75.0% acerto, R$ 1000.00
+✅ 5_163.txt: 139 rodadas, 18 jogadas 2x, 50.0% acerto, R$ 0.00
+✅ 6_147.txt: 122 rodadas, 41 jogadas 2x, 58.5% acerto, R$ 700.00
+✅ 7_155.txt: 131 rodadas, 12 jogadas 2x, 33.3% acerto, R$ -400.00
+✅ 8_170.txt: 145 rodadas, 12 jogadas 2x, 33.3% acerto, R$ -400.00
+✅ 9_147.txt: 123 rodadas, 10 jogadas 2x, 50.0% acerto, R$ 0.00
+
+================================================================================
+RELATÓRIO CONSOLIDADO
+================================================================================
+
+📊 ESTATÍSTICAS GERAIS:
+   Grafos testados: 10
+   Rodadas totais: 1280
+   Média de rodadas/grafo: 128.0
+
+🟣 ESTRATÉGIA ROXA (2x):
+   Total de jogadas: 195
+   Greens: 102
+   Losses: 93
+   Assertividade média: 52.3%
+   Taxa de entrada: 15.2%
+
+🌸 ESTRATÉGIA ROSA (10x):
+   Total de jogadas: 0
+   Greens: 0
+   Losses: 0
+   Assertividade média: N/A%
+   Taxa de entrada: 0.0%
+
+💰 FINANCEIRO:
+   Lucro total: R$ 900.00
+   Lucro médio/grafo: R$ 90.00
+   ROI médio: 9.0%
+
+📈 DISTRIBUIÇÃO:
+   Grafos lucrativos: 3 (30.0%)
+   Grafos no empate: 3 (30.0%)
+   Grafos com prejuízo: 4 (40.0%)
+
+🏆 TOP 5 MELHORES:
+   1. 4_143.txt: R$ 1000.00 (75.0% acerto, 20 jogadas)
+   2. 10_148.txt: R$ 800.00 (66.7% acerto, 24 jogadas)
+   3. 6_147.txt: R$ 700.00 (58.5% acerto, 41 jogadas)
+   4. 1_158.txt: R$ 0.00 (50.0% acerto, 24 jogadas)
+   5. 5_163.txt: R$ 0.00 (50.0% acerto, 18 jogadas)
+
+💔 TOP 5 PIORES:
+   1. 2_139.txt: R$ -400.00 (40.0% acerto, 20 jogadas)
+   2. 3_156.txt: R$ -400.00 (35.7% acerto, 14 jogadas)
+   3. 7_155.txt: R$ -400.00 (33.3% acerto, 12 jogadas)
+   4. 8_170.txt: R$ -400.00 (33.3% acerto, 12 jogadas)
+   5. 1_158.txt: R$ 0.00 (50.0% acerto, 24 jogadas)
+
+================================================================================
+AVALIAÇÃO FINAL
+================================================================================
+
+⚠️  Assertividade MEDIANA (45-54%)
+⚠️  Lucro médio BAIXO (R$0-100/grafo)
+❌ Taxa de vitória BAIXA (30.0%)
+
+💡 RECOMENDAÇÕES:
+
+   • Assertividade baixa. Revise pesos das features ou aumente threshold.
+   • Estratégia Rosa não ativou. Considere diminuir threshold para 989.
+   • Taxa de vitória baixa. Sistema precisa de ajustes.
+
+================================================================================
+ANÁLISE DETALHADA DE ESTRATÉGIAS E REGRAS
+================================================================================
+
+📊 BREAKDOWN POR TIPO DE ENTRADA (MOTIVO):
+
+❌ ✅ Score: 90 (Threshold: 75):
+   Total: 35 jogadas (17.9% do total)
+   Greens: 18 | Losses: 17
+   Assertividade: 51.4%
+   ⚠️  Estratégia MEDIANA. Considere ajustar pesos.
+
+⚠️ ✅ Score: 75 (Threshold: 75):
+   Total: 32 jogadas (16.4% do total)
+   Greens: 20 | Losses: 12
+   Assertividade: 62.5%
+   💡 Estratégia BOA. Pode otimizar.
+
+❌ ✅ Score: 110 (Threshold: 75):
+   Total: 27 jogadas (13.8% do total)
+   Greens: 13 | Losses: 14
+   Assertividade: 48.1%
+   🚨 Estratégia RUIM. Considere remover ou revisar.
+
+❌ ✅ Score: 95 (Threshold: 75):
+   Total: 23 jogadas (11.8% do total)
+   Greens: 9 | Losses: 14
+   Assertividade: 39.1%
+   🚨 Estratégia RUIM. Considere remover ou revisar.
+
+❌ ✅ Score: 100 (Threshold: 75):
+   Total: 12 jogadas (6.2% do total)
+   Greens: 4 | Losses: 8
+   Assertividade: 33.3%
+   🚨 Estratégia RUIM. Considere remover ou revisar.
+
+⚠️ ✅ Score: 80 (Threshold: 75):
+   Total: 11 jogadas (5.6% do total)
+   Greens: 7 | Losses: 4
+   Assertividade: 63.6%
+   💡 Estratégia BOA. Pode otimizar.
+
+⚠️ ✅ Score: 130 (Threshold: 75):
+   Total: 9 jogadas (4.6% do total)
+   Greens: 5 | Losses: 4
+   Assertividade: 55.6%
+   ⚠️  Estratégia MEDIANA. Considere ajustar pesos.
+
+⚠️ ✅ Score: 115 (Threshold: 75):
+   Total: 8 jogadas (4.1% do total)
+   Greens: 5 | Losses: 3
+   Assertividade: 62.5%
+   💡 Estratégia BOA. Pode otimizar.
+
+❌ ✅ Score: 140 (Threshold: 75):
+   Total: 7 jogadas (3.6% do total)
+   Greens: 3 | Losses: 4
+   Assertividade: 42.9%
+   🚨 Estratégia RUIM. Considere remover ou revisar.
+
+❌ ✅ Score: 125 (Threshold: 75):
+   Total: 7 jogadas (3.6% do total)
+   Greens: 3 | Losses: 4
+   Assertividade: 42.9%
+   🚨 Estratégia RUIM. Considere remover ou revisar.
+
+✅ ✅ Score: 120 (Threshold: 75):
+   Total: 5 jogadas (2.6% do total)
+   Greens: 5 | Losses: 0
+   Assertividade: 100.0%
+   💡 Estratégia EXCELENTE! Continue usando.
+
+❌ ✅ Score: 145 (Threshold: 75):
+   Total: 4 jogadas (2.1% do total)
+   Greens: 2 | Losses: 2
+   Assertividade: 50.0%
+   ⚠️  Estratégia MEDIANA. Considere ajustar pesos.
+
+❌ ✅ Score: 85 (Threshold: 75):
+   Total: 4 jogadas (2.1% do total)
+   Greens: 2 | Losses: 2
+   Assertividade: 50.0%
+   ⚠️  Estratégia MEDIANA. Considere ajustar pesos.
+
+❌ ✅ Score: 160 (Threshold: 75):
+   Total: 4 jogadas (2.1% do total)
+   Greens: 1 | Losses: 3
+   Assertividade: 25.0%
+   🚨 Estratégia RUIM. Considere remover ou revisar.
+
+✅ ✅ Score: 135 (Threshold: 75):
+   Total: 3 jogadas (1.5% do total)
+   Greens: 2 | Losses: 1
+   Assertividade: 66.7%
+   💡 Estratégia BOA. Pode otimizar.
+
+✅ ✅ Score: 105 (Threshold: 75):
+   Total: 3 jogadas (1.5% do total)
+   Greens: 2 | Losses: 1
+   Assertividade: 66.7%
+   💡 Estratégia BOA. Pode otimizar.
+
+✅ ✅ Score: 150 (Threshold: 75):
+   Total: 1 jogadas (0.5% do total)
+   Greens: 1 | Losses: 0
+   Assertividade: 100.0%
+   💡 Estratégia EXCELENTE! Continue usando.
+
+================================================================================
+ANÁLISE DE PERFORMANCE GERAL
+================================================================================
+
+✅ Taxa de entrada ADEQUADA (15.2%)
+
+⚠️  ASSERTIVIDADE BAIXA (52.3%)
+   → Precisa melhorar
+   → Sugestão: Ajustar pesos ou threshold
+
+⚠️  LUCRO BAIXO (9.0% ROI)
+   → Pode melhorar
+   → Meta: 20-30% ROI
+
+❌ CONSISTÊNCIA BAIXA (30.0% grafos lucrativos)
+   → Sistema instável
+
+================================================================================
+
