@@ -4,6 +4,7 @@ export interface Recommendation {
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   confidence: number;
   ruleChecklist?: Record<string, boolean>; // Ex: { "Densidade OK": true, "Trava Pós-Rosa": false }
+  estimatedTarget?: number; // Sugestão de saída (ex: 2.50)
 }
 
 export interface PatternData {
@@ -58,8 +59,11 @@ export class StrategyCore {
     const isXadrez = this.checkXadrez(values);
     const isPurpleStreakValid = streak >= 2 && purpleConversionRate >= 55;
 
-    // 5. GERAR RECOMENDAÇÕES (V3.6: Cada estratégia recebe seu estado de lock)
-    const rec2x = this.decideAction2x(streak, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, values, isBlueDominant, isXadrez, purpleConversionRate);
+    // 5. CALCULAR ALVO DINÂMICO (V4.1)
+    const estimatedTarget = this.calculateEstimatedTarget(values, candlesSinceLastPink);
+
+    // 6. GERAR RECOMENDAÇÕES (V3.6: Cada estratégia recebe seu estado de lock)
+    const rec2x = this.decideAction2x(streak, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, values, isBlueDominant, isXadrez, purpleConversionRate, estimatedTarget);
     
     // V3.9: Contar rosas na janela de 25
     const pinkCount25 = values.slice(0, 25).filter(v => v >= 10.0).length;
@@ -85,7 +89,8 @@ export class StrategyCore {
     values: number[],
     isBlueDominant: boolean,
     isXadrez: boolean,
-    purpleConversionRate: number
+    purpleConversionRate: number,
+    estimatedTarget: number
   ): Recommendation {
       const checklist: Record<string, boolean> = {
           "Mercado Aberto (Blue < 60%)": !isBlueDominant,
@@ -95,13 +100,13 @@ export class StrategyCore {
       };
 
       if (isBlueDominant) {
-          return { action: 'WAIT', reason: 'Dominância Azul (>60%). Risco alto.', riskLevel: 'HIGH', confidence: 90, ruleChecklist: checklist };
+          return { action: 'WAIT', reason: 'Dominância Azul (>60%). Risco alto.', riskLevel: 'HIGH', confidence: 90, ruleChecklist: checklist, estimatedTarget };
       }
       if (isPostPink) {
           // V3.10: Bypass contextual para 2x em mercados excelentes
           const canBypass2x = density !== 'LOW' && purpleConversionRate >= 60 && streak >= 3;
           if (!canBypass2x) {
-              return { action: 'WAIT', reason: `Aguardando correção pós-rosa.`, riskLevel: 'CRITICAL', confidence: 100, ruleChecklist: checklist };
+              return { action: 'WAIT', reason: `Aguardando correção pós-rosa.`, riskLevel: 'CRITICAL', confidence: 100, ruleChecklist: checklist, estimatedTarget };
           }
           // Se bypass, continua análise normal (mercado excelente)
       }
@@ -112,15 +117,15 @@ export class StrategyCore {
       
       const deepDowntrend = this.checkDeepDowntrend(values);
       if (streak === 1) {
-          return { action: 'WAIT', reason: deepDowntrend ? 'Recuperação Lenta (3 Reds Recentes).' : 'Aguardando 2ª vela roxa.', riskLevel: 'LOW', confidence: 50, ruleChecklist: checklist };
+          return { action: 'WAIT', reason: deepDowntrend ? 'Recuperação Lenta (3 Reds Recentes).' : 'Aguardando 2ª vela roxa.', riskLevel: 'LOW', confidence: 50, ruleChecklist: checklist, estimatedTarget };
       }
       if (streak === 2 && !deepDowntrend) {
-          return { action: 'WAIT', reason: 'Aguardando 3ª vela roxa.', riskLevel: 'LOW', confidence: 60, ruleChecklist: checklist };
+          return { action: 'WAIT', reason: 'Aguardando 3ª vela roxa.', riskLevel: 'LOW', confidence: 60, ruleChecklist: checklist, estimatedTarget };
       }
       if (streak >= 3 || (streak >= 2 && isValidStreak)) {
-          return { action: 'PLAY_2X', reason: 'Surfando Sequência Confirmada.', riskLevel: 'LOW', confidence: 85, ruleChecklist: checklist };
+          return { action: 'PLAY_2X', reason: 'Surfando Sequência Confirmada.', riskLevel: 'LOW', confidence: 85, ruleChecklist: checklist, estimatedTarget };
       }
-      return { action: 'WAIT', reason: 'Buscando sinal claro.', riskLevel: 'LOW', confidence: 10, ruleChecklist: checklist };
+      return { action: 'WAIT', reason: 'Buscando sinal claro.', riskLevel: 'LOW', confidence: 10, ruleChecklist: checklist, estimatedTarget };
   }
 
   private static decideActionPink(pattern: PatternData | null, isPostPink: boolean, candlesSincePink: number, pinkCount25: number): Recommendation {
@@ -234,5 +239,36 @@ export class StrategyCore {
     // V3.8: Padrão 🔵 🟣 🔵 🟣 🔵 (5 velas alternadas)
     const p = v.slice(0, 5).map(val => val < 2.0);
     return (p[0] !== p[1] && p[1] !== p[2] && p[2] !== p[3] && p[3] !== p[4]);
+  }
+
+  private static calculateEstimatedTarget(values: number[], candlesSincePink: number): number {
+    // Pegamos as velas desde o último rosa, mas garantimos um mínimo de 10 para ter estatística
+    const analysisWindowSize = Math.max(candlesSincePink, 10);
+    const window = values.slice(0, Math.min(analysisWindowSize, 25));
+    const purples = window.filter(v => v >= 2.0 && v < 10.0);
+
+    if (purples.length < 2) return 2.00; // Padrão de segurança
+
+    // Mapear frequências por "casas" decimais (2.0, 2.5, 3.0, 4.0 etc)
+    // Para ser conservador, vamos arredondar para baixo em passos de 0.5
+    const buckets = purples.map(v => Math.floor(v * 2) / 2);
+    const freqMap = new Map<number, number>();
+    buckets.forEach(b => freqMap.set(b, (freqMap.get(b) || 0) + 1));
+
+    // Encontrar o balanço entre frequência e valor alto
+    // Queremos o maior valor que tenha pelo menos 40% de ocorrência entre os roxos
+    const sortedBuckets = Array.from(freqMap.keys()).sort((a, b) => b - a);
+    
+    for (const bucket of sortedBuckets) {
+        let countAbove = 0;
+        purples.forEach(v => { if (v >= bucket) countAbove++; });
+        
+        const probability = countAbove / purples.length;
+        if (probability >= 0.6) { // 60% de chance histórica de atingir esse valor
+            return Math.min(4.0, bucket); // Capamos em 4.0 para manter o 2x como "defesa/médio"
+        }
+    }
+
+    return 2.00;
   }
 }

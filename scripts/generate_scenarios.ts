@@ -96,7 +96,7 @@ async function run() {
     content += `${icons}\n\n`;
 
     content += `## 🎯 Análise "The Analyst" (V3.3 Core)\n`;
-    content += `- **Roxo (2x):** ${analysis.rec2x.action} | ${analysis.rec2x.reason}\n`;
+    content += `- **Roxo (2x):** ${analysis.rec2x.action} | ${analysis.rec2x.reason}${analysis.rec2x.estimatedTarget ? ` | **Alvo: ${analysis.rec2x.estimatedTarget.toFixed(2)}x**` : ''}\n`;
     content += `- **Rosa (10x):** ${analysis.recPink.action} | ${analysis.recPink.reason}\n\n`;
 
     content += `---\n*Gerado automaticamente pelo script de simulação unificado.*`;

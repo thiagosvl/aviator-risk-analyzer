@@ -30,6 +30,7 @@ let logs: {
     profitLabel: string;
     checklist2x?: Record<string, boolean>;
     checklistPink?: Record<string, boolean>;
+    target2x?: number;
 }[] = [];
 
 let stats = { wins2x: 0, losses2x: 0, winsPink: 0, lossesPink: 0, totalProfit: 0 };
@@ -236,7 +237,8 @@ function updateDashboard() {
     };
 
     logs.slice().reverse().forEach(log => {
-        content += `| ${log.id} | ${log.rec2x} | ${log.motivo2x}${formatChecklist(log.checklist2x)} | ${log.recPink} | ${log.motivoPink}${formatChecklist(log.checklistPink)} | ${log.result.toFixed(2)}x | ${log.profitLabel} | ${log.status} |\n`;
+        const targetText = log.target2x ? `<br>🎯 Alvo: **${log.target2x.toFixed(2)}x**` : '';
+        content += `| ${log.id} | ${log.rec2x} | ${log.motivo2x}${targetText}${formatChecklist(log.checklist2x)} | ${log.recPink} | ${log.motivoPink}${formatChecklist(log.checklistPink)} | ${log.result.toFixed(2)}x | ${log.profitLabel} | ${log.status} |\n`;
     });
 
     content += `\n</details>\n\n`;
@@ -326,7 +328,8 @@ function processResult(val: number) {
         status: finalStatus,
         profitLabel: profitLabel,
         checklist2x: rec2x.ruleChecklist,
-        checklistPink: recPink.ruleChecklist
+        checklistPink: recPink.ruleChecklist,
+        target2x: rec2x.estimatedTarget
     });
 
     // 2. ATUALIZA HISTÓRICO DE ANÁLISE (Máximo 60)

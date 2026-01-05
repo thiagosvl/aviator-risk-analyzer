@@ -24,6 +24,7 @@ export interface Recommendation {
   confidence: number; // 0-100
   target?: number; // 2.0 or 10.0
   ruleChecklist?: Record<string, boolean>;
+  estimatedTarget?: number;
 }
 
 export interface PatternData {

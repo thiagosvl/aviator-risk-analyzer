@@ -300,6 +300,12 @@ export const AnalyzerOverlay = () => {
            <div className="text-xl font-black tracking-tight mt-1">
              {formatAction(rec2x.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
            </div>
+            {rec2x.action !== 'STOP' && rec2x.estimatedTarget && (
+              <div className="mt-1 bg-emerald-500/20 rounded py-0.5 border border-emerald-500/30">
+                <div className="text-[9px] font-bold text-emerald-400 leading-none">ALVO DINÂMICO</div>
+                <div className="text-sm font-black text-white italic tracking-tighter">Sair em {rec2x.estimatedTarget.toFixed(2)}x</div>
+              </div>
+            )}
             <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
               <span>{rec2x.reason || '...'}</span>
               {getRiskBadge(rec2x)}
