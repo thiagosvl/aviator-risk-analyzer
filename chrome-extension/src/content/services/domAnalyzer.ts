@@ -19,9 +19,20 @@ export class DOMAnalyzer {
    * Extrai dados do jogo da página atual
    */
   public extractGameData(): GameState {
+    // Salvar histórico anterior antes de extrair
+    const previousHistory = [...this.gameState.history];
+    const previousHistoryLength = previousHistory.length;
+    
     this.extractCurrentMultiplier();
     this.extractGameStatus();
     this.extractHistory();
+
+    // Se a nova extração retornou vazio MAS tínhamos histórico antes,
+    // manter o histórico anterior (evita piscar)
+    if (this.gameState.history.length === 0 && previousHistoryLength > 0) {
+      console.log(`[Aviator Analyzer] DOM: Preservando histórico anterior (${previousHistoryLength} velas) - nova extração falhou.`);
+      this.gameState.history = previousHistory;
+    }
 
     return { ...this.gameState };
   }
