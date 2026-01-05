@@ -1,0 +1,499 @@
+
+================================================================================
+ANÁLISE DE MOMENTUM E CICLOS
+================================================================================
+
+
+================================================================================
+📊 GRAFO: 10_148.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 123 rodadas
+   Greens: 69 (56.1%)
+   Losses: 54
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 6
+   Ciclo 1: Rodadas 4-8 (5 greens)
+      INÍCIO: Purple=72%, Streak=7, Trend=DOWN, Vol=116.6
+      FIM: Purple=72%, Streak=3, Trend=DOWN, Vol=116.5
+   Ciclo 2: Rodadas 12-17 (6 greens)
+      INÍCIO: Purple=68%, Streak=5, Trend=UP, Vol=4.3
+      FIM: Purple=68%, Streak=0, Trend=UP, Vol=4.9
+   Ciclo 3: Rodadas 23-32 (10 greens)
+      INÍCIO: Purple=72%, Streak=0, Trend=FLAT, Vol=6.5
+      FIM: Purple=80%, Streak=2, Trend=UP, Vol=9.6
+   Ciclo 4: Rodadas 72-77 (6 greens)
+      INÍCIO: Purple=36%, Streak=0, Trend=UP, Vol=1.9
+      FIM: Purple=48%, Streak=0, Trend=UP, Vol=29.2
+   Ciclo 5: Rodadas 93-98 (6 greens)
+      INÍCIO: Purple=44%, Streak=0, Trend=DOWN, Vol=30.1
+      FIM: Purple=60%, Streak=5, Trend=UP, Vol=9.1
+   Ciclo 6: Rodadas 117-121 (5 greens)
+      INÍCIO: Purple=56%, Streak=0, Trend=UP, Vol=7.7
+      FIM: Purple=60%, Streak=3, Trend=UP, Vol=7.7
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 51 rodadas, 66.7% greens
+   Streak ≥3: 35 rodadas, 65.7% greens
+   Trend UP: 59 rodadas, 50.8% greens
+   Volatilidade <2: 5 rodadas, 20.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 20 rodadas, 50.0% losses
+   Streak=0: 53 rodadas, 45.3% losses
+   Trend DOWN: 57 rodadas, 40.4% losses
+   Volatilidade ≥5: 104 rodadas, 43.3% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 30, Greens: 22, Assertividade: 73.3%, Lucro: R$ 1400.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 32, Greens: 19, Assertividade: 59.4%, Lucro: R$ 600.00
+   Streak≥3 + Vol<3:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 27, Greens: 16, Assertividade: 59.3%, Lucro: R$ 500.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 45, Greens: 30, Assertividade: 66.7%, Lucro: R$ 1500.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   Purple≥50 + Blue<45 + Streak≥1
+   Jogadas: 45, Assertividade: 66.7%, Lucro: R$ 1500.00
+
+================================================================================
+📊 GRAFO: 1_158.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 132 rodadas
+   Greens: 64 (48.5%)
+   Losses: 68
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 2
+   Ciclo 1: Rodadas 27-34 (8 greens)
+      INÍCIO: Purple=40%, Streak=1, Trend=UP, Vol=25.4
+      FIM: Purple=52%, Streak=3, Trend=UP, Vol=25.0
+   Ciclo 2: Rodadas 69-73 (5 greens)
+      INÍCIO: Purple=40%, Streak=0, Trend=FLAT, Vol=5.3
+      FIM: Purple=52%, Streak=4, Trend=UP, Vol=5.3
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 16 rodadas, 43.8% greens
+   Streak ≥3: 20 rodadas, 50.0% greens
+   Trend UP: 62 rodadas, 50.0% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 30 rodadas, 50.0% losses
+   Streak=0: 69 rodadas, 53.6% losses
+   Trend DOWN: 54 rodadas, 53.7% losses
+   Volatilidade ≥5: 74 rodadas, 50.0% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 7, Greens: 1, Assertividade: 14.3%, Lucro: R$ -500.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Streak≥3 + Vol<3:
+      Jogadas: 4, Greens: 2, Assertividade: 50.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 16, Greens: 10, Assertividade: 62.5%, Lucro: R$ 400.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 12, Greens: 4, Assertividade: 33.3%, Lucro: R$ -400.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   Trend=UP + Streak≥2
+   Jogadas: 16, Assertividade: 62.5%, Lucro: R$ 400.00
+
+================================================================================
+📊 GRAFO: 2_139.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 113 rodadas
+   Greens: 57 (50.4%)
+   Losses: 56
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 2
+   Ciclo 1: Rodadas 15-20 (6 greens)
+      INÍCIO: Purple=44%, Streak=0, Trend=UP, Vol=6.1
+      FIM: Purple=56%, Streak=0, Trend=FLAT, Vol=6.6
+   Ciclo 2: Rodadas 61-69 (9 greens)
+      INÍCIO: Purple=44%, Streak=0, Trend=UP, Vol=4.7
+      FIM: Purple=68%, Streak=0, Trend=UP, Vol=10.7
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 36 rodadas, 41.7% greens
+   Streak ≥3: 18 rodadas, 38.9% greens
+   Trend UP: 45 rodadas, 46.7% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 22 rodadas, 45.5% losses
+   Streak=0: 52 rodadas, 44.2% losses
+   Trend DOWN: 55 rodadas, 49.1% losses
+   Volatilidade ≥5: 80 rodadas, 47.5% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 11, Greens: 5, Assertividade: 45.5%, Lucro: R$ -100.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 15, Greens: 6, Assertividade: 40.0%, Lucro: R$ -300.00
+   Streak≥3 + Vol<3:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 14, Greens: 4, Assertividade: 28.6%, Lucro: R$ -600.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 27, Greens: 12, Assertividade: 44.4%, Lucro: R$ -300.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   
+   Jogadas: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+
+================================================================================
+📊 GRAFO: 3_156.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 132 rodadas
+   Greens: 69 (52.3%)
+   Losses: 63
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 5
+   Ciclo 1: Rodadas 10-15 (6 greens)
+      INÍCIO: Purple=56%, Streak=3, Trend=DOWN, Vol=158.4
+      FIM: Purple=64%, Streak=1, Trend=DOWN, Vol=158.1
+   Ciclo 2: Rodadas 46-52 (7 greens)
+      INÍCIO: Purple=28%, Streak=0, Trend=UP, Vol=2.9
+      FIM: Purple=44%, Streak=0, Trend=UP, Vol=28.4
+   Ciclo 3: Rodadas 62-69 (8 greens)
+      INÍCIO: Purple=44%, Streak=1, Trend=DOWN, Vol=28.4
+      FIM: Purple=64%, Streak=0, Trend=DOWN, Vol=28.3
+   Ciclo 4: Rodadas 84-88 (5 greens)
+      INÍCIO: Purple=52%, Streak=1, Trend=DOWN, Vol=4.5
+      FIM: Purple=60%, Streak=7, Trend=DOWN, Vol=2.6
+   Ciclo 5: Rodadas 119-123 (5 greens)
+      INÍCIO: Purple=40%, Streak=0, Trend=FLAT, Vol=4.4
+      FIM: Purple=52%, Streak=1, Trend=DOWN, Vol=4.3
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 30 rodadas, 50.0% greens
+   Streak ≥3: 23 rodadas, 39.1% greens
+   Trend UP: 60 rodadas, 46.7% greens
+   Volatilidade <2: 7 rodadas, 42.9% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 20 rodadas, 50.0% losses
+   Streak=0: 65 rodadas, 43.1% losses
+   Trend DOWN: 64 rodadas, 39.1% losses
+   Volatilidade ≥5: 72 rodadas, 45.8% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 12, Greens: 4, Assertividade: 33.3%, Lucro: R$ -400.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 15, Greens: 5, Assertividade: 33.3%, Lucro: R$ -500.00
+   Streak≥3 + Vol<3:
+      Jogadas: 5, Greens: 2, Assertividade: 40.0%, Lucro: R$ -100.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 4, Greens: 2, Assertividade: 50.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 16, Greens: 6, Assertividade: 37.5%, Lucro: R$ -400.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 25, Greens: 12, Assertividade: 48.0%, Lucro: R$ -100.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   
+   Jogadas: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+
+================================================================================
+📊 GRAFO: 4_143.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 120 rodadas
+   Greens: 68 (56.7%)
+   Losses: 52
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 2
+   Ciclo 1: Rodadas 34-41 (8 greens)
+      INÍCIO: Purple=60%, Streak=1, Trend=DOWN, Vol=71.3
+      FIM: Purple=68%, Streak=0, Trend=DOWN, Vol=71.1
+   Ciclo 2: Rodadas 97-105 (9 greens)
+      INÍCIO: Purple=40%, Streak=2, Trend=DOWN, Vol=53.2
+      FIM: Purple=60%, Streak=2, Trend=UP, Vol=11.4
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 51 rodadas, 58.8% greens
+   Streak ≥3: 15 rodadas, 40.0% greens
+   Trend UP: 53 rodadas, 58.5% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 26 rodadas, 46.2% losses
+   Streak=0: 57 rodadas, 29.8% losses
+   Trend DOWN: 62 rodadas, 43.5% losses
+   Volatilidade ≥5: 108 rodadas, 45.4% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 16, Greens: 9, Assertividade: 56.3%, Lucro: R$ 200.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 20, Greens: 12, Assertividade: 60.0%, Lucro: R$ 400.00
+   Streak≥3 + Vol<3:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 2, Greens: 0, Assertividade: 0.0%, Lucro: R$ -200.00
+   Trend=UP + Streak≥2:
+      Jogadas: 15, Greens: 8, Assertividade: 53.3%, Lucro: R$ 100.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 38, Greens: 16, Assertividade: 42.1%, Lucro: R$ -600.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   Purple≥60 + Trend=UP
+   Jogadas: 20, Assertividade: 60.0%, Lucro: R$ 400.00
+
+================================================================================
+📊 GRAFO: 5_163.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 139 rodadas
+   Greens: 63 (45.3%)
+   Losses: 76
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 1
+   Ciclo 1: Rodadas 9-17 (9 greens)
+      INÍCIO: Purple=28%, Streak=2, Trend=UP, Vol=41.6
+      FIM: Purple=48%, Streak=0, Trend=DOWN, Vol=48.0
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 6 rodadas, 33.3% greens
+   Streak ≥3: 15 rodadas, 46.7% greens
+   Trend UP: 75 rodadas, 41.3% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 46 rodadas, 43.5% losses
+   Streak=0: 76 rodadas, 55.3% losses
+   Trend DOWN: 60 rodadas, 48.3% losses
+   Volatilidade ≥5: 114 rodadas, 54.4% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 3, Greens: 2, Assertividade: 66.7%, Lucro: R$ 100.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Streak≥3 + Vol<3:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 17, Greens: 8, Assertividade: 47.1%, Lucro: R$ -100.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 9, Greens: 5, Assertividade: 55.6%, Lucro: R$ 100.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   Purple≥60 + Streak≥2
+   Jogadas: 3, Assertividade: 66.7%, Lucro: R$ 100.00
+
+================================================================================
+📊 GRAFO: 6_147.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 122 rodadas
+   Greens: 70 (57.4%)
+   Losses: 52
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 2
+   Ciclo 1: Rodadas 10-14 (5 greens)
+      INÍCIO: Purple=60%, Streak=4, Trend=DOWN, Vol=23.4
+      FIM: Purple=60%, Streak=0, Trend=DOWN, Vol=23.5
+   Ciclo 2: Rodadas 81-85 (5 greens)
+      INÍCIO: Purple=64%, Streak=2, Trend=UP, Vol=290.1
+      FIM: Purple=68%, Streak=0, Trend=DOWN, Vol=290.1
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 65 rodadas, 60.0% greens
+   Streak ≥3: 19 rodadas, 47.4% greens
+   Trend UP: 46 rodadas, 60.9% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 5 rodadas, 60.0% losses
+   Streak=0: 48 rodadas, 35.4% losses
+   Trend DOWN: 65 rodadas, 43.1% losses
+   Volatilidade ≥5: 109 rodadas, 41.3% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 27, Greens: 11, Assertividade: 40.7%, Lucro: R$ -500.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 21, Greens: 13, Assertividade: 61.9%, Lucro: R$ 500.00
+   Streak≥3 + Vol<3:
+      Jogadas: 1, Greens: 0, Assertividade: 0.0%, Lucro: R$ -100.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 2, Greens: 0, Assertividade: 0.0%, Lucro: R$ -200.00
+   Trend=UP + Streak≥2:
+      Jogadas: 17, Greens: 10, Assertividade: 58.8%, Lucro: R$ 300.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 56, Greens: 30, Assertividade: 53.6%, Lucro: R$ 400.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   Purple≥60 + Trend=UP
+   Jogadas: 21, Assertividade: 61.9%, Lucro: R$ 500.00
+
+================================================================================
+📊 GRAFO: 7_155.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 131 rodadas
+   Greens: 60 (45.8%)
+   Losses: 71
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 1
+   Ciclo 1: Rodadas 13-18 (6 greens)
+      INÍCIO: Purple=52%, Streak=0, Trend=DOWN, Vol=5.8
+      FIM: Purple=60%, Streak=0, Trend=UP, Vol=11.1
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 12 rodadas, 41.7% greens
+   Streak ≥3: 13 rodadas, 30.8% greens
+   Trend UP: 65 rodadas, 41.5% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 32 rodadas, 50.0% losses
+   Streak=0: 67 rodadas, 58.2% losses
+   Trend DOWN: 55 rodadas, 50.9% losses
+   Volatilidade ≥5: 129 rodadas, 55.0% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 5, Greens: 2, Assertividade: 40.0%, Lucro: R$ -100.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 9, Greens: 4, Assertividade: 44.4%, Lucro: R$ -100.00
+   Streak≥3 + Vol<3:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 13, Greens: 7, Assertividade: 53.8%, Lucro: R$ 100.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 17, Greens: 8, Assertividade: 47.1%, Lucro: R$ -100.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   Trend=UP + Streak≥2
+   Jogadas: 13, Assertividade: 53.8%, Lucro: R$ 100.00
+
+================================================================================
+📊 GRAFO: 8_170.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 145 rodadas
+   Greens: 62 (42.8%)
+   Losses: 83
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 0
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 13 rodadas, 30.8% greens
+   Streak ≥3: 11 rodadas, 45.5% greens
+   Trend UP: 65 rodadas, 44.6% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 59 rodadas, 55.9% losses
+   Streak=0: 79 rodadas, 55.7% losses
+   Trend DOWN: 69 rodadas, 58.0% losses
+   Volatilidade ≥5: 129 rodadas, 56.6% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 5, Greens: 1, Assertividade: 20.0%, Lucro: R$ -300.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 2, Greens: 0, Assertividade: 0.0%, Lucro: R$ -200.00
+   Streak≥3 + Vol<3:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 8, Greens: 2, Assertividade: 25.0%, Lucro: R$ -400.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 14, Greens: 3, Assertividade: 21.4%, Lucro: R$ -800.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   
+   Jogadas: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+
+================================================================================
+📊 GRAFO: 9_147.txt
+================================================================================
+
+📈 BASELINE:
+   Total: 123 rodadas
+   Greens: 55 (44.7%)
+   Losses: 68
+
+🔄 CICLOS DE PAGAMENTO (5+ greens consecutivos):
+   Total de ciclos: 2
+   Ciclo 1: Rodadas 22-27 (6 greens)
+      INÍCIO: Purple=32%, Streak=2, Trend=UP, Vol=7.0
+      FIM: Purple=44%, Streak=1, Trend=UP, Vol=17.3
+   Ciclo 2: Rodadas 52-56 (5 greens)
+      INÍCIO: Purple=48%, Streak=1, Trend=UP, Vol=28.1
+      FIM: Purple=52%, Streak=1, Trend=DOWN, Vol=28.0
+
+✅ CONDIÇÕES QUE LEVAM A GREEN:
+   Purple% ≥60: 17 rodadas, 29.4% greens
+   Streak ≥3: 19 rodadas, 36.8% greens
+   Trend UP: 69 rodadas, 44.9% greens
+   Volatilidade <2: 0 rodadas, 0.0% greens
+
+❌ CONDIÇÕES QUE LEVAM A LOSS:
+   Blue% ≥60: 24 rodadas, 41.7% losses
+   Streak=0: 59 rodadas, 49.2% losses
+   Trend DOWN: 53 rodadas, 54.7% losses
+   Volatilidade ≥5: 114 rodadas, 57.0% losses
+
+🎯 TESTANDO COMBINAÇÕES:
+   Purple≥60 + Streak≥2:
+      Jogadas: 7, Greens: 2, Assertividade: 28.6%, Lucro: R$ -300.00
+   Purple≥60 + Trend=UP:
+      Jogadas: 9, Greens: 3, Assertividade: 33.3%, Lucro: R$ -300.00
+   Streak≥3 + Vol<3:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Purple≥55 + Streak≥2 + Vol<4:
+      Jogadas: 0, Greens: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+   Trend=UP + Streak≥2:
+      Jogadas: 13, Greens: 4, Assertividade: 30.8%, Lucro: R$ -500.00
+   Purple≥50 + Blue<45 + Streak≥1:
+      Jogadas: 15, Greens: 3, Assertividade: 20.0%, Lucro: R$ -900.00
+
+🏆 MELHOR COMBINAÇÃO PARA ESTE GRAFO:
+   
+   Jogadas: 0, Assertividade: 0.0%, Lucro: R$ 0.00
+
+================================================================================
+FIM DA ANÁLISE
+================================================================================
+

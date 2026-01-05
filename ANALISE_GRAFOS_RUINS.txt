@@ -1,0 +1,242 @@
+
+================================================================================
+ANÁLISE PROFUNDA DOS GRAFOS "RUINS"
+================================================================================
+
+
+================================================================================
+📊 GRAFO: 2_139.txt
+================================================================================
+
+📈 BASELINE: 50.4% (57/113)
+
+🔍 TESTANDO 39 ESTRATÉGIAS:
+
+🏆 TOP 10 ESTRATÉGIAS POR LUCRO:
+
+1. Purple 50-60
+   Jogadas: 26, Greens: 17, Assertividade: 65.4%, Lucro: R$ 800.00
+2. Streak=0 (após blue)
+   Jogadas: 52, Greens: 29, Assertividade: 55.8%, Lucro: R$ 600.00
+3. Streak=1
+   Jogadas: 29, Greens: 17, Assertividade: 58.6%, Lucro: R$ 500.00
+4. Vol≥5 (alta)
+   Jogadas: 80, Greens: 42, Assertividade: 52.5%, Lucro: R$ 400.00
+5. Trend=FLAT
+   Jogadas: 13, Greens: 8, Assertividade: 61.5%, Lucro: R$ 300.00
+6. Recent: 4-5 blues
+   Jogadas: 15, Greens: 9, Assertividade: 60.0%, Lucro: R$ 300.00
+7. Recent 4+ blues (reversão)
+   Jogadas: 15, Greens: 9, Assertividade: 60.0%, Lucro: R$ 300.00
+8. Streak=0 + Blue≥50
+   Jogadas: 25, Greens: 14, Assertividade: 56.0%, Lucro: R$ 300.00
+9. Purple≥60 + Streak≥3
+   Jogadas: 6, Greens: 4, Assertividade: 66.7%, Lucro: R$ 200.00
+10. Blue≥60 (reversão)
+   Jogadas: 22, Greens: 12, Assertividade: 54.5%, Lucro: R$ 200.00
+
+📊 TOP 10 ESTRATÉGIAS POR ASSERTIVIDADE:
+
+1. Purple≥60 + Streak≥3
+   Jogadas: 6, Greens: 4, Assertividade: 66.7%, Lucro: R$ 200.00
+2. Purple 50-60
+   Jogadas: 26, Greens: 17, Assertividade: 65.4%, Lucro: R$ 800.00
+3. Trend=FLAT
+   Jogadas: 13, Greens: 8, Assertividade: 61.5%, Lucro: R$ 300.00
+4. Recent: 4-5 blues
+   Jogadas: 15, Greens: 9, Assertividade: 60.0%, Lucro: R$ 300.00
+5. Recent 4+ blues (reversão)
+   Jogadas: 15, Greens: 9, Assertividade: 60.0%, Lucro: R$ 300.00
+6. Streak=1
+   Jogadas: 29, Greens: 17, Assertividade: 58.6%, Lucro: R$ 500.00
+7. Streak=0 + Blue≥50
+   Jogadas: 25, Greens: 14, Assertividade: 56.0%, Lucro: R$ 300.00
+8. Streak=0 (após blue)
+   Jogadas: 52, Greens: 29, Assertividade: 55.8%, Lucro: R$ 600.00
+9. Blue≥60 (reversão)
+   Jogadas: 22, Greens: 12, Assertividade: 54.5%, Lucro: R$ 200.00
+10. Vol≥5 (alta)
+   Jogadas: 80, Greens: 42, Assertividade: 52.5%, Lucro: R$ 400.00
+
+✅ ESTRATÉGIA LUCRATIVA ENCONTRADA!
+   Purple 50-60
+   Lucro: R$ 800.00, Assertividade: 65.4%
+
+================================================================================
+📊 GRAFO: 3_156.txt
+================================================================================
+
+📈 BASELINE: 52.3% (69/132)
+
+🔍 TESTANDO 39 ESTRATÉGIAS:
+
+🏆 TOP 10 ESTRATÉGIAS POR LUCRO:
+
+1. Trend=DOWN
+   Jogadas: 64, Greens: 39, Assertividade: 60.9%, Lucro: R$ 1400.00
+2. Streak=0 + Blue≥50
+   Jogadas: 38, Greens: 24, Assertividade: 63.2%, Lucro: R$ 1000.00
+3. Streak=0 (após blue)
+   Jogadas: 65, Greens: 37, Assertividade: 56.9%, Lucro: R$ 900.00
+4. Recent: 3 purples
+   Jogadas: 33, Greens: 20, Assertividade: 60.6%, Lucro: R$ 700.00
+5. Vol≥5 (alta)
+   Jogadas: 72, Greens: 39, Assertividade: 54.2%, Lucro: R$ 600.00
+6. Blue≥55 (reversão)
+   Jogadas: 42, Greens: 24, Assertividade: 57.1%, Lucro: R$ 600.00
+7. Purple 40-50
+   Jogadas: 57, Greens: 30, Assertividade: 52.6%, Lucro: R$ 300.00
+8. Streak=1
+   Jogadas: 30, Greens: 16, Assertividade: 53.3%, Lucro: R$ 200.00
+9. Recent: 4-5 blues
+   Jogadas: 28, Greens: 15, Assertividade: 53.6%, Lucro: R$ 200.00
+10. Recent 4+ blues (reversão)
+   Jogadas: 28, Greens: 15, Assertividade: 53.6%, Lucro: R$ 200.00
+
+📊 TOP 10 ESTRATÉGIAS POR ASSERTIVIDADE:
+
+1. Streak=0 + Blue≥50
+   Jogadas: 38, Greens: 24, Assertividade: 63.2%, Lucro: R$ 1000.00
+2. Trend=DOWN
+   Jogadas: 64, Greens: 39, Assertividade: 60.9%, Lucro: R$ 1400.00
+3. Recent: 3 purples
+   Jogadas: 33, Greens: 20, Assertividade: 60.6%, Lucro: R$ 700.00
+4. Blue≥55 (reversão)
+   Jogadas: 42, Greens: 24, Assertividade: 57.1%, Lucro: R$ 600.00
+5. Streak=0 (após blue)
+   Jogadas: 65, Greens: 37, Assertividade: 56.9%, Lucro: R$ 900.00
+6. Vol≥5 (alta)
+   Jogadas: 72, Greens: 39, Assertividade: 54.2%, Lucro: R$ 600.00
+7. Recent: 4-5 blues
+   Jogadas: 28, Greens: 15, Assertividade: 53.6%, Lucro: R$ 200.00
+8. Recent 4+ blues (reversão)
+   Jogadas: 28, Greens: 15, Assertividade: 53.6%, Lucro: R$ 200.00
+9. Streak=1
+   Jogadas: 30, Greens: 16, Assertividade: 53.3%, Lucro: R$ 200.00
+10. Purple 40-50
+   Jogadas: 57, Greens: 30, Assertividade: 52.6%, Lucro: R$ 300.00
+
+✅ ESTRATÉGIA LUCRATIVA ENCONTRADA!
+   Trend=DOWN
+   Lucro: R$ 1400.00, Assertividade: 60.9%
+
+================================================================================
+📊 GRAFO: 8_170.txt
+================================================================================
+
+📈 BASELINE: 42.8% (62/145)
+
+🔍 TESTANDO 39 ESTRATÉGIAS:
+
+🏆 TOP 10 ESTRATÉGIAS POR LUCRO:
+
+1. Streak≥4
+   Jogadas: 5, Greens: 2, Assertividade: 40.0%, Lucro: R$ -100.00
+2. Streak≥3
+   Jogadas: 11, Greens: 5, Assertividade: 45.5%, Lucro: R$ -100.00
+3. Purple≥50 + Streak≥3
+   Jogadas: 5, Greens: 2, Assertividade: 40.0%, Lucro: R$ -100.00
+4. Purple≥55 + Blue<40
+   Jogadas: 7, Greens: 3, Assertividade: 42.9%, Lucro: R$ -100.00
+5. Recent: 4-5 purples
+   Jogadas: 20, Greens: 9, Assertividade: 45.0%, Lucro: R$ -200.00
+6. Purple 40-50
+   Jogadas: 53, Greens: 25, Assertividade: 47.2%, Lucro: R$ -300.00
+7. Trend=FLAT
+   Jogadas: 11, Greens: 4, Assertividade: 36.4%, Lucro: R$ -300.00
+8. Purple≥60 + Streak≥2
+   Jogadas: 5, Greens: 1, Assertividade: 20.0%, Lucro: R$ -300.00
+9. Recent 4+ purples + Streak≥2
+   Jogadas: 13, Greens: 5, Assertividade: 38.5%, Lucro: R$ -300.00
+10. Streak=1
+   Jogadas: 38, Greens: 17, Assertividade: 44.7%, Lucro: R$ -400.00
+
+📊 TOP 10 ESTRATÉGIAS POR ASSERTIVIDADE:
+
+1. Purple 40-50
+   Jogadas: 53, Greens: 25, Assertividade: 47.2%, Lucro: R$ -300.00
+2. Streak=0 + Blue≥50
+   Jogadas: 57, Greens: 26, Assertividade: 45.6%, Lucro: R$ -500.00
+3. Streak≥3
+   Jogadas: 11, Greens: 5, Assertividade: 45.5%, Lucro: R$ -100.00
+4. Recent: 4-5 purples
+   Jogadas: 20, Greens: 9, Assertividade: 45.0%, Lucro: R$ -200.00
+5. Streak=1
+   Jogadas: 38, Greens: 17, Assertividade: 44.7%, Lucro: R$ -400.00
+6. Trend=UP
+   Jogadas: 65, Greens: 29, Assertividade: 44.6%, Lucro: R$ -700.00
+7. Streak=0 (após blue)
+   Jogadas: 79, Greens: 35, Assertividade: 44.3%, Lucro: R$ -900.00
+8. Blue≥60 (reversão)
+   Jogadas: 59, Greens: 26, Assertividade: 44.1%, Lucro: R$ -700.00
+9. Blue≥55 (reversão)
+   Jogadas: 82, Greens: 36, Assertividade: 43.9%, Lucro: R$ -1000.00
+10. Vol≥5 (alta)
+   Jogadas: 129, Greens: 56, Assertividade: 43.4%, Lucro: R$ -1700.00
+
+❌ NENHUMA ESTRATÉGIA LUCRATIVA ENCONTRADA!
+   Melhor resultado: Streak≥4
+   Lucro: R$ -100.00, Assertividade: 40.0%
+
+================================================================================
+📊 GRAFO: 9_147.txt
+================================================================================
+
+📈 BASELINE: 44.7% (55/123)
+
+🔍 TESTANDO 39 ESTRATÉGIAS:
+
+🏆 TOP 10 ESTRATÉGIAS POR LUCRO:
+
+1. Blue≥60 (reversão)
+   Jogadas: 24, Greens: 14, Assertividade: 58.3%, Lucro: R$ 400.00
+2. Streak=0 + Blue≥50
+   Jogadas: 42, Greens: 23, Assertividade: 54.8%, Lucro: R$ 400.00
+3. Vol 2-5 (média)
+   Jogadas: 9, Greens: 6, Assertividade: 66.7%, Lucro: R$ 300.00
+4. Blue≥55 (reversão)
+   Jogadas: 45, Greens: 24, Assertividade: 53.3%, Lucro: R$ 300.00
+5. Recent: 4-5 blues
+   Jogadas: 24, Greens: 13, Assertividade: 54.2%, Lucro: R$ 200.00
+6. Recent 4+ blues (reversão)
+   Jogadas: 24, Greens: 13, Assertividade: 54.2%, Lucro: R$ 200.00
+7. Streak=0 (após blue)
+   Jogadas: 59, Greens: 30, Assertividade: 50.8%, Lucro: R$ 100.00
+8. Recent: 4-5 purples
+   Jogadas: 28, Greens: 14, Assertividade: 50.0%, Lucro: R$ 0.00
+9. Trend=UP + Streak≥3
+   Jogadas: 7, Greens: 3, Assertividade: 42.9%, Lucro: R$ -100.00
+10. Streak=1
+   Jogadas: 30, Greens: 14, Assertividade: 46.7%, Lucro: R$ -200.00
+
+📊 TOP 10 ESTRATÉGIAS POR ASSERTIVIDADE:
+
+1. Vol 2-5 (média)
+   Jogadas: 9, Greens: 6, Assertividade: 66.7%, Lucro: R$ 300.00
+2. Blue≥60 (reversão)
+   Jogadas: 24, Greens: 14, Assertividade: 58.3%, Lucro: R$ 400.00
+3. Streak=0 + Blue≥50
+   Jogadas: 42, Greens: 23, Assertividade: 54.8%, Lucro: R$ 400.00
+4. Recent: 4-5 blues
+   Jogadas: 24, Greens: 13, Assertividade: 54.2%, Lucro: R$ 200.00
+5. Recent 4+ blues (reversão)
+   Jogadas: 24, Greens: 13, Assertividade: 54.2%, Lucro: R$ 200.00
+6. Blue≥55 (reversão)
+   Jogadas: 45, Greens: 24, Assertividade: 53.3%, Lucro: R$ 300.00
+7. Streak=0 (após blue)
+   Jogadas: 59, Greens: 30, Assertividade: 50.8%, Lucro: R$ 100.00
+8. Recent: 4-5 purples
+   Jogadas: 28, Greens: 14, Assertividade: 50.0%, Lucro: R$ 0.00
+9. Purple 40-50
+   Jogadas: 67, Greens: 32, Assertividade: 47.8%, Lucro: R$ -300.00
+10. Streak=1
+   Jogadas: 30, Greens: 14, Assertividade: 46.7%, Lucro: R$ -200.00
+
+✅ ESTRATÉGIA LUCRATIVA ENCONTRADA!
+   Blue≥60 (reversão)
+   Lucro: R$ 400.00, Assertividade: 58.3%
+
+================================================================================
+FIM DA ANÁLISE
+================================================================================
+
