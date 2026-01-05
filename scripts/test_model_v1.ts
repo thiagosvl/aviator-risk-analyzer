@@ -1,9 +1,19 @@
 /**
  * TESTE DO MODELO V1 EM TODOS OS 10 GRAFOS
+ * Gera relatório completo com regras utilizadas
  */
 
 import fs from 'fs';
 import path from 'path';
+
+// Capturar todo o output do console
+let fullOutput = '';
+const originalLog = console.log;
+console.log = (...args: any[]) => {
+  const message = args.join(' ');
+  fullOutput += message + '\n';
+  originalLog(...args);
+};
 
 // Importar modelo (simulado aqui)
 interface Decision {
@@ -51,6 +61,24 @@ const files = fs.readdirSync(graphsDir)
 
 console.log(`\n${'='.repeat(120)}`);
 console.log(`TESTE DO MODELO V1 - TODOS OS GRAFOS`);
+console.log(`${'='.repeat(120)}\n`);
+
+// Documentar regras utilizadas
+console.log(`📋 REGRAS UTILIZADAS:\n`);
+console.log(`🌸 ESTRATÉGIA ROSA (Agressiva):`);
+console.log(`   Regra: Jogar quando última vela < 2.00x (blue)`);
+console.log(`   Aposta: R$ 50`);
+console.log(`   Ganho: R$ 500 (se ≥10.00x)`);
+console.log(`   Breakeven: 10% assertividade`);
+console.log(`   Lógica: Rosas tendem a vir após blues (52.4% das vezes)\n`);
+
+console.log(`🟣 ESTRATÉGIA ROXA (Conservadora):`);
+console.log(`   Regra: Jogar quando Purple% ≥60 E Streak ≥2 E Trend=UP`);
+console.log(`   Aposta: R$ 100`);
+console.log(`   Ganho: R$ 200 (se ≥2.00x)`);
+console.log(`   Breakeven: 50% assertividade`);
+console.log(`   Lógica: Momentum positivo forte indica alta probabilidade\n`);
+
 console.log(`${'='.repeat(120)}\n`);
 
 let totalRosaJogadas = 0, totalRosaGreens = 0, totalRosaSaldo = 0;
@@ -161,3 +189,78 @@ console.log(`📊 CONTRIBUIÇÃO:`);
 console.log(`   ROSA: ${((totalRosaSaldo / totalSaldo) * 100).toFixed(1)}% do lucro`);
 console.log(`   ROXA: ${((totalRoxaSaldo / totalSaldo) * 100).toFixed(1)}% do lucro`);
 console.log();
+
+// Análise de performance
+console.log(`${'='.repeat(120)}`);
+console.log(`ANÁLISE DE PERFORMANCE`);
+console.log(`${'='.repeat(120)}\n`);
+
+const winningGraphs = files.length; // Simplificado
+const totalROI = ((totalSaldo / (totalRosaJogadas * 50 + totalRoxaJogadas * 100)) * 100);
+
+if (totalAssertRosa >= 15) {
+  console.log(`✅ ROSA: Assertividade EXCELENTE (${totalAssertRosa.toFixed(1)}%)`);
+} else if (totalAssertRosa >= 12) {
+  console.log(`✅ ROSA: Assertividade BOA (${totalAssertRosa.toFixed(1)}%)`);
+} else if (totalAssertRosa >= 10) {
+  console.log(`⚠️  ROSA: Assertividade ACEITÁVEL (${totalAssertRosa.toFixed(1)}%)`);
+} else {
+  console.log(`❌ ROSA: Assertividade BAIXA (${totalAssertRosa.toFixed(1)}%)`);
+}
+
+if (totalAssertRoxa >= 60) {
+  console.log(`✅ ROXA: Assertividade BOA (${totalAssertRoxa.toFixed(1)}%)`);
+} else if (totalAssertRoxa >= 50) {
+  console.log(`⚠️  ROXA: Assertividade ACEITÁVEL (${totalAssertRoxa.toFixed(1)}%)`);
+} else {
+  console.log(`❌ ROXA: Assertividade BAIXA (${totalAssertRoxa.toFixed(1)}%) - Abaixo do breakeven!`);
+}
+
+console.log();
+
+if (totalROI >= 30) {
+  console.log(`🎉 ROI EXCELENTE: ${totalROI.toFixed(1)}%`);
+} else if (totalROI >= 20) {
+  console.log(`✅ ROI BOM: ${totalROI.toFixed(1)}%`);
+} else if (totalROI >= 10) {
+  console.log(`⚠️  ROI BAIXO: ${totalROI.toFixed(1)}%`);
+} else if (totalROI >= 0) {
+  console.log(`⚠️  ROI MUITO BAIXO: ${totalROI.toFixed(1)}%`);
+} else {
+  console.log(`❌ PREJUÍZO: ${totalROI.toFixed(1)}%`);
+}
+
+console.log();
+console.log(`${'='.repeat(120)}\n`);
+
+// Recomendações
+console.log(`💡 RECOMENDAÇÕES:\n`);
+
+if (totalRosaSaldo > 0 && totalRoxaSaldo < 0) {
+  console.log(`1. ✅ ROSA está funcionando bem! Manter estratégia.`);
+  console.log(`2. ❌ ROXA está dando prejuízo. Considerar:`);
+  console.log(`   • Desativar ROXA temporariamente`);
+  console.log(`   • Revisar regras completamente`);
+  console.log(`   • Testar cashout alternativo (1.5x, 1.6x)`);
+} else if (totalRosaSaldo > 0 && totalRoxaSaldo > 0) {
+  console.log(`1. ✅ Ambas estratégias estão funcionando!`);
+  console.log(`2. Otimizar para aumentar lucro:`);
+  console.log(`   • Testar condições adicionais para ROSA`);
+  console.log(`   • Ajustar threshold ROXA para mais jogadas`);
+} else {
+  console.log(`1. ❌ Sistema precisa de ajustes urgentes!`);
+  console.log(`2. Revisar completamente as regras`);
+  console.log(`3. Coletar mais grafos para validação`);
+}
+
+console.log();
+console.log(`${'='.repeat(120)}\n`);
+
+// Salvar relatório
+const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+const reportPath = path.join(graphsDir, `relatorio_modelo_v1_${timestamp}.txt`);
+fs.writeFileSync(reportPath, fullOutput);
+
+// Restaurar console.log
+console.log = originalLog;
+console.log(`📄 Relatório completo salvo em: ${reportPath}\n`);
