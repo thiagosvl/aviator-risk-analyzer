@@ -1,0 +1,600 @@
+
+================================================================================
+ANÁLISE COMPLETA DAS ROSAS - ZONA DE TIRO
+================================================================================
+
+
+================================================================================
+📊 GRAFO: 10_148.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 18
+   Posições: 10, 16, 26, 29, 30, 38, 42, 44, 49, 52, 57, 60, 67, 97, 113, 120, 122, 135
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 123
+   Greens: 69
+   Assertividade: 56.1%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 5
+   Greens: 1
+   Assertividade: 20.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 118
+   Greens: 68
+   Assertividade: 57.6%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 59
+      Greens (≥10x): 9
+      Assertividade: 15.3%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 6
+      Greens (≥10x): 6
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 58
+      Greens (≥10x): 9
+      Assertividade: 15.5%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: ANTES → 9.73x ❌
+      Rodada 1: ANTES → 14.06x ✅
+      Rodada 2: DEPOIS → 5.69x ❌
+      Rodada 3: DEPOIS → 1.29x ❌
+      Rodada 4: DEPOIS → 15.67x ✅
+      Rodada 5: DEPOIS → 10.10x ✅
+      Rodada 6: DEPOIS → 2.17x ❌
+      Rodada 7: DEPOIS → 5.58x ❌
+      Rodada 8: DEPOIS → 3.50x ❌
+      Rodada 9: DEPOIS → 1.24x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ 1500.00
+   ROSA ANTES: R$ 3100.00
+   ROSA DURANTE: R$ 5400.00
+   ROSA DEPOIS: R$ 3200.00
+   TOTAL ROSA: R$ 11700.00
+
+================================================================================
+📊 GRAFO: 1_158.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 13
+   Posições: 3, 18, 29, 46, 55, 59, 75, 92, 108, 128, 132, 136, 141
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 132
+   Greens: 64
+   Assertividade: 48.5%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 0
+   Greens: 0
+   Assertividade: 0.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 132
+   Greens: 64
+   Assertividade: 48.5%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 51
+      Greens (≥10x): 4
+      Assertividade: 7.8%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 6
+      Greens (≥10x): 6
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 46
+      Greens (≥10x): 3
+      Assertividade: 6.5%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: ANTES → 1.88x ❌
+      Rodada 1: ANTES → 1.02x ❌
+      Rodada 2: ANTES → 2.38x ❌
+      Rodada 3: ANTES → 1.98x ❌
+      Rodada 4: DURANTE → 26.17x ✅
+      Rodada 5: DEPOIS → 2.74x ❌
+      Rodada 6: DEPOIS → 1.40x ❌
+      Rodada 7: DEPOIS → 1.01x ❌
+      Rodada 8: DEPOIS → 2.22x ❌
+      Rodada 9: DEPOIS → 2.19x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ -400.00
+   ROSA ANTES: R$ -1100.00
+   ROSA DURANTE: R$ 5400.00
+   ROSA DEPOIS: R$ -1600.00
+   TOTAL ROSA: R$ 2700.00
+
+================================================================================
+📊 GRAFO: 2_139.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 19
+   Posições: 7, 12, 17, 27, 29, 41, 42, 47, 54, 64, 76, 82, 87, 88, 89, 112, 123, 127, 137
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 113
+   Greens: 57
+   Assertividade: 50.4%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 0
+   Greens: 0
+   Assertividade: 0.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 113
+   Greens: 57
+   Assertividade: 50.4%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 61
+      Greens (≥10x): 7
+      Assertividade: 11.5%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 8
+      Greens (≥10x): 8
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 59
+      Greens (≥10x): 7
+      Assertividade: 11.9%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: ANTES → 4.59x ❌
+      Rodada 1: ANTES → 3.10x ❌
+      Rodada 2: ANTES → 30.17x ✅
+      Rodada 3: DEPOIS → 1.92x ❌
+      Rodada 4: DEPOIS → 11.34x ✅
+      Rodada 5: DEPOIS → 1.14x ❌
+      Rodada 6: DEPOIS → 1.06x ❌
+      Rodada 7: DEPOIS → 8.04x ❌
+      Rodada 8: DEPOIS → 2.80x ❌
+      Rodada 9: DEPOIS → 1.46x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ 100.00
+   ROSA ANTES: R$ 900.00
+   ROSA DURANTE: R$ 7200.00
+   ROSA DEPOIS: R$ 1100.00
+   TOTAL ROSA: R$ 9200.00
+
+================================================================================
+📊 GRAFO: 3_156.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 17
+   Posições: 15, 17, 26, 27, 31, 36, 40, 44, 45, 61, 71, 72, 84, 87, 91, 125, 136
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 132
+   Greens: 69
+   Assertividade: 52.3%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 9
+   Greens: 4
+   Assertividade: 44.4%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 123
+   Greens: 65
+   Assertividade: 52.8%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 53
+      Greens (≥10x): 9
+      Assertividade: 17.0%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 5
+      Greens (≥10x): 5
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 52
+      Greens (≥10x): 9
+      Assertividade: 17.3%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: ANTES → 3.82x ❌
+      Rodada 1: ANTES → 177.00x ✅
+      Rodada 2: DEPOIS → 25.60x ✅
+      Rodada 3: DEPOIS → 3.81x ❌
+      Rodada 4: DEPOIS → 1.08x ❌
+      Rodada 5: DEPOIS → 1.39x ❌
+      Rodada 6: DEPOIS → 64.33x ✅
+      Rodada 7: DEPOIS → 2.69x ❌
+      Rodada 8: DEPOIS → 2.83x ❌
+      Rodada 9: DEPOIS → 1.88x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ 600.00
+   ROSA ANTES: R$ 3700.00
+   ROSA DURANTE: R$ 4500.00
+   ROSA DEPOIS: R$ 3800.00
+   TOTAL ROSA: R$ 12000.00
+
+================================================================================
+📊 GRAFO: 4_143.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 26
+   Posições: 3, 4, 6, 34, 37, 40, 42, 44, 50, 53, 55, 57, 61, 65, 66, 71, 78, 83, 93, 98, 113, 122, 127, 128, 137, 144
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 120
+   Greens: 68
+   Assertividade: 56.7%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 3
+   Greens: 2
+   Assertividade: 66.7%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 117
+   Greens: 66
+   Assertividade: 56.4%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 87
+      Greens (≥10x): 15
+      Assertividade: 17.2%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 7
+      Greens (≥10x): 7
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 82
+      Greens (≥10x): 15
+      Assertividade: 18.3%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 4: ANTES → 3.14x ❌
+      Rodada 5: ANTES → 4.96x ❌
+      Rodada 6: ANTES → 2.48x ❌
+      Rodada 7: ANTES → 1.49x ❌
+      Rodada 8: ANTES → 2.40x ❌
+      Rodada 9: ANTES → 12.40x ✅
+      Rodada 10: DEPOIS → 1.51x ❌
+      Rodada 11: DEPOIS → 1.94x ❌
+      Rodada 12: DEPOIS → 23.33x ✅
+      Rodada 13: DEPOIS → 8.39x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ 1600.00
+   ROSA ANTES: R$ 6300.00
+   ROSA DURANTE: R$ 6300.00
+   ROSA DEPOIS: R$ 6800.00
+   TOTAL ROSA: R$ 19400.00
+
+================================================================================
+📊 GRAFO: 5_163.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 21
+   Posições: 9, 14, 22, 35, 36, 38, 42, 47, 62, 81, 87, 97, 102, 104, 106, 111, 134, 136, 145, 151, 159
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 139
+   Greens: 63
+   Assertividade: 45.3%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 0
+   Greens: 0
+   Assertividade: 0.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 139
+   Greens: 63
+   Assertividade: 45.3%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 73
+      Greens (≥10x): 9
+      Assertividade: 12.3%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 8
+      Greens (≥10x): 8
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 71
+      Greens (≥10x): 9
+      Assertividade: 12.7%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: DEPOIS → 1.10x ❌
+      Rodada 1: DEPOIS → 1.81x ❌
+      Rodada 2: DEPOIS → 1.95x ❌
+      Rodada 5: ANTES → 1.71x ❌
+      Rodada 6: ANTES → 1.10x ❌
+      Rodada 7: ANTES → 1.04x ❌
+      Rodada 8: ANTES → 1.00x ❌
+      Rodada 9: ANTES → 8.03x ❌
+      Rodada 10: ANTES → 10.99x ✅
+      Rodada 11: DEPOIS → 136.00x ✅
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ -1300.00
+   ROSA ANTES: R$ 1700.00
+   ROSA DURANTE: R$ 7200.00
+   ROSA DEPOIS: R$ 1900.00
+   TOTAL ROSA: R$ 10800.00
+
+================================================================================
+📊 GRAFO: 6_147.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 19
+   Posições: 1, 4, 20, 30, 33, 38, 39, 41, 49, 56, 57, 74, 91, 95, 104, 124, 132, 143, 146
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 122
+   Greens: 70
+   Assertividade: 57.4%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 0
+   Greens: 0
+   Assertividade: 0.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 122
+   Greens: 70
+   Assertividade: 57.4%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 64
+      Greens (≥10x): 7
+      Assertividade: 10.9%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 8
+      Greens (≥10x): 8
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 59
+      Greens (≥10x): 6
+      Assertividade: 10.2%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: DEPOIS → 1.17x ❌
+      Rodada 1: ANTES → 9.48x ❌
+      Rodada 2: ANTES → 2.82x ❌
+      Rodada 3: ANTES → 1.36x ❌
+      Rodada 4: ANTES → 4.48x ❌
+      Rodada 5: ANTES → 47.91x ✅
+      Rodada 6: DEPOIS → 1.41x ❌
+      Rodada 7: DEPOIS → 7.30x ❌
+      Rodada 8: DEPOIS → 15.89x ✅
+      Rodada 9: DEPOIS → 1.63x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ 1800.00
+   ROSA ANTES: R$ 600.00
+   ROSA DURANTE: R$ 7200.00
+   ROSA DEPOIS: R$ 100.00
+   TOTAL ROSA: R$ 7900.00
+
+================================================================================
+📊 GRAFO: 7_155.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 20
+   Posições: 4, 5, 14, 24, 36, 38, 40, 43, 47, 60, 66, 68, 73, 82, 89, 95, 120, 142, 147, 148
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 131
+   Greens: 60
+   Assertividade: 45.8%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 0
+   Greens: 0
+   Assertividade: 0.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 131
+   Greens: 60
+   Assertividade: 45.8%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 64
+      Greens (≥10x): 8
+      Assertividade: 12.5%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 7
+      Greens (≥10x): 7
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 63
+      Greens (≥10x): 7
+      Assertividade: 11.1%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: DEPOIS → 3.74x ❌
+      Rodada 1: DEPOIS → 5.15x ❌
+      Rodada 2: DEPOIS → 2.16x ❌
+      Rodada 3: DEPOIS → 5.71x ❌
+      Rodada 4: DEPOIS → 1.67x ❌
+      Rodada 6: ANTES → 2.75x ❌
+      Rodada 7: ANTES → 1.42x ❌
+      Rodada 8: ANTES → 3.35x ❌
+      Rodada 9: ANTES → 1.10x ❌
+      Rodada 10: ANTES → 1.03x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ -1100.00
+   ROSA ANTES: R$ 1600.00
+   ROSA DURANTE: R$ 6300.00
+   ROSA DEPOIS: R$ 700.00
+   TOTAL ROSA: R$ 8600.00
+
+================================================================================
+📊 GRAFO: 8_170.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 20
+   Posições: 9, 11, 19, 23, 26, 35, 53, 63, 66, 71, 74, 84, 99, 104, 119, 121, 133, 137, 157, 164
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 145
+   Greens: 62
+   Assertividade: 42.8%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 0
+   Greens: 0
+   Assertividade: 0.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 145
+   Greens: 62
+   Assertividade: 42.8%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 68
+      Greens (≥10x): 6
+      Assertividade: 8.8%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 9
+      Greens (≥10x): 9
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 69
+      Greens (≥10x): 7
+      Assertividade: 10.1%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 0: DEPOIS → 2.13x ❌
+      Rodada 1: DEPOIS → 14.03x ✅
+      Rodada 2: DEPOIS → 1.10x ❌
+      Rodada 3: DEPOIS → 1.35x ❌
+      Rodada 4: DEPOIS → 7.22x ❌
+      Rodada 5: DEPOIS → 1.47x ❌
+      Rodada 6: DEPOIS → 2.52x ❌
+      Rodada 7: ANTES → 1.00x ❌
+      Rodada 8: ANTES → 1.00x ❌
+      Rodada 9: ANTES → 1.85x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ -2100.00
+   ROSA ANTES: R$ -800.00
+   ROSA DURANTE: R$ 8100.00
+   ROSA DEPOIS: R$ 100.00
+   TOTAL ROSA: R$ 7400.00
+
+================================================================================
+📊 GRAFO: 9_147.txt
+================================================================================
+
+🌸 ROSAS NO GRAFO:
+   Total: 25
+   Posições: 0, 4, 7, 8, 12, 14, 40, 41, 48, 49, 59, 65, 71, 77, 80, 81, 87, 97, 101, 103, 119, 124, 128, 134, 140
+
+🟣 ROXA (≥2x, INCLUINDO ROSAS):
+   Total de rodadas: 123
+   Greens: 55
+   Assertividade: 44.7%
+
+🟣 ROXA SEM ROSA NA JANELA:
+   Rodadas: 1
+   Greens: 1
+   Assertividade: 100.0%
+
+🟣 ROXA COM ROSA NA JANELA:
+   Rodadas: 122
+   Greens: 54
+   Assertividade: 44.3%
+
+🌸 ZONA DE TIRO DAS ROSAS:
+
+   ANTES (1-5 rodadas antes):
+      Jogadas: 76
+      Greens (≥10x): 8
+      Assertividade: 10.5%
+
+   DURANTE (a rodada É a rosa):
+      Jogadas: 10
+      Greens (≥10x): 10
+      Assertividade: 100.0%
+
+   DEPOIS (1-5 rodadas depois):
+      Jogadas: 71
+      Greens (≥10x): 8
+      Assertividade: 11.3%
+
+   📋 DETALHES (primeiras 10):
+      Rodada 10: ANTES → 5.67x ❌
+      Rodada 11: ANTES → 1.36x ❌
+      Rodada 12: ANTES → 8.59x ❌
+      Rodada 13: ANTES → 1.32x ❌
+      Rodada 14: ANTES → 1.21x ❌
+      Rodada 15: ANTES → 18.54x ✅
+      Rodada 16: DEPOIS → 32.39x ✅
+      Rodada 17: DEPOIS → 1.13x ❌
+      Rodada 18: DEPOIS → 1.00x ❌
+      Rodada 19: DEPOIS → 2.22x ❌
+
+💰 ANÁLISE DE LUCRO:
+   ROXA (jogar sempre): R$ -1300.00
+   ROSA ANTES: R$ 400.00
+   ROSA DURANTE: R$ 9000.00
+   ROSA DEPOIS: R$ 900.00
+   TOTAL ROSA: R$ 10300.00
+
+================================================================================
+FIM DA ANÁLISE
+================================================================================
+
