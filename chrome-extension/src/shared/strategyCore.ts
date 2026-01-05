@@ -4,6 +4,7 @@ export interface Recommendation {
   reason: string;
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   confidence: number;
+  ruleChecklist?: Record<string, boolean>; // Ex: { "Densidade OK": true, "Trava Pós-Rosa": false }
 }
 
 export interface PatternData {
@@ -47,7 +48,6 @@ export class StrategyCore {
     const lastPinkIndex = values.findIndex(v => v >= 10.0);
     const candlesSinceLastPink = lastPinkIndex === -1 ? values.length : lastPinkIndex;
 
-    // 4. DETECTAR PADRÕES & REGRAS
     // 4. DETECTAR PADRÕES & REGRAS (V3.6: Independência Total)
     const pinkPattern = this.detectPinkPattern(values, lastPinkIndex, volatilityDensity);
     const doubleBlueStats = this.calculateDoubleBlueStats(values, 25);
@@ -88,33 +88,40 @@ export class StrategyCore {
     isXadrez: boolean,
     purpleConversionRate: number
   ): Recommendation {
+      const checklist: Record<string, boolean> = {
+          "Mercado Aberto (Blue < 60%)": !isBlueDominant,
+          "Fora da Trava Pós-Rosa": !isPostPink,
+          "Sem Stop Loss": !isStopLoss,
+          "Padrão Confirmado": (isXadrez && streak === -1) || streak >= 3 || (streak >= 2 && isValidStreak)
+      };
+
       if (isBlueDominant) {
-          return { action: 'WAIT', reason: 'Dominância Azul (>60%). Risco alto.', riskLevel: 'HIGH', confidence: 90 };
+          return { action: 'WAIT', reason: 'Dominância Azul (>60%). Risco alto.', riskLevel: 'HIGH', confidence: 90, ruleChecklist: checklist };
       }
       if (isPostPink) {
           // V3.10: Bypass contextual para 2x em mercados excelentes
           const canBypass2x = density !== 'LOW' && purpleConversionRate >= 60 && streak >= 3;
           if (!canBypass2x) {
-              return { action: 'WAIT', reason: `Aguardando correção pós-rosa.`, riskLevel: 'CRITICAL', confidence: 100 };
+              return { action: 'WAIT', reason: `Aguardando correção pós-rosa.`, riskLevel: 'CRITICAL', confidence: 100, ruleChecklist: checklist };
           }
           // Se bypass, continua análise normal (mercado excelente)
       }
       // V3.10: Padrão Xadrez removido (33% acerto em produção)
       if (isStopLoss) {
-         return { action: 'STOP', reason: 'Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.', riskLevel: 'HIGH', confidence: 90 };
+         return { action: 'STOP', reason: 'Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.', riskLevel: 'HIGH', confidence: 90, ruleChecklist: checklist };
       }
       
       const deepDowntrend = this.checkDeepDowntrend(values);
       if (streak === 1) {
-          return { action: 'WAIT', reason: deepDowntrend ? 'Recuperação Lenta (3 Reds Recentes).' : 'Aguardando 2ª vela roxa.', riskLevel: 'LOW', confidence: 50 };
+          return { action: 'WAIT', reason: deepDowntrend ? 'Recuperação Lenta (3 Reds Recentes).' : 'Aguardando 2ª vela roxa.', riskLevel: 'LOW', confidence: 50, ruleChecklist: checklist };
       }
       if (streak === 2 && !deepDowntrend) {
-          return { action: 'WAIT', reason: 'Aguardando 3ª vela roxa.', riskLevel: 'LOW', confidence: 60 };
+          return { action: 'WAIT', reason: 'Aguardando 3ª vela roxa.', riskLevel: 'LOW', confidence: 60, ruleChecklist: checklist };
       }
       if (streak >= 3 || (streak >= 2 && isValidStreak)) {
-          return { action: 'PLAY_2X', reason: 'Surfando Sequência Confirmada.', riskLevel: 'LOW', confidence: 85 };
+          return { action: 'PLAY_2X', reason: 'Surfando Sequência Confirmada.', riskLevel: 'LOW', confidence: 85, ruleChecklist: checklist };
       }
-      return { action: 'WAIT', reason: 'Buscando sinal claro.', riskLevel: 'LOW', confidence: 10 };
+      return { action: 'WAIT', reason: 'Buscando sinal claro.', riskLevel: 'LOW', confidence: 10, ruleChecklist: checklist };
   }
 
   private static decideActionPink(pattern: PatternData | null, isPostPink: boolean, candlesSincePink: number, pinkCount25: number): Recommendation {
@@ -122,24 +129,31 @@ export class StrategyCore {
       const hasConfirmedPattern = pattern && pattern.confidence >= 70;
       const minPinkCount = hasConfirmedPattern ? 1 : 2;
       
-      if (pinkCount25 < minPinkCount) {
-          return { action: 'WAIT', reason: `Aguardando ${minPinkCount === 1 ? '1' : '2'}ª Rosa na janela (Ative: ${pinkCount25}/${minPinkCount}).`, riskLevel: 'HIGH', confidence: 0 };
-      }
-
-      // V3.6: Pink ignora a trava pós-rosa se houver um padrão Sniper (Bypass Seletivo)
       const isShortPattern = pattern && pattern.interval <= 5;
       const canBypassLock = isPostPink && isShortPattern && pattern.confidence >= 70;
+      
+      const checklist: Record<string, boolean> = {
+          "Frequência (2 Pinks em 25)": pinkCount25 >= minPinkCount,
+          "Trava Pós-Rosa": !isPostPink || canBypassLock,
+          "Padrão Sniper Identificado": (pattern !== null && pattern.confidence >= 70),
+          "Dentro da Zona de Tiro": (pattern !== null && Math.abs(pattern.candlesUntilMatch) <= 1)
+      };
+
+      // V3.10: Aceita 1 rosa se houver padrão confirmado
+      if (pinkCount25 < minPinkCount) {
+          return { action: 'WAIT', reason: `Aguardando ${minPinkCount === 1 ? '1' : '2'}ª Rosa na janela (Ative: ${pinkCount25}/${minPinkCount}).`, riskLevel: 'HIGH', confidence: 0, ruleChecklist: checklist };
+      }
 
       if (isPostPink && !canBypassLock) {
-          return { action: 'WAIT', reason: `Trava Pós-Rosa (${candlesSincePink}/3).`, riskLevel: 'CRITICAL', confidence: 100 };
+          return { action: 'WAIT', reason: `Trava Pós-Rosa (${candlesSincePink}/3).`, riskLevel: 'CRITICAL', confidence: 100, ruleChecklist: checklist };
       }
 
       if (pattern && pattern.confidence >= 70 && Math.abs(pattern.candlesUntilMatch) <= 1 && pattern.interval >= 3) {
           const windowText = pattern.candlesUntilMatch === 0 ? "EXATO" : "ZONA +/- 1";
-          const bypassText = canBypassLock ? " (Bypass Sniper V3.9)" : "";
-          return { action: 'PLAY_10X', reason: `🌸 Alvo V3.9: Intervalo ${pattern.interval}${bypassText} (${windowText})`, riskLevel: 'MEDIUM', confidence: pattern.confidence };
+          const bypassText = canBypassLock ? " (Bypass Sniper V3.10)" : "";
+          return { action: 'PLAY_10X', reason: `🌸 Alvo V3.10: Intervalo ${pattern.interval}${bypassText} (${windowText})`, riskLevel: 'MEDIUM', confidence: pattern.confidence, ruleChecklist: checklist };
       }
-      return { action: 'WAIT', reason: 'Buscando padrão confirmado...', riskLevel: 'LOW', confidence: 0 };
+      return { action: 'WAIT', reason: 'Buscando padrão confirmado...', riskLevel: 'LOW', confidence: 0, ruleChecklist: checklist };
   }
 
   private static calculateStreak(v: number[]) {
