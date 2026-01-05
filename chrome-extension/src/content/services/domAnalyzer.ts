@@ -273,36 +273,35 @@ export class DOMAnalyzer {
              const topScraped = scrapedValues[0];
              const topStored = this.gameState.history.length > 0 ? this.gameState.history[0] : null;
              
-             let topTimestamp = now;
-             
-             if (topStored && isSame(topScraped, topStored.value)) {
-                 // Same candle at top? Keep its timestamp.
-                 topTimestamp = topStored.timestamp;
-                 
-                 // What about the others? 
-                 // If we strictly replace, how do we keep their timestamps?
-                 // Shifted? 
-                 // It's acceptable to regenerate timestamps for older candles, as long as TOP matches.
-                 // The "Trigger" in useBankroll is usually the NEWEST finalized candle.
-                 // Wait. `useBankroll` logic: `if (latestCandle.timestamp > lastProcessedTimeRef.current)`
-                 
-                 // So: If the top candle is the SAME, we MUST reuse the timestamp.
-                 // If the top candle CHANGEs, we use Date.now().
-             } else {
-                 // New candle!
-                 // console.log(`[Aviator Analyzer] 🆕 New Top Candle: ${topScraped}x`);
-             }
-             
-             // Construct the new history
-             // We can try to keep timestamps for the rest, but it's hard to match perfectly.
-             // Let's just ensure TOP is stable.
+             // Detect Shift: Did a new candle appear?
+             const isSameTop = topStored && isSame(topScraped, topStored.value);
              
              const newHistory = scrapedValues.map((v, i) => {
-                 if (i === 0) return { value: v, timestamp: topTimestamp };
-                 // For others, we can just use now - i (fake diff) or just now.
+                 // CASE 1: Top Item
+                 if (i === 0) {
+                     return { 
+                         value: v, 
+                         timestamp: isSameTop ? topStored!.timestamp : now 
+                     };
+                 }
+                 
+                 // CASE 2: Older Items - Try to Find Original Timestamp
+                 // If isSameTop, then index 'i' should match old history index 'i'
+                 // If !isSameTop (Shift), then index 'i' should match old history index 'i - 1'
+                 
+                 const prevIndex = isSameTop ? i : i - 1;
+                 
+                 if (prevIndex >= 0 && prevIndex < this.gameState.history.length) {
+                     const prevItem = this.gameState.history[prevIndex];
+                     if (isSame(v, prevItem.value)) {
+                         return { value: v, timestamp: prevItem.timestamp };
+                     }
+                 }
+                 
+                 // Fallback if no match found (or mismatch)
                  return { value: v, timestamp: now - (i * 1000) }; 
              });
-             
+              
              this.gameState.history = newHistory;
              this.gameState.lastCrash = newHistory[0].value;
         }
