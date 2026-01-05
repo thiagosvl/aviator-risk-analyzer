@@ -60,7 +60,7 @@ export class StrategyCore {
     const isPurpleStreakValid = streak >= 2 && purpleConversionRate >= 55;
 
     // 5. GERAR RECOMENDAÇÕES (V3.6: Cada estratégia recebe seu estado de lock)
-    const rec2x = this.decideAction2x(streak, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, values, isBlueDominant, isXadrez);
+    const rec2x = this.decideAction2x(streak, isPostPinkLock, isStopLoss, isPurpleStreakValid, volatilityDensity, values, isBlueDominant, isXadrez, purpleConversionRate);
     
     // V3.9: Contar rosas na janela de 25
     const pinkCount25 = values.slice(0, 25).filter(v => v >= 10.0).length;
@@ -85,18 +85,21 @@ export class StrategyCore {
     density: 'LOW' | 'MEDIUM' | 'HIGH',
     values: number[],
     isBlueDominant: boolean,
-    isXadrez: boolean
+    isXadrez: boolean,
+    purpleConversionRate: number
   ): Recommendation {
       if (isBlueDominant) {
           return { action: 'WAIT', reason: 'Dominância Azul (>60%). Risco alto.', riskLevel: 'HIGH', confidence: 90 };
       }
       if (isPostPink) {
-          // V3.6: 2x permanece travado por segurança após rosa (Evitar vela de correção)
-          return { action: 'WAIT', reason: `Aguardando correção pós-rosa.`, riskLevel: 'CRITICAL', confidence: 100 };
+          // V3.10: Bypass contextual para 2x em mercados excelentes
+          const canBypass2x = density !== 'LOW' && purpleConversionRate >= 60 && streak >= 3;
+          if (!canBypass2x) {
+              return { action: 'WAIT', reason: `Aguardando correção pós-rosa.`, riskLevel: 'CRITICAL', confidence: 100 };
+          }
+          // Se bypass, continua análise normal (mercado excelente)
       }
-      if (isXadrez && streak === -1) {
-          return { action: 'PLAY_2X', reason: 'Padrão Xadrez Detectado.', riskLevel: 'MEDIUM', confidence: 70 };
-      }
+      // V3.10: Padrão Xadrez removido (33% acerto em produção)
       if (isStopLoss) {
          return { action: 'STOP', reason: 'Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas.', riskLevel: 'HIGH', confidence: 90 };
       }
@@ -115,9 +118,12 @@ export class StrategyCore {
   }
 
   private static decideActionPink(pattern: PatternData | null, isPostPink: boolean, candlesSincePink: number, pinkCount25: number): Recommendation {
-      // V3.9: Só libera entrada se houver pelo menos 2 rosas na janela de 25
-      if (pinkCount25 < 2) {
-          return { action: 'WAIT', reason: `Aguardando 2ª Rosa na janela (Ative: ${pinkCount25}/2).`, riskLevel: 'HIGH', confidence: 0 };
+      // V3.10: Relaxa regra se houver padrão confirmado
+      const hasConfirmedPattern = pattern && pattern.confidence >= 70;
+      const minPinkCount = hasConfirmedPattern ? 1 : 2;
+      
+      if (pinkCount25 < minPinkCount) {
+          return { action: 'WAIT', reason: `Aguardando ${minPinkCount === 1 ? '1' : '2'}ª Rosa na janela (Ative: ${pinkCount25}/${minPinkCount}).`, riskLevel: 'HIGH', confidence: 0 };
       }
 
       // V3.6: Pink ignora a trava pós-rosa se houver um padrão Sniper (Bypass Seletivo)
@@ -177,7 +183,12 @@ export class StrategyCore {
     const freq = new Map<number, number>();
     intervals.forEach(int => freq.set(int, (freq.get(int) || 0) + 1));
     
-    const confirmed = Array.from(freq.entries()).filter(([int, count]) => (int < 3 ? count >= 4 : count >= 2));
+    // V3.10: Intervalos 3-5 exigem 3+ ocorrências (mais restritivo)
+    const confirmed = Array.from(freq.entries()).filter(([int, count]) => {
+        if (int < 3) return count >= 4; // Intervalos 1-2: 4+ ocorrências
+        if (int >= 3 && int <= 5) return count >= 3; // Intervalos 3-5: 3+ ocorrências (NOVO)
+        return count >= 2; // Intervalos 6+: 2+ ocorrências
+    });
     
     // V3.4: Prioriza intervalos recentes e consistentes
     for (const [int, count] of confirmed.sort((a, b) => b[1] - a[1])) {
