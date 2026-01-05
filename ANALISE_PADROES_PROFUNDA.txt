@@ -1,0 +1,159 @@
+
+====================================================================================================
+ANÁLISE PROFUNDA: O QUE ACONTECE ANTES DAS ROSAS?
+====================================================================================================
+
+Total de rodadas: 1280
+Rosas: 166 (13.0%)
+Não-rosas: 1114
+
+🔍 COMPARAÇÃO: ANTES DE ROSA vs NÃO-ROSA
+
+Purple%:
+   Antes de rosa: 50.58
+   Não-rosa: 50.11
+   Diferença: 0.47 (+0.9%)
+
+Blue%:
+   Antes de rosa: 49.42
+   Não-rosa: 49.89
+   Diferença: -0.47 (-0.9%)
+
+Pink%:
+   Antes de rosa: 12.87
+   Não-rosa: 13.04
+   Diferença: -0.17 (-1.3%)
+
+Última vela:
+   Antes de rosa: 16.55
+   Não-rosa: 12.82
+   Diferença: 3.73 (+29.1%)
+
+Média últimas 3:
+   Antes de rosa: 11.26
+   Não-rosa: 13.61
+   Diferença: -2.35 (-17.3%)
+
+Média últimas 5:
+   Antes de rosa: 11.70
+   Não-rosa: 13.67
+   Diferença: -1.97 (-14.4%)
+
+Média últimas 10:
+   Antes de rosa: 13.09
+   Não-rosa: 13.66
+   Diferença: -0.56 (-4.1%)
+
+Pinks últimas 3:
+   Antes de rosa: 0.37
+   Não-rosa: 0.40
+   Diferença: -0.03 (-6.5%)
+
+Pinks últimas 5:
+   Antes de rosa: 0.63
+   Não-rosa: 0.67
+   Diferença: -0.03 (-5.0%)
+
+Pinks últimas 10:
+   Antes de rosa: 1.28
+   Não-rosa: 1.32
+   Diferença: -0.03 (-2.6%)
+
+Blues últimas 3:
+   Antes de rosa: 1.55
+   Não-rosa: 1.45
+   Diferença: 0.10 (+6.9%)
+
+Blues últimas 5:
+   Antes de rosa: 2.46
+   Não-rosa: 2.45
+   Diferença: 0.02 (+0.8%)
+
+Blues últimas 10:
+   Antes de rosa: 4.94
+   Não-rosa: 4.94
+   Diferença: 0.00 (+0.1%)
+
+Volatilidade:
+   Antes de rosa: 40.24
+   Não-rosa: 42.35
+   Diferença: -2.11 (-5.0%)
+
+Blue streak:
+   Antes de rosa: 0.94
+   Não-rosa: 0.97
+   Diferença: -0.03 (-2.8%)
+
+Purple streak:
+   Antes de rosa: 0.95
+   Não-rosa: 1.15
+   Diferença: -0.19 (-16.9%)
+
+
+🎯 TESTANDO REGRAS ESPECÍFICAS:
+
+Pinks últimas 3 ≥ 1:
+   Jogadas: 452 (54 rosas, 398 não-rosas)
+   Precisão: 11.9% (quando ativa, quantas são rosas)
+   Recall: 32.5% (quantas rosas captura)
+   Investido: R$ 22600, Recebido: R$ 27000, Lucro: R$ 4400
+
+Pinks últimas 5 ≥ 2:
+   Jogadas: 162 (19 rosas, 143 não-rosas)
+   Precisão: 11.7% (quando ativa, quantas são rosas)
+   Recall: 11.4% (quantas rosas captura)
+   Investido: R$ 8100, Recebido: R$ 9500, Lucro: R$ 1400
+
+Pinks últimas 10 ≥ 3:
+   Jogadas: 170 (24 rosas, 146 não-rosas)
+   Precisão: 14.1% (quando ativa, quantas são rosas)
+   Recall: 14.5% (quantas rosas captura)
+   Investido: R$ 8500, Recebido: R$ 12000, Lucro: R$ 3500
+
+Média últimas 5 ≥ 10x:
+   Jogadas: 271 (32 rosas, 239 não-rosas)
+   Precisão: 11.8% (quando ativa, quantas são rosas)
+   Recall: 19.3% (quantas rosas captura)
+   Investido: R$ 13550, Recebido: R$ 16000, Lucro: R$ 2450
+
+Última vela < 2x (blue):
+   Jogadas: 625 (87 rosas, 538 não-rosas)
+   Precisão: 13.9% (quando ativa, quantas são rosas)
+   Recall: 52.4% (quantas rosas captura)
+   Investido: R$ 31250, Recebido: R$ 43500, Lucro: R$ 12250
+
+Última vela > 10x (pink):
+   Jogadas: 169 (22 rosas, 147 não-rosas)
+   Precisão: 13.0% (quando ativa, quantas são rosas)
+   Recall: 13.3% (quantas rosas captura)
+   Investido: R$ 8450, Recebido: R$ 11000, Lucro: R$ 2550
+
+Volatilidade ≥ 20:
+   Jogadas: 629 (81 rosas, 548 não-rosas)
+   Precisão: 12.9% (quando ativa, quantas são rosas)
+   Recall: 48.8% (quantas rosas captura)
+   Investido: R$ 31450, Recebido: R$ 40500, Lucro: R$ 9050
+
+Pink% ≥ 12:
+   Jogadas: 822 (105 rosas, 717 não-rosas)
+   Precisão: 12.8% (quando ativa, quantas são rosas)
+   Recall: 63.3% (quantas rosas captura)
+   Investido: R$ 41100, Recebido: R$ 52500, Lucro: R$ 11400
+
+Pinks últimas 5 ≥ 1 + Volatilidade ≥ 10:
+   Jogadas: 436 (57 rosas, 379 não-rosas)
+   Precisão: 13.1% (quando ativa, quantas são rosas)
+   Recall: 34.3% (quantas rosas captura)
+   Investido: R$ 21800, Recebido: R$ 28500, Lucro: R$ 6700
+
+Pinks últimas 5 ≥ 2 + Média últimas 5 ≥ 5x:
+   Jogadas: 162 (19 rosas, 143 não-rosas)
+   Precisão: 11.7% (quando ativa, quantas são rosas)
+   Recall: 11.4% (quantas rosas captura)
+   Investido: R$ 8100, Recebido: R$ 9500, Lucro: R$ 1400
+
+
+====================================================================================================
+FIM DA ANÁLISE
+====================================================================================================
+
