@@ -23,6 +23,7 @@ export interface Recommendation {
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   confidence: number; // 0-100
   target?: number; // 2.0 or 10.0
+  ruleChecklist?: Record<string, boolean>;
 }
 
 export interface PatternData {

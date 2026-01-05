@@ -1,4 +1,3 @@
-
 export interface Recommendation {
   action: 'PLAY_2X' | 'PLAY_10X' | 'WAIT' | 'STOP' | 'STOP_WIN' | 'STOP_LOSS';
   reason: string;
@@ -126,16 +125,17 @@ export class StrategyCore {
 
   private static decideActionPink(pattern: PatternData | null, isPostPink: boolean, candlesSincePink: number, pinkCount25: number): Recommendation {
       // V3.10: Relaxa regra se houver padrão confirmado
-      const hasConfirmedPattern = pattern && pattern.confidence >= 70;
+      const hasConfirmedPattern = pattern !== null && pattern.confidence >= 70;
       const minPinkCount = hasConfirmedPattern ? 1 : 2;
       
-      const isShortPattern = pattern && pattern.interval <= 5;
-      const canBypassLock = isPostPink && isShortPattern && pattern.confidence >= 70;
+      const isShortPattern = pattern !== null && pattern.interval <= 5;
+      // Convertemos para boolean estrito para evitar o erro de tipagem no checklist
+      const canBypassLock = !!(isPostPink && isShortPattern && pattern && pattern.confidence >= 70);
       
       const checklist: Record<string, boolean> = {
           "Frequência (2 Pinks em 25)": pinkCount25 >= minPinkCount,
-          "Trava Pós-Rosa": !isPostPink || canBypassLock,
-          "Padrão Sniper Identificado": (pattern !== null && pattern.confidence >= 70),
+          "Trava Pós-Rosa": (!isPostPink || canBypassLock),
+          "Padrão Sniper Identificado": hasConfirmedPattern,
           "Dentro da Zona de Tiro": (pattern !== null && Math.abs(pattern.candlesUntilMatch) <= 1)
       };
 

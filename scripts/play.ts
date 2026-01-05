@@ -27,7 +27,9 @@ let logs: {
     result: number, 
     profit: number, 
     status: string,
-    profitLabel?: string
+    profitLabel: string;
+    checklist2x?: Record<string, boolean>;
+    checklistPink?: Record<string, boolean>;
 }[] = [];
 
 let stats = { wins2x: 0, losses2x: 0, winsPink: 0, lossesPink: 0, totalProfit: 0 };
@@ -73,11 +75,13 @@ function updateDashboard() {
     content += `| ID | Entrada 2x | Motivo 2x | Entrada Pink | Motivo Pink | Resultado | Lucro | Status |\n`;
     content += `| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n`;
     
-    // Mostra do mais recente para o mais antigo
-    [...logs].reverse().forEach((log) => {
-        const profitValue = (log as any).profitLabel ? (log as any).profitLabel : `R$ ${log.profit.toFixed(2)}`;
-        const displayProfit = log.profit > 0 ? `**${profitValue}**` : profitValue;
-        content += `| ${log.id} | ${log.rec2x} | ${log.motivo2x} | ${log.recPink} | ${log.motivoPink} | ${log.result.toFixed(2)}x | ${displayProfit} | ${log.status} |\n`;
+    const formatChecklist = (cl?: Record<string, boolean>) => {
+        if (!cl) return '';
+        return Object.entries(cl).map(([rule, pass]) => `${pass ? '✅' : '❌'} ${rule}`).join('<br>');
+    };
+
+    logs.slice().reverse().forEach(log => {
+        content += `| ${log.id} | ${log.rec2x} | ${log.motivo2x}<br>${formatChecklist(log.checklist2x)} | ${log.recPink} | ${log.motivoPink}<br>${formatChecklist(log.checklistPink)} | ${log.result.toFixed(2)}x | ${log.profitLabel} | ${log.status} |\n`;
     });
 
     content += `\n\n## 📝 LISTA CONSOLIDADA (Para novos testes)\n`;
@@ -152,6 +156,16 @@ function processResult(val: number) {
     
     finalStatus = `${s2x} | ${sPk}`;
 
+    const formatCLI = (cl?: Record<string, boolean>) => {
+        if (!cl) return '';
+        return '\n    ' + Object.entries(cl).map(([rule, pass]) => `${pass ? '✅' : '❌'} ${rule}`).join('\n    ');
+    };
+
+    console.log(`\n🤖 PREDIÇÃO V4.0:`);
+    console.log(` Roxa (2x):  ${rec2x.action === 'PLAY_2X' ? '🚀 JOGAR' : '⏳ AGUARDAR'} -> ${rec2x.reason}${formatCLI(rec2x.ruleChecklist)}`);
+    console.log(` Rosa (10x): ${recPink.action === 'PLAY_10X' ? '🌸 JOGAR' : '⏳ AGUARDAR'} -> ${recPink.reason}${formatCLI(recPink.ruleChecklist)}`);
+    console.log(`--------------------------------------------------`);
+
     logs.push({
         id: logs.length + 1,
         rec2x: rec2x.action === 'PLAY_2X' ? 'SIM' : 'NÃO',
@@ -161,7 +175,9 @@ function processResult(val: number) {
         result: val,
         profit: roundProfit,
         status: finalStatus,
-        profitLabel: profitLabel 
+        profitLabel: profitLabel,
+        checklist2x: rec2x.ruleChecklist,
+        checklistPink: recPink.ruleChecklist
     });
 
     // 2. ATUALIZA HISTÓRICO DE ANÁLISE (Máximo 60)

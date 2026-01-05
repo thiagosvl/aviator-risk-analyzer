@@ -23,6 +23,24 @@ import {
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
 import { stealthMode } from '@src/content/services/stealthMode';
 
+const RuleChecklist = ({ checklist }: { checklist?: Record<string, boolean> }) => {
+  if (!checklist) return null;
+  return (
+    <div className="mt-2 space-y-1 border-t border-white/5 pt-1.5">
+      {Object.entries(checklist).map(([rule, pass]) => (
+        <div key={rule} className="flex items-center gap-1.5 text-[9px] font-bold tracking-tight">
+          <span className={cn("px-0.5 rounded", pass ? "text-emerald-400" : "text-rose-500 opacity-60")}>
+            {pass ? '●' : '○'}
+          </span>
+          <span className={cn(pass ? "text-white/80" : "text-white/30 line-through decoration-rose-500/30")}>
+            {rule}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const AnalyzerOverlay = () => {
   // Conexão com o Bridge via Hook
   const { gameState, analysis } = useOverseer();
@@ -282,11 +300,12 @@ export const AnalyzerOverlay = () => {
            <div className="text-xl font-black tracking-tight mt-1">
              {formatAction(rec2x.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
            </div>
-           <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
-             <span>{rec2x.reason || '...'}</span>
-             {getRiskBadge(rec2x)}
-           </div>
-        </div>
+            <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
+              <span>{rec2x.reason || '...'}</span>
+              {getRiskBadge(rec2x)}
+            </div>
+            <RuleChecklist checklist={rec2x.ruleChecklist} />
+         </div>
 
         {/* CARD ROSA (10.00x) */}
         <div className={cn("rounded-lg border-2 p-3 text-center transition-all duration-300 relative overflow-hidden", getCardStyle(recPink, 'pink'))}>
@@ -296,11 +315,12 @@ export const AnalyzerOverlay = () => {
            <div className="text-xl font-black tracking-tight mt-1">
              {formatAction(recPink.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
            </div>
-           <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
-             <span>{recPink.reason || '...'}</span>
-             {getRiskBadge(recPink)}
-           </div>
-        </div>
+            <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
+              <span>{recPink.reason || '...'}</span>
+              {getRiskBadge(recPink)}
+            </div>
+            <RuleChecklist checklist={recPink.ruleChecklist} />
+         </div>
 
         {/* BOTÕES DE CONTROLE */}
         <div className="flex gap-2">
