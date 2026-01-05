@@ -209,23 +209,34 @@ export class DOMAnalyzer {
     const scrapedValues: number[] = [];
     const now = Date.now();
 
-    // 1. Tentar capturar do iframe do jogo
-    const iframe = document.querySelector(
-      'iframe[src*="aviator"], iframe[src*="spribe"], iframe[src*="game"]',
-    ) as HTMLIFrameElement;
+    // Detectar se estamos dentro do iframe do jogo
+    const isInsideGameIframe = window.location.href.includes('spribe') || 
+                                window.location.href.includes('aviator') ||
+                                document.querySelector('.payouts-block') !== null;
 
-    if (iframe?.contentDocument) {
-      try {
-        const iframeDoc = iframe.contentDocument;
-        this.parseHistoryFromContext(iframeDoc, scrapedValues);
-      } catch (error) {
-         // Silently fail
-      }
-    } 
-
-    // 2. Fallback: tentar capturar da página principal
-    if (scrapedValues.length === 0) {
+    if (isInsideGameIframe) {
+      // Estamos dentro do iframe, buscar diretamente no document
+      console.log('[Aviator Analyzer] DOM: Detectado contexto de iframe do jogo, buscando histórico...');
       this.parseHistoryFromContext(document, scrapedValues);
+    } else {
+      // Estamos na página principal, tentar acessar o iframe
+      const iframe = document.querySelector(
+        'iframe[src*="aviator"], iframe[src*="spribe"], iframe[src*="game"]',
+      ) as HTMLIFrameElement;
+
+      if (iframe?.contentDocument) {
+        try {
+          const iframeDoc = iframe.contentDocument;
+          this.parseHistoryFromContext(iframeDoc, scrapedValues);
+        } catch (error) {
+           // Silently fail (cross-origin)
+        }
+      }
+
+      // Fallback: tentar capturar da página principal
+      if (scrapedValues.length === 0) {
+        this.parseHistoryFromContext(document, scrapedValues);
+      }
     }
 
     if (scrapedValues.length > 0) {
