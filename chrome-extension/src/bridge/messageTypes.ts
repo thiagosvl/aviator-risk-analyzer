@@ -36,6 +36,17 @@ export interface PatternData {
   displayName?: string;
 }
 
+export interface PinkIntervalAnalysis {
+  intervalMap: Record<number, number>;
+  lastPattern: number | null;
+  topIntervals: Array<{ interval: number; count: number }>;
+  patternClustering?: {
+    interval: number;
+    occurrences: number[];
+    avgDistance: number;
+  }[];
+}
+
 export interface AnalysisData {
   recommendation2x: Recommendation;
   recommendationPink: Recommendation;
@@ -48,7 +59,21 @@ export interface AnalysisData {
     bluePercent: number;
     purplePercent: number;
     pinkPercent: number;
+    counts?: {
+      blue: number;
+      purple: number;
+      pink: number;
+      total: number;
+    };
   };
+  phase: 'CLUSTER' | 'DESERT' | 'NORMAL';
+  volatilityScore: number;
+  prediction?: {
+    category: 'BAIXA' | 'MÉDIA' | 'ALTA';
+    value: number;
+    confidence: number;
+  };
+  pinkIntervals?: PinkIntervalAnalysis;
 }
 
 export interface BridgeMessage<T = any> {

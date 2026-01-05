@@ -57,14 +57,14 @@ export const useGameAnalysis = (
       const newAnalysis = patternService.analyze(newGameState);
       setAnalysis(newAnalysis);
 
-      // HEARTBEAT & DEBUG LOGS
+      // HEARTBEAT & DEBUG LOGS (Filtered to avoid spam)
       if (newGameState.history.length > 0) {
         const lastCandle = newGameState.history[0];
-        console.log(`[Aviator Analyzer] 🟢 Capturando dados... | Vela: ${lastCandle.value.toFixed(2)}x | IsFlying: ${newGameState.isFlying}`);
+        const frameInfo = window.self !== window.top ? `Iframe: ${window.location.pathname}` : 'Top';
+        
+        console.log(`[Aviator Analyzer] 🟢 Data found in [${frameInfo}] | Last: ${lastCandle.value.toFixed(2)}x | IsFlying: ${newGameState.isFlying}`);
         console.log(`[Aviator Analyzer] 📊 Stats V5: AZUL ${newAnalysis.marketStats?.bluePercent}% | ROXO ${newAnalysis.marketStats?.purplePercent}% | ROSA ${newAnalysis.marketStats?.pinkPercent}%`);
         console.log(`[Aviator Analyzer] 🎯 Recomendação: ${newAnalysis.recommendationPink.action} - ${newAnalysis.recommendationPink.reason}`);
-      } else {
-        console.log(`[Aviator Analyzer] ⏳ Analisador rodando, mas histórico está vazio... (Contexto: ${window.self !== window.top ? 'Iframe' : 'Top'})`);
       }
 
       // Limpar erro se houver

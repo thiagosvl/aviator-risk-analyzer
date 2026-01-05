@@ -10,8 +10,8 @@ export class PatternService {
   }
 
   public analyze(gameState: { history?: Array<{ value?: number } | number> }): AnalysisData {
-    // Extrair valores do histórico
-    const values = gameState.history?.map((c) => (typeof c === 'number' ? c : c.value || 0)) || [];
+    // Extrair valores do histórico (Limitado a 60 velas para corresponder à tela visível)
+    const values = gameState.history?.slice(0, 60).map((c) => (typeof c === 'number' ? c : c.value || 0)) || [];
     
     if (!values || values.length === 0) {
       return this.getEmptyAnalysis();
@@ -29,7 +29,12 @@ export class PatternService {
       purpleStreak: result.purpleStreak,
       conversionRate: result.conversionRate,
       volatilityDensity: result.volatilityDensity,
-      candlesSinceLastPink: result.candlesSinceLastPink
+      candlesSinceLastPink: result.candlesSinceLastPink,
+      marketStats: result.marketStats,
+      phase: result.phase,
+      volatilityScore: result.volatilityScore,
+      prediction: result.prediction,
+      pinkIntervals: result.pinkIntervals
     };
   }
 
@@ -53,7 +58,10 @@ export class PatternService {
       purpleStreak: 0,
       conversionRate: 0,
       volatilityDensity: 'LOW',
-      candlesSinceLastPink: 0
+      candlesSinceLastPink: 0,
+      marketStats: { bluePercent: 0, purplePercent: 0, pinkPercent: 0 },
+      phase: 'NORMAL',
+      volatilityScore: 0
     };
   }
 }

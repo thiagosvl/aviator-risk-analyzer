@@ -18,6 +18,17 @@ export interface PatternData {
   occurrences: number; // V4.0: Quantas vezes o intervalo apareceu
 }
 
+export interface PinkIntervalAnalysis {
+  intervalMap: Record<number, number>;
+  lastPattern: number | null;
+  topIntervals: Array<{ interval: number; count: number }>;
+  patternClustering?: {
+    interval: number;
+    occurrences: number[];
+    avgDistance: number;
+  }[];
+}
+
 export interface AnalysisResult {
   recommendation2x: Recommendation;
   recommendationPink: Recommendation;
@@ -30,6 +41,14 @@ export interface AnalysisResult {
     bluePercent: number;
     purplePercent: number;
     pinkPercent: number;
+  };
+  pinkIntervals?: PinkIntervalAnalysis;
+  phase: 'CLUSTER' | 'DESERT' | 'NORMAL';
+  volatilityScore: number;
+  prediction?: {
+    category: 'BAIXA' | 'MÉDIA' | 'ALTA';
+    value: number;
+    confidence: number;
   };
 }
 
@@ -66,15 +85,22 @@ export class StrategyCore {
     const isStopLoss = streak <= -2;
 
     // 6. ESTATÍSTICAS DE MERCADO (V5 - Janela de 60 velas)
+    // 6. ESTATÍSTICAS DE MERCADO (V5 - Janela de 60 velas)
     const marketStats = this.calculateMarketStats(values, 60);
+
+    // 9. ANÁLISE DE INTERVALOS ENTRE ROSAS (NOVO)
+    const pinkIntervals = this.analyzePinkIntervals(values);
 
     // 7. CALCULAR ALVO DINÂMICO
     const estimatedTarget = this.calculateEstimatedTarget(values, candlesSinceLastPink);
 
+    // 8. IDENTIFICAR FASE (NOVO)
+    const phase = this.calculatePhase(values, candlesSinceLastPink);
+
     // 8. GERAR RECOMENDAÇÕES (V5: Pure Rosa & Disabled Roxa)
     const rec2x = this.decideAction2xV5();
     
-    const recPink = this.decideActionPinkV5(values);
+    const recPink = this.decideActionPinkV5(values, candlesSinceLastPink, phase, pinkIntervals);
 
     return {
       recommendation2x: rec2x,
@@ -84,7 +110,11 @@ export class StrategyCore {
       conversionRate: Math.round(purpleConversionRate),
       volatilityDensity,
       candlesSinceLastPink,
-      marketStats
+      marketStats,
+      pinkIntervals,
+      phase,
+      volatilityScore: 0, // Placeholder
+      prediction: undefined // Placeholder
     };
   }
 
@@ -104,12 +134,41 @@ export class StrategyCore {
   /**
    * V5: ESTRATÉGIA ROSA PURA (Agressiva)
    * Gatilho: Qualquer vela azul (< 2.0x)
+   * NOVO: Suporte a Recuperação Pós-Deserto
    */
-  private static decideActionPinkV5(values: number[]): Recommendation {
+  private static decideActionPinkV5(
+    values: number[], 
+    candlesSinceLastPink: number,
+    phase: 'CLUSTER' | 'DESERT' | 'NORMAL',
+    pinkIntervals: PinkIntervalAnalysis
+  ): Recommendation {
     if (values.length === 0) return { action: 'WAIT', reason: 'Aguardando dados...', riskLevel: 'LOW', confidence: 0 };
     
     const lastValue = values[0];
     const isBlueTrigger = lastValue < 2.0;
+    
+    // ESTRATÉGIA PÓS-DESERTO:
+    // Se o último padrão foi > 15 (veio de deserto) e estamos < 15 velas da rosa atual
+    // Relaxamos o limite de 10 velas para 15
+    const lastInterval = pinkIntervals.lastPattern || 0;
+    const isPostDesert = lastInterval >= 15;
+    const limit = isPostDesert ? 15 : 10;
+
+    // BLOQUEIOS (Hard Blocks)
+    if (phase === 'DESERT') {
+         return { action: 'WAIT', reason: '🌵 Fase Deserto detected (bloqueio total).', riskLevel: 'HIGH', confidence: 0 };
+    }
+
+    if (candlesSinceLastPink > limit) {
+         return { 
+             action: 'WAIT', 
+             reason: isPostDesert 
+                 ? `🧊 Grafo Esfriou (Pós-Deserto: ${candlesSinceLastPink} > 15)` 
+                 : `🧊 Grafo Esfriou (${candlesSinceLastPink} > 10 velas sem rosa)`, 
+             riskLevel: 'MEDIUM', 
+             confidence: 0 
+         };
+    }
 
     if (isBlueTrigger) {
       return {
@@ -144,8 +203,70 @@ export class StrategyCore {
     return {
       bluePercent: Math.round((blue / slice.length) * 100),
       purplePercent: Math.round((purple / slice.length) * 100),
-      pinkPercent: Math.round((pink / slice.length) * 100)
+      pinkPercent: Math.round((pink / slice.length) * 100),
+      // NOVO: Retornar contagens absolutas para exibição no Header
+      counts: {
+        blue,
+        purple,
+        pink,
+        total: slice.length
+      }
     };
+  }
+
+  /**
+   * NOVO: Análise de Intervalos entre Rosas
+   * Retorna mapa de intervalos, último padrão e clustering
+   * CORREÇÃO: Subtrai 1 para contar apenas velas ENTRE as rosas
+   */
+  private static analyzePinkIntervals(values: number[]): PinkIntervalAnalysis {
+    const pinkIndices: number[] = [];
+    for (let i = 0; i < values.length; i++) {
+        if (values[i] >= 10.0) pinkIndices.push(i);
+    }
+    
+    if (pinkIndices.length < 2) {
+        return { intervalMap: {}, lastPattern: null, topIntervals: [] };
+    }
+    
+    const intervals: number[] = [];
+    for (let i = 0; i < pinkIndices.length - 1; i++) {
+        // CORREÇÃO: Subtrair 1 para contar apenas velas ENTRE as rosas (não incluir a rosa de destino)
+        const interval = (pinkIndices[i + 1] - pinkIndices[i]) - 1;
+        if (interval >= 0) intervals.push(interval);
+    }
+    
+    const intervalMap: Record<number, number> = {};
+    intervals.forEach(interval => {
+        intervalMap[interval] = (intervalMap[interval] || 0) + 1;
+    });
+    
+    const lastPattern = intervals.length > 0 ? intervals[0] : null;
+    
+    const topIntervals = Object.entries(intervalMap)
+        .map(([interval, count]) => ({ interval: parseInt(interval), count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+    
+    return { intervalMap, lastPattern, topIntervals };
+  }
+
+  /**
+   * Identifica a fase do mercado baseada na densidade recente e distância
+   */
+  private static calculatePhase(values: number[], candlesSinceLastPink: number): 'CLUSTER' | 'DESERT' | 'NORMAL' {
+    // DESERT: Última rosa há 15+ velas
+    if (candlesSinceLastPink >= 15) return 'DESERT';
+
+    const recent10 = values.slice(0, 10).filter(v => v >= 10.0).length;
+    const recent20 = values.slice(0, 20).filter(v => v >= 10.0).length;
+
+    // CLUSTER: 2+ em 10 OU 3+ em 20 com rosa recente (<5)
+    if (recent10 >= 2 || (recent20 >= 3 && candlesSinceLastPink < 5)) {
+        return 'CLUSTER';
+    }
+
+    return 'NORMAL';
   }
 
   /**

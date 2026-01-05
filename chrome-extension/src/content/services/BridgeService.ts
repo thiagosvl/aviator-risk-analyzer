@@ -53,6 +53,14 @@ class BridgeService {
       this.listeners.set(type, []);
     }
     this.listeners.get(type)?.push(callback);
+    
+    // Return unsubscribe function
+    return () => {
+        const callbacks = this.listeners.get(type);
+        if (callbacks) {
+            this.listeners.set(type, callbacks.filter(cb => cb !== callback));
+        }
+    };
   }
 
   private notifyListeners(type: MessageType, payload: any) {

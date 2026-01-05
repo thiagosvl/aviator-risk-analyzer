@@ -41,7 +41,9 @@ export class DOMAnalyzer {
    * Extrai o multiplicador atual da tela
    */
   private extractCurrentMultiplier(): void {
-    // Primeiro tentar pegar do iframe do jogo
+    let foundMultiplier: number | null = null;
+
+    // 1. Tentar pegar do iframe do jogo (Seletor específico Spribe)
     const iframe = document.querySelector(
       'iframe[src*="aviator"], iframe[src*="spribe"], iframe[src*="game"]',
     ) as HTMLIFrameElement;
@@ -49,55 +51,64 @@ export class DOMAnalyzer {
     if (iframe?.contentDocument) {
       try {
         const iframeDoc = iframe.contentDocument;
-        const iframeElements = Array.from(iframeDoc.querySelectorAll('span, div'));
+        // Seletores mais específicos para o multiplicador central
+        const multiplierElements = Array.from(iframeDoc.querySelectorAll('.main-payout, .multiplier, .coefficient, span, div'))
+          .filter(el => {
+            const text = el.textContent?.trim() || '';
+            // Match: 1.05x, 10.0x, 232x, etc
+            return /(\d+[.,]?\d*)\s*x/i.test(text) || /^(\d+[.,]?\d*)$/.test(text);
+          });
 
-        for (const el of iframeElements) {
-
-          const text = el.textContent?.trim() || '';
-          const match = text.match(/(\d+\.?\d*)\s*x/i);
-
+        if (multiplierElements.length > 0) {
+          // Pegar o primeiro (geralmente o central mais importante)
+          const text = multiplierElements[0].textContent?.trim() || '';
+          const match = text.match(/(\d+[.,]?\d*)\s*x/i) || text.match(/^(\d+[.,]?\d*)$/);
           if (match) {
-            const value = parseFloat(match[1]);
-            if (value >= 1.0 && value < 10000) {
-              this.gameState.currentMultiplier = value;
-              if (value > 1.0) {
-                this.gameState.isFlying = true;
-              }
-              return;
-            }
+            foundMultiplier = parseFloat(match[1].replace(',', '.'));
           }
         }
       } catch {
-        // Sem acesso ao iframe, continuar com fallback
+        // Cross-origin ou erro
       }
     }
 
-    // Fallback: procurar na página principal
-    const selectors = [
-      '[class*="multiplier"]',
-      '[class*="crash"]',
-      '[class*="coefficient"]',
-      '[class*="odds"]',
-      'span',
-      'div',
-    ];
+    // 2. Fallback: procurar na página principal com seletores amplos
+    if (foundMultiplier === null) {
+      const selectors = [
+        '.main-coeff',
+        '[class*="multiplier"]',
+        '[class*="crash"]',
+        '[class*="coefficient"]',
+        '[class*="odds"]',
+        '.flew-away', 
+        'span',
+        'div',
+      ];
 
-    for (const selector of selectors) {
-      const elements = Array.from(document.querySelectorAll(selector));
+      for (const selector of selectors) {
+        const elements = Array.from(document.querySelectorAll(selector));
+        for (const el of elements) {
+          const text = el.textContent?.trim() || '';
+          const match = text.match(/(\d+[.,]?\d*)\s*x/i) || text.match(/^(\d+[.,]?\d*)$/);
 
-      for (const el of elements) {
-        const text = el.textContent?.trim() || '';
-        // Regex melhorada: suporta 1.05x, 10,0x, 2x, 100, etc.
-        const match = text.match(/(\d+[.,]?\d*)\s*x/i) || text.match(/^(\d+[.,]?\d*)$/);
-
-        if (match) {
-          const value = parseFloat(match[1].replace(',', '.'));
-          if (value >= 1.0 && value < 100000) {
-            this.gameState.currentMultiplier = value;
-            if (value > 1.0) this.gameState.isFlying = true;
-            return;
+          if (match) {
+            const value = parseFloat(match[1].replace(',', '.'));
+            if (value >= 1.0 && value < 100000) {
+              foundMultiplier = value;
+              break;
+            }
           }
         }
+        if (foundMultiplier !== null) break;
+      }
+    }
+
+    // SOMENTE atualizar se encontramos algo válido. 
+    // Evita resetar para 1.0 durante carregamento ou frames vazios que causam o "piscar".
+    if (foundMultiplier !== null && foundMultiplier >= 1.0) {
+      this.gameState.currentMultiplier = foundMultiplier;
+      if (foundMultiplier > 1.0) {
+        this.gameState.isFlying = true;
       }
     }
   }
@@ -106,6 +117,8 @@ export class DOMAnalyzer {
    * Detecta o status do jogo (voando ou aguardando)
    */
   private extractGameStatus(): void {
+    let statusDetected: boolean | null = null;
+
     // Tentar detectar do iframe primeiro
     const iframe = document.querySelector(
       'iframe[src*="aviator"], iframe[src*="spribe"], iframe[src*="game"]',
@@ -115,96 +128,56 @@ export class DOMAnalyzer {
       try {
         const iframeDoc = iframe.contentDocument;
         const statusElements = Array.from(iframeDoc.querySelectorAll(
-          '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"]',
+          '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"], .flew-away, .stage-board',
         ));
 
         for (const el of statusElements) {
-
           const text = el.textContent?.toLowerCase() || '';
 
           if (text.includes('voando') || text.includes('flying') || text.includes('em voo')) {
-            this.gameState.isFlying = true;
-            return;
+            statusDetected = true;
+            break;
           }
 
-          if (text.includes('aguardando') || text.includes('waiting') || text.includes('próxima')) {
-            this.gameState.isFlying = false;
-            return;
+          if (text.includes('aguardando') || text.includes('waiting') || text.includes('próxima') || text.includes('voou') || text.includes('flew')) {
+            statusDetected = false;
+            break;
           }
         }
       } catch {
-        // Sem acesso ao iframe
+        // Cross-origin
       }
     }
 
-    // Fallback: procurar na página principal e usar varredura de texto se necessário
-    const statusElements = Array.from(document.querySelectorAll(
-      '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"], .flew-text, .game-state',
-    ));
-    
-    // Adicionar o container principal do jogo se encontrado
-    const gameContainer = document.querySelector('.game-container, .screen-container');
-    if (gameContainer) statusElements.push(gameContainer);
+    // Fallback: procurar na página principal
+    if (statusDetected === null) {
+      const statusElements = Array.from(document.querySelectorAll(
+        '[class*="status"], [class*="state"], [class*="flying"], [class*="waiting"], .flew-text, .game-state, .stage-board',
+      ));
+      
+      for (const el of statusElements) {
+        const text = el.textContent?.toLowerCase() || '';
 
-    for (const el of statusElements) {
-
-      const text = el.textContent?.toLowerCase() || '';
-
-      if (text.includes('voando') || text.includes('flying') || text.includes('em voo')) {
-        this.gameState.isFlying = true;
-        return;
-      }
-
-      if (text.includes('aguardando') || text.includes('waiting') || text.includes('próxima') || text.includes('carregando') || text.includes('loading')) {
-         this.gameState.isFlying = false;
-         return;
-      }
-
-      // Regex robusto para detectar "Voou para longe" em várias formatações, incluindo exclamação
-      // Match: "Voou para longe", "Voou para longe!", "Flew away"
-      if (/voou\s+para\s+longe|flew\s+away/i.test(text)) {
-        this.gameState.isFlying = false;
-        
-        // Tentar extrair o valor final do texto "Voou para longe 1.06x"
-        const match = text.match(/(\d+\.?\d*)\s*x/i);
-        if (match) {
-            const crashVal = parseFloat(match[1]);
-            if (crashVal >= 1.0) {
-                 this.gameState.lastCrash = crashVal;
-                 console.log(`[Aviator Analyzer] Crash detected directly from text: ${crashVal}x`);
-                 
-                 // Adicionar ao histórico manualmente se não estiver lá
-                 if (this.gameState.history.length === 0 || this.gameState.history[0].value !== crashVal) {
-                     this.gameState.history.unshift({ value: crashVal, timestamp: Date.now() });
-                     if (this.gameState.history.length > 60) this.gameState.history.pop();
-                 }
-            }
+        if (text.includes('voando') || text.includes('flying') || text.includes('em voo')) {
+          statusDetected = true;
+          break;
         }
-        return;
+
+        if (text.includes('aguardando') || text.includes('waiting') || text.includes('próxima') || text.includes('voou') || text.includes('flew')) {
+          statusDetected = false;
+          break;
+        }
       }
     }
-    
-    // ULTRAFALLBACK: Check for "Voou para longe" in the specific big-text/multiplier container
-    // Often the multiplier text changes color or label
-    const multiplierContainer = document.querySelector('.multiplier-block, .coeff-block');
-    if (multiplierContainer && /voou|flew/i.test(multiplierContainer.textContent || '')) {
-         this.gameState.isFlying = false;
-         return;
-    }
 
-    // Se não encontrou indicador textual, usar o multiplicador como referência
-    if (this.gameState.currentMultiplier > 1.00) {
-        // Se estamos vendo um multiplicador > 1.00, assumimos que está voando...
-        // ...EXCETO se esse multiplicador estiver ESTÁTICO por muito tempo (o que o analyzer não consegue saber num snapshot)
-        // Mas podemos assumir True e confiar no texto "Voou para longe" pra desativar. 
-        // Se falhamos em detectar "Voou para longe", ele vai ficar TRUE pra sempre até virar "Waiting".
-        // Isso é perigoso ('Zumbi Flight').
-        
-        // Vamos logar essa decisão de fallback
-        // console.log('[Aviator Analyzer] IsFlying=True based on multiplier > 1.00 fallback.');
-        this.gameState.isFlying = true;
+    // SOMENTE atualizar se detectamos algo claro, para evitar flickering
+    if (statusDetected !== null) {
+      this.gameState.isFlying = statusDetected;
     } else {
-        this.gameState.isFlying = false;
+      // Se não detectamos status mas o multiplicador está subindo, assumimos IsFlying
+      if (this.gameState.currentMultiplier > 1.0) {
+        this.gameState.isFlying = true;
+      }
     }
   }
 
@@ -251,13 +224,9 @@ export class DOMAnalyzer {
     }
 
     if (scrapedValues.length > 0) {
-        console.log(`[Aviator Analyzer] DOM: Foram encontradas ${scrapedValues.length} velas no histórico.`);
-        console.log(`[Aviator Analyzer] DOM: Primeiras 5 velas: ${scrapedValues.slice(0, 5).join(', ')}`);
-    } else {
-        // Log apenas se estivermos em um contexto de iframe ou se sabemos que o jogo está ali
-        if (location.href.includes('game') || location.href.includes('aviator') || document.querySelector('iframe')) {
-            console.warn('[Aviator Analyzer] DOM: Nenhum histórico encontrado com os seletores atuais.');
-        }
+        const frameTag = window.self !== window.top ? `[Iframe: ${window.location.pathname.substring(0, 20)}]` : '[Top]';
+        // Log apenas se encontrarmos algo, para ajudar a identificar o frame correto
+        console.log(`[Aviator Analyzer] DOM ${frameTag}: Encontradas ${scrapedValues.length} velas.`);
     }
     // Se scrapedValues estiver vazio, não fazemos nada.
     if (scrapedValues.length > 0) {
@@ -280,6 +249,37 @@ export class DOMAnalyzer {
             return;
         }
 
+        // --- NEW SYNC LOGIC V2: TRUST THE DOM ---
+        // If the DOM provides a substantial list (>= 10), we assume it's the valid "Visible History".
+        // Use it to REPLACE our state, avoiding infinite accumulation of off-screen items.
+        // This fixes duplicates (e.g. 2x appearing twice) and count mismatches (51 stored vs 26 visible).
+        if (scrapedValues.length >= 10 || scrapedValues.length > currentHistory.length) {
+             const hasChange = scrapedValues[0] !== lastRecordedValue; 
+             
+             // Only replace if there's actually a change or length diff, to avoid React render spam?
+             // Actually, recreating the object is fine if values are same, but we want to catch "New Candle".
+             
+             // If the top value is different, or length is different, update.
+             // We map timestamp: Keep existing timestamps for matching items? 
+             // Too complex. Just use current timestamp for new items.
+             // But for pattern analysis, relative order matters more than absolute timestamp.
+             
+             // Simple approach: Replace.
+             // To preserve some timestamps, we could try to map, but simplicity is key for fixing bugs.
+             
+             // Correction: If we just replace with Date.now(), we lose the relative time diffs?
+             // Values don't rely on time diffs in StrategyCore.
+             // So Replace is safe.
+             
+             if (scrapedValues.length !== currentHistory.length || !isSame(scrapedValues[0], lastRecordedValue)) {
+                 // console.log(`[Aviator Analyzer] DOM Sync: Replace History (${currentHistory.length} -> ${scrapedValues.length} items)`);
+                 this.gameState.history = scrapedValues.slice(0, 60).map(v => ({ value: v, timestamp: now })); 
+                 this.gameState.lastCrash = this.gameState.history[0].value;
+                 return; 
+             }
+        }
+
+        // FALLBACK: Merge Logic (Only for small scrapes < 10 items, e.g. top bar only)
         // Tenta achar o topo do histórico nos primeiros 10 itens
         let matchIndex = -1;
         
@@ -306,21 +306,7 @@ export class DOMAnalyzer {
         if (matchIndex > 0) {
             // Temos itens novos antes do match
             const newItems = scrapedValues.slice(0, matchIndex);
-            
-             // Double Check: Avoid adding if it looks like a flicker
-             // If we are adding just ONE item, and it is equal to lastRecordedValue...
-             // But we only got here because matchIndex > 0 (so scrapedValues[0] != lastRecorded, or scraped[0] was not the match)
-             // Wait. If scraped = [1.08, 1.08] and history = [1.08].
-             // i=0: scraped[0] (1.08) == last (1.08).
-             // Check next: scraped[1] (1.08) vs history[1] (say 2.00). NO MATCH.
-             // Loop continues to i=1.
-             // i=1: scraped[1] (1.08) == last (1.08).
-             // Check next: scraped[2] (2.00) vs history[1] (2.00). MATCH!
-             // matchIndex = 1.
-             // newItems = [scraped[0]] = [1.08].
-             // Correct! We identified a new 1.08.
-
-             console.log(`[Aviator Analyzer] 🆕 New Candles Detected: ${newItems.join(', ')}`);
+            // console.log(`[Aviator Analyzer] 🆕 New Candles Detected: ${newItems.join(', ')}`);
 
             const newEntries: CandleData[] = newItems.map(v => ({ value: v, timestamp: now + Math.random() }));
             
@@ -329,17 +315,14 @@ export class DOMAnalyzer {
             
         } else if (matchIndex === -1) {
              // Lost sync?
-             // Se scrapedValues[0] é diferente do topo atual...
              if (!isSame(scrapedValues[0], lastRecordedValue)) {
-                  // Only add if we are reasonably sure (e.g. not empty)
-                   console.log(`[Aviator Analyzer] New value (Sync Lost fallback): ${scrapedValues[0]}`);
+                   // console.log(`[Aviator Analyzer] New value (Sync Lost fallback): ${scrapedValues[0]}`);
                   const entry = { value: scrapedValues[0], timestamp: now };
                   this.gameState.history.unshift(entry);
                   this.gameState.lastCrash = entry.value;
                   if (this.gameState.history.length > 60) this.gameState.history.pop();
              }
         }
-        // Se matchIndex === 0, significa que scrapedValues[0] == lastRecordedValue. Nada mudou.
     }
   }
 
@@ -356,6 +339,7 @@ export class DOMAnalyzer {
       // Histórico visível no topo (sempre presente - últimas 10-15 velas)
       '.payout.ng-star-inserted',
       'div.payout.ng-star-inserted',
+      '.payouts-wrapper .payout',
       
       // Fallbacks genéricos
       '[apppayoutsmultiplier]',
@@ -371,27 +355,25 @@ export class DOMAnalyzer {
     ];
 
     for (const selector of historySelectors) {
-      const items = Array.from(context.querySelectorAll(selector));
-      
-      if (items.length > 0) {
-        let foundBefore = targetArray.length;
-        items.forEach(item => {
-          this.parseElementValue(item, targetArray);
-        });
+      try {
+        const items = Array.from(context.querySelectorAll(selector));
         
-        // Se encontramos algo novo com este seletor, logamos
-        if (targetArray.length > foundBefore) {
-            console.log(`[Aviator Analyzer] DOM: Seletor '${selector}' encontrou ${targetArray.length - foundBefore} valores.`);
+        if (items.length > 0) {
+          let foundBefore = targetArray.length;
+          items.forEach(item => {
+            this.parseElementValue(item, targetArray);
+          });
+          
+          if (targetArray.length > foundBefore) {
+              // Log detalhado para entender qual seletor está pegando o quê
+              console.log(`[Aviator Analyzer] Seletor '${selector}' encontrou ${targetArray.length - foundBefore} valores. Total: ${targetArray.length}`);
+          }
+          
+          // Se já temos 60 ou mais, podemos parar (limite do array)
+          if (targetArray.length >= 60) return;
         }
-        
-        if (targetArray.length >= 10) return; // Já temos o suficiente para análise
-      }
-      
-      const container = context.querySelector(selector);
-      if (container && targetArray.length === 0) {
-        const text = container.textContent || '';
-        this.parseTextValue(text, targetArray);
-        if (targetArray.length >= 3) return;
+      } catch (e) {
+        // Erro silencioso em seletores inválidos ou contextos protegidos
       }
     }
   }

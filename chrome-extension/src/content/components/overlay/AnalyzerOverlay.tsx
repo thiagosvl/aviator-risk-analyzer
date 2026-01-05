@@ -41,14 +41,15 @@ const RuleChecklist = ({ checklist }: { checklist?: Record<string, boolean> }) =
   );
 };
 
-const MarketTemperature = ({ stats }: { stats?: { bluePercent: number; purplePercent: number; pinkPercent: number } }) => {
+const MarketTemperature = ({ stats }: { stats?: { bluePercent: number; purplePercent: number; pinkPercent: number; counts?: { blue: number; purple: number; pink: number } } }) => {
   if (!stats) return null;
+  const { counts } = stats;
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-[10px] font-bold">
-        <span className="text-blue-400">AZUL: {stats.bluePercent}%</span>
-        <span className="text-purple-400">ROXO: {stats.purplePercent}%</span>
-        <span className="text-pink-400">ROSA: {stats.pinkPercent}%</span>
+        <span className="text-blue-400">AZUL: {stats.bluePercent}% {counts ? `(${counts.blue})` : ''}</span>
+        <span className="text-purple-400">ROXO: {stats.purplePercent}% {counts ? `(${counts.purple})` : ''}</span>
+        <span className="text-pink-400">ROSA: {stats.pinkPercent}% {counts ? `(${counts.pink})` : ''}</span>
       </div>
       <div className="h-1.5 w-full bg-slate-900 rounded-full flex overflow-hidden border border-white/5">
         <div style={{ width: `${stats.bluePercent}%` }} className="h-full bg-blue-500 transition-all duration-500" />
@@ -314,6 +315,8 @@ export const AnalyzerOverlay = () => {
         {/* 2. RECOMENDAÇÃO DUPLA (ROXA ACIMA, ROSA ABAIXO) */}
         
         {/* CARD ROXA (2.00x) */}
+        {/* CARD ROXA (2.00x) - OCULTADO (V5 FOCO EM ROSA) */}
+        {/* 
         <div className={cn("rounded-lg border-2 p-3 text-center transition-all duration-300 relative overflow-hidden", getCardStyle(rec2x, '2x'))}>
             <div className="absolute top-0 right-0 bg-black/40 px-2 rounded-bl text-[8px] font-bold uppercase text-white/70">
                 Estratégia Defesa (2x)
@@ -332,7 +335,8 @@ export const AnalyzerOverlay = () => {
               {getRiskBadge(rec2x)}
             </div>
             <RuleChecklist checklist={rec2x.ruleChecklist} />
-         </div>
+         </div> 
+         */}
 
         {/* CARD ROSA (10.00x) */}
         <div className={cn("rounded-lg border-2 p-3 text-center transition-all duration-300 relative overflow-hidden", getCardStyle(recPink, 'pink'))}>
@@ -392,23 +396,9 @@ export const AnalyzerOverlay = () => {
         <div className="bg-slate-950/95 backdrop-blur border border-slate-800 rounded-lg p-3 shadow-2xl text-xs space-y-3 animate-in slide-in-from-top-2">
              <div className="font-bold text-slate-300 border-b border-slate-800 pb-1 flex justify-between">
               <span>📊 Detalhes da Sessão</span>
-              <span className="flex gap-2">
-                 <span className={stats.totalProfit >= 0 ? "text-emerald-400" : "text-red-400"}>
-                     {stats.totalProfit > 0 ? '+' : ''}{stats.totalProfit.toFixed(2)}
-                 </span>
-              </span>
             </div>
            
-           <div>
-             <div className="text-slate-500 mb-1">Últimas 10 Velas:</div>
-             <div className="flex flex-wrap gap-1">
-               {gameState.history.slice(0, 10).map((val, i) => (
-                 <span key={i} className={cn("px-1 rounded font-mono font-bold select-none", val.value >= 10 ? "bg-pink-900/40 text-pink-400 border border-pink-500/30" : val.value >= 2 ? "bg-purple-900/40 text-purple-400 border border-purple-500/30" : "bg-slate-900 text-blue-400 border border-slate-700")}>
-                   {val.value.toFixed(2)}x
-                 </span>
-               ))}
-             </div>
-           </div>
+            {/* Last 10 Candles Removed as per user request */}
 
            <div className="mb-2 p-2 bg-slate-900 rounded border border-slate-800">
              <div className="text-[10px] text-slate-500 mb-1 flex justify-between items-center">
@@ -416,6 +406,7 @@ export const AnalyzerOverlay = () => {
                 <span className="text-[9px] opacity-70">Valores em R$</span>
              </div>
              <div className="flex gap-2">
+                {/* 
                 <div className="flex-1">
                    <label className="text-[9px] text-purple-400 block">Alvo 2.00x</label>
                    <input 
@@ -425,7 +416,8 @@ export const AnalyzerOverlay = () => {
                       onChange={(e) => setBet2x(Number(e.target.value))}
                    />
                 </div>
-                <div className="flex-1">
+                */}
+                <div className="w-full">
                    <label className="text-[9px] text-pink-400 block">Alvo 10.00x</label>
                    <input 
                       type="number" 
@@ -438,38 +430,73 @@ export const AnalyzerOverlay = () => {
            </div>
 
             {/* --- EXTRA STATS & CONFIG --- */}
-            <div className="mt-2 grid grid-cols-2 gap-2 text-[10px] text-gray-400">
-                 <div className="flex justify-between border-b border-gray-700/50 pb-1">
-                    <span>Densidade 10x</span>
-                    <span className={cn("font-bold", analysis.volatilityDensity === 'HIGH' ? "text-pink-400" : "text-gray-500")}>
-                        {analysis.volatilityDensity === 'HIGH' ? 'ALTA' : analysis.volatilityDensity === 'MEDIUM' ? 'MÉDIA' : 'BAIXA'}
+            <div className="mt-2 text-[10px] text-gray-400">
+                 <div className="flex justify-between border-b border-gray-700/50 pb-1 items-center">
+                    <span className="flex items-center gap-2">
+                        <span>Densidade Rosa</span>
+                        <span className={cn("font-bold", analysis.volatilityDensity === 'HIGH' ? "text-pink-400" : "text-gray-500")}>
+                            {analysis.volatilityDensity === 'HIGH' ? 'ALTA' : analysis.volatilityDensity === 'MEDIUM' ? 'MÉDIA' : 'BAIXA'}
+                        </span>
                     </span>
-                 </div>
-                 <div className="flex justify-between border-b border-gray-700/50 pb-1">
-                    <span>Conversão 2x</span>
-                    <span className={cn("font-bold", analysis.conversionRate >= 50 ? "text-green-400" : "text-red-400")}>
-                        {analysis.conversionRate}%
+                    <span className="flex items-center gap-2">
+                         <span>Velas desde Rosa</span>
+                         <span className="font-bold text-white">{analysis.candlesSinceLastPink}</span>
                     </span>
                  </div>
             </div>
-           {/* --- STATISTICS GRID (Replacing old History) --- */}
-           <div className="grid grid-cols-2 gap-2 text-xs mt-2 border-t border-slate-700/50 pt-2">
-               {/* ROXO (2x) STATS */}
-               <div className="bg-[#4c1d95]/20 border border-[#8b5cf6]/30 rounded p-2 flex flex-col items-center">
-                   <span className="text-[#a78bfa] font-bold mb-1">Estratégia 2.00x</span>
-                   <div className="grid grid-cols-2 w-full gap-y-1 text-[10px] text-gray-300">
-                       <span>Tentativas:</span> <span className="text-right text-white">{stats.stats2x.attempts}</span>
-                       <span>Acertos:</span> <span className="text-right text-green-400">{stats.stats2x.wins} ({stats.stats2x.winRate}%)</span>
-                       <span>Lucro:</span> 
-                       <span className={`text-right font-bold ${stats.stats2x.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                           R$ {stats.stats2x.profit.toFixed(2)}
+            {/* --- PADRÕES DE INTERVALO (NOVO) --- */}
+             {analysis.pinkIntervals && analysis.pinkIntervals.topIntervals.length > 0 && (
+               <div className="mt-2 p-2 bg-slate-900/50 rounded border border-slate-700/30">
+                 <div className="text-[10px] font-bold text-pink-400 mb-1">📊 Padrões de Intervalo</div>
+                 <div className="space-y-1">
+                   {/* Último Padrão */}
+                   {analysis.pinkIntervals.lastPattern !== null && (
+                     <div className="flex justify-between text-[9px] border-b border-slate-700/30 pb-1">
+                       <span className="text-slate-400">Último Padrão:</span>
+                       <span className="font-bold text-emerald-400">{analysis.pinkIntervals.lastPattern} velas</span>
+                     </div>
+                   )}
+                   
+                   {/* Top Intervalos */}
+                   <div className="text-[9px] text-slate-500 mt-1">Mais Frequentes:</div>
+                   <div className="flex flex-wrap gap-1">
+                     {analysis.pinkIntervals.topIntervals.slice(0, 4).map(({ interval, count }) => (
+                       <span 
+                         key={interval}
+                         className={cn(
+                           "px-1.5 py-0.5 rounded text-[8px] font-bold",
+                           interval === analysis.pinkIntervals?.lastPattern 
+                             ? "bg-emerald-900/40 text-emerald-400 border border-emerald-500/30 animate-pulse" 
+                             : "bg-slate-800 text-slate-400"
+                         )}
+                       >
+                         {interval}x: {count}
                        </span>
+                     ))}
                    </div>
+                   
+                   {/* Indicador de Proximidade */}
+                   {analysis.pinkIntervals.lastPattern !== null && analysis.candlesSinceLastPink > 0 && (
+                     <div className="mt-1 text-[8px] text-slate-500 italic">
+                       {analysis.candlesSinceLastPink === analysis.pinkIntervals.lastPattern && (
+                         <span className="text-yellow-400 font-bold">🎯 EXATO! Repetindo padrão!</span>
+                       )}
+                       {analysis.candlesSinceLastPink >= analysis.pinkIntervals.lastPattern - 1 && 
+                        analysis.candlesSinceLastPink <= analysis.pinkIntervals.lastPattern + 1 &&
+                        analysis.candlesSinceLastPink !== analysis.pinkIntervals.lastPattern && (
+                         <span className="text-yellow-400 font-bold">⚡ Próximo ao último padrão!</span>
+                       )}
+                     </div>
+                   )}
+                 </div>
                </div>
+             )}
 
-               {/* ROSA (10x) STATS */}
-               <div className="bg-[#be185d]/20 border border-[#f43f5e]/30 rounded p-2 flex flex-col items-center">
-                   <span className="text-[#fb7185] font-bold mb-1">Estratégia 10.00x</span>
+           {/* --- STATISTICS GRID (Replacing old History) --- */}
+           <div className="mt-2 border-t border-slate-700/50 pt-2">
+               {/* ROSA (10x) STATS - FULL WIDTH */}
+               <div className="bg-[#be185d]/20 border border-[#f43f5e]/30 rounded p-2 flex flex-col items-center w-full">
+                   <span className="text-[#fb7185] font-bold mb-1">DESEMPENHO ROSA (10.00x)</span>
                    <div className="grid grid-cols-2 w-full gap-y-1 text-[10px] text-gray-300">
                        <span>Tentativas:</span> <span className="text-right text-white">{stats.statsPink.attempts}</span>
                        <span>Acertos:</span> <span className="text-right text-green-400">{stats.statsPink.wins} ({stats.statsPink.winRate}%)</span>
