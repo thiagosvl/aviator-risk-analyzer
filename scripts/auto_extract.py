@@ -83,6 +83,10 @@ def main():
     screenshots_dir = sys.argv[1] if len(sys.argv) > 1 else 'GRAFOS_SCREENSHOTS'
     output_dir = 'GRAFOS_TESTE'
     
+    # Converter para path absoluto
+    screenshots_dir = os.path.abspath(screenshots_dir)
+    output_dir = os.path.abspath(output_dir)
+    
     print("\n" + "=" * 80)
     print("AUTO EXTRACT - OCR AUTOMÁTICO")
     print("=" * 80)
