@@ -126,14 +126,24 @@ export class StrategyCore {
       };
     }
     
+    // V4.1: Stop Loss Adaptativo
     if (isStopLoss) {
-      return {
-        action: 'STOP',
-        reason: '🛑 Stop Loss ativo (2 reds seguidos). Aguarde 2 roxas.',
-        riskLevel: 'HIGH',
-        confidence: 0,
-        estimatedTarget
-      };
+      // Verificar se histórico tem 3 blues consecutivos
+      const has3BluesInHistory = this.check3ConsecutiveBluesInWindow(values, 25);
+      
+      if (has3BluesInHistory) {
+        return {
+          action: 'STOP',
+          reason: '🛑 Stop Loss (2 reds + histórico com 3 blues). Alto risco.',
+          riskLevel: 'HIGH',
+          confidence: 0,
+          estimatedTarget
+        };
+      } else {
+        // Histórico mostra que só quebra até 2, então pode arriscar
+        // Mas adiciona penalidade no score
+        // (continua para cálculo de score)
+      }
     }
 
     // CALCULAR SCORE
@@ -228,6 +238,14 @@ export class StrategyCore {
     if (deepDowntrend) {
       scoreBreakdown.downtrend = weights.deep_downtrend;
       scoreBreakdown.details.push(`Deep Downtrend: ${weights.deep_downtrend}`);
+    }
+    
+    // 8. STOP LOSS ADAPTATIVO (V4.1)
+    // Se está em stop loss mas histórico não tem 3 blues, adiciona penalidade
+    if (isStopLoss && !this.check3ConsecutiveBluesInWindow(values, 25)) {
+      const penalty = -15;
+      scoreBreakdown.downtrend += penalty; // Adiciona à categoria downtrend
+      scoreBreakdown.details.push(`Stop Loss (2 reds): ${penalty}`);
     }
 
     // TOTAL
@@ -441,6 +459,21 @@ export class StrategyCore {
     
     // Verifica se as 3 primeiras são blues
     return afterPink[0] < 2.0 && afterPink[1] < 2.0 && afterPink[2] < 2.0;
+  }
+
+  /**
+   * V4.1: Verifica se há 3 blues consecutivos na janela
+   */
+  private static check3ConsecutiveBluesInWindow(v: number[], windowSize: number): boolean {
+    const window = v.slice(0, windowSize);
+    
+    for (let i = 0; i < window.length - 2; i++) {
+      if (window[i] < 2.0 && window[i + 1] < 2.0 && window[i + 2] < 2.0) {
+        return true;
+      }
+    }
+    
+    return false;
   }
 
   private static calculateStreak(v: number[]) {
