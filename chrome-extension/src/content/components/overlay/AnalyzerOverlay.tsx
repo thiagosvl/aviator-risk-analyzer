@@ -439,6 +439,10 @@ export const AnalyzerOverlay = () => {
                         </span>
                     </span>
                     <span className="flex items-center gap-2">
+                         <span>Total Velas:</span>
+                         <span className="font-bold text-white">{gameState.history.length}</span>
+                    </span>
+                    <span className="flex items-center gap-2">
                          <span>Velas desde Rosa</span>
                          <span className="font-bold text-white">{analysis.candlesSinceLastPink}</span>
                     </span>

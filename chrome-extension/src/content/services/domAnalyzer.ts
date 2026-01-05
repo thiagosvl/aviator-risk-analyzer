@@ -5,7 +5,7 @@
  * do histórico de velas diretamente dos elementos da página.
  */
 
-import type { CandleData, GameState } from '@src/content/types';
+import type { GameState } from '@src/content/types';
 
 export class DOMAnalyzer {
   private gameState: GameState = {
@@ -249,79 +249,62 @@ export class DOMAnalyzer {
             return;
         }
 
-        // --- NEW SYNC LOGIC V2: TRUST THE DOM ---
-        // If the DOM provides a substantial list (>= 10), we assume it's the valid "Visible History".
-        // Use it to REPLACE our state, avoiding infinite accumulation of off-screen items.
-        // This fixes duplicates (e.g. 2x appearing twice) and count mismatches (51 stored vs 26 visible).
-        if (scrapedValues.length >= 10 || scrapedValues.length > currentHistory.length) {
-             const hasChange = scrapedValues[0] !== lastRecordedValue; 
-             
-             // Only replace if there's actually a change or length diff, to avoid React render spam?
-             // Actually, recreating the object is fine if values are same, but we want to catch "New Candle".
-             
-             // If the top value is different, or length is different, update.
-             // We map timestamp: Keep existing timestamps for matching items? 
-             // Too complex. Just use current timestamp for new items.
-             // But for pattern analysis, relative order matters more than absolute timestamp.
-             
-             // Simple approach: Replace.
-             // To preserve some timestamps, we could try to map, but simplicity is key for fixing bugs.
-             
-             // Correction: If we just replace with Date.now(), we lose the relative time diffs?
-             // Values don't rely on time diffs in StrategyCore.
-             // So Replace is safe.
-             
-             if (scrapedValues.length !== currentHistory.length || !isSame(scrapedValues[0], lastRecordedValue)) {
-                 // console.log(`[Aviator Analyzer] DOM Sync: Replace History (${currentHistory.length} -> ${scrapedValues.length} items)`);
-                 this.gameState.history = scrapedValues.slice(0, 60).map(v => ({ value: v, timestamp: now })); 
-                 this.gameState.lastCrash = this.gameState.history[0].value;
-                 return; 
-             }
-        }
-
-        // FALLBACK: Merge Logic (Only for small scrapes < 10 items, e.g. top bar only)
-        // Tenta achar o topo do histórico nos primeiros 10 itens
-        let matchIndex = -1;
+        // --- STRICT SYNC V3: WHAT YOU SEE IS WHAT YOU GET ---
+        // User Feedback: "Quantity wrong", "Phantom Patterns".
+        // Fix: We NEVER accumulate history beyond what is visible.
+        // We strictly replace the state with the scraped values.
+        // This ensures stats match exactly the screen (Top Bar ~20 items, Dropdown ~60 items).
         
-        for (let i = 0; i < Math.min(scrapedValues.length, 10); i++) {
-            if (isSame(scrapedValues[i], lastRecordedValue)) {
-                // Candidato a match.
-                // Verificar segundo item por segurança
-                const prevHistoryVal = currentHistory.length > 1 ? currentHistory[1].value : null;
-                const nextScrapedVal = (i + 1 < scrapedValues.length) ? scrapedValues[i+1] : null;
-                
-                if (prevHistoryVal !== null && nextScrapedVal !== null) {
-                    if (isSame(prevHistoryVal, nextScrapedVal)) {
-                        matchIndex = i;
-                        break; 
-                    }
-                } else {
-                    // Sem segundo item para conferir, confiamos no primeiro
-                    matchIndex = i;
-                    break;
-                }
-            }
-        }
-
-        if (matchIndex > 0) {
-            // Temos itens novos antes do match
-            const newItems = scrapedValues.slice(0, matchIndex);
-            // console.log(`[Aviator Analyzer] 🆕 New Candles Detected: ${newItems.join(', ')}`);
-
-            const newEntries: CandleData[] = newItems.map(v => ({ value: v, timestamp: now + Math.random() }));
-            
-            this.gameState.history = [...newEntries, ...currentHistory].slice(0, 60);
-            this.gameState.lastCrash = this.gameState.history[0].value;
-            
-        } else if (matchIndex === -1) {
-             // Lost sync?
-             if (!isSame(scrapedValues[0], lastRecordedValue)) {
-                   // console.log(`[Aviator Analyzer] New value (Sync Lost fallback): ${scrapedValues[0]}`);
-                  const entry = { value: scrapedValues[0], timestamp: now };
-                  this.gameState.history.unshift(entry);
-                  this.gameState.lastCrash = entry.value;
-                  if (this.gameState.history.length > 60) this.gameState.history.pop();
+        // Anti-Flicker: Only update if scrapedValues is valid and different
+        if (scrapedValues.length > 0) {
+             // Basic change detection: Check first item or length
+             // We map new timestamps only to NEW items to preserve relative time? 
+             // Actually, for strict sync, we just want the values. Timestamps are secondary (used for race-cond fix).
+             // To support the Race-Condition fix (lines 90+ in useBankroll), we need STABLE timestamps for existing items.
+             
+             // Smart Map: Reuse timestamps for values that look identical and seem shifted?
+             // Too complex and risky. 
+             // If we generate new timestamps every frame, `useBankroll` might get confused if it relies on EXACT timestamp match.
+             // `useBankroll` uses `latestCandle.timestamp`.
+             // If `latestCandle` (index 0) is the same value (e.g. 1.50x), but we generate a NEW timestamp......
+             // Then `useBankroll` thinks it's a NEW ROUND.
+             // CRITICAL: We must NOT generate new timestamps for the SAME top candle.
+             
+             const topScraped = scrapedValues[0];
+             const topStored = this.gameState.history.length > 0 ? this.gameState.history[0] : null;
+             
+             let topTimestamp = now;
+             
+             if (topStored && isSame(topScraped, topStored.value)) {
+                 // Same candle at top? Keep its timestamp.
+                 topTimestamp = topStored.timestamp;
+                 
+                 // What about the others? 
+                 // If we strictly replace, how do we keep their timestamps?
+                 // Shifted? 
+                 // It's acceptable to regenerate timestamps for older candles, as long as TOP matches.
+                 // The "Trigger" in useBankroll is usually the NEWEST finalized candle.
+                 // Wait. `useBankroll` logic: `if (latestCandle.timestamp > lastProcessedTimeRef.current)`
+                 
+                 // So: If the top candle is the SAME, we MUST reuse the timestamp.
+                 // If the top candle CHANGEs, we use Date.now().
+             } else {
+                 // New candle!
+                 // console.log(`[Aviator Analyzer] 🆕 New Top Candle: ${topScraped}x`);
              }
+             
+             // Construct the new history
+             // We can try to keep timestamps for the rest, but it's hard to match perfectly.
+             // Let's just ensure TOP is stable.
+             
+             const newHistory = scrapedValues.map((v, i) => {
+                 if (i === 0) return { value: v, timestamp: topTimestamp };
+                 // For others, we can just use now - i (fake diff) or just now.
+                 return { value: v, timestamp: now - (i * 1000) }; 
+             });
+             
+             this.gameState.history = newHistory;
+             this.gameState.lastCrash = newHistory[0].value;
         }
     }
   }
@@ -332,16 +315,17 @@ export class DOMAnalyzer {
    */
   private parseHistoryFromContext(context: Document | Element, targetArray: number[]) {
      const historySelectors = [
-      // Dropdown expandido (histórico completo - até 60 velas)
-      '.payouts-block .payout',
+      // 1. Dropdown/Widget Específico (Mais confiável, evita duplicatas globais)
       'app-stats-dropdown .payouts-block .payout',
+      'app-stats-widget .payouts-block .payout',
       
-      // Histórico visível no topo (sempre presente - últimas 10-15 velas)
+      // 2. Histórico visível no topo (Top Bar)
       '.payout.ng-star-inserted',
       'div.payout.ng-star-inserted',
       '.payouts-wrapper .payout',
-      
-      // Fallbacks genéricos
+
+      // 3. Fallbacks genéricos (Último recurso - podem pegar duplicatas)
+      '.payouts-block .payout', // Moved down because it catches both top and dropdown
       '[apppayoutsmultiplier]',
       'div[_ngcontent*="rrh"] .payout',
       'app-payouts-item',
@@ -367,6 +351,10 @@ export class DOMAnalyzer {
           if (targetArray.length > foundBefore) {
               // Log detalhado para entender qual seletor está pegando o quê
               console.log(`[Aviator Analyzer] Seletor '${selector}' encontrou ${targetArray.length - foundBefore} valores. Total: ${targetArray.length}`);
+              
+              // CRITICAL FIX: Stop immediately after first successful scrape.
+              // Prevents duplications (e.g. capturing Desktop + Mobile elements simultaneously).
+              return; 
           }
           
           // Se já temos 60 ou mais, podemos parar (limite do array)
