@@ -161,11 +161,6 @@ function processResult(val: number) {
         return '\n    ' + Object.entries(cl).map(([rule, pass]) => `${pass ? '✅' : '❌'} ${rule}`).join('\n    ');
     };
 
-    console.log(`\n🤖 PREDIÇÃO V4.0:`);
-    console.log(` Roxa (2x):  ${rec2x.action === 'PLAY_2X' ? '🚀 JOGAR' : '⏳ AGUARDAR'} -> ${rec2x.reason}${formatCLI(rec2x.ruleChecklist)}`);
-    console.log(` Rosa (10x): ${recPink.action === 'PLAY_10X' ? '🌸 JOGAR' : '⏳ AGUARDAR'} -> ${recPink.reason}${formatCLI(recPink.ruleChecklist)}`);
-    console.log(`--------------------------------------------------`);
-
     logs.push({
         id: logs.length + 1,
         rec2x: rec2x.action === 'PLAY_2X' ? 'SIM' : 'NÃO',
