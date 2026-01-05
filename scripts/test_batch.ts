@@ -1,5 +1,5 @@
 /**
- * Teste em Massa - Processa múltiplos grafos e gera relatório consolidado
+ * Teste em Massa - Processa múltiplos grafos e gera relatório consolidado completo
  */
 
 import fs from 'fs';
@@ -20,7 +20,17 @@ interface GraphResult {
   assertividadePink: number;
   profit: number;
   roi: number;
+  reasonsBreakdown: Map<string, { total: number; wins: number; losses: number }>;
 }
+
+// Capturar todo o output do console
+let fullOutput = '';
+const originalLog = console.log;
+console.log = (...args: any[]) => {
+  const message = args.join(' ');
+  fullOutput += message + '\n';
+  originalLog(...args);
+};
 
 // Ler argumentos
 const args = process.argv.slice(2);
@@ -46,9 +56,9 @@ console.log(`Threshold 2x: ${weights.roxa.threshold}`);
 console.log(`Threshold Pink: ${weights.rosa.threshold}`);
 console.log(`${'='.repeat(80)}\n`);
 
-// Encontrar todos os arquivos .txt
+// Encontrar todos os arquivos .txt (exceto relatórios)
 const files = fs.readdirSync(graphsDir)
-    .filter(f => f.endsWith('.txt'))
+    .filter(f => f.endsWith('.txt') && !f.startsWith('relatorio_'))
     .sort();
 
 if (files.length === 0) {
@@ -86,6 +96,7 @@ for (const file of files) {
     let plays2x = 0, wins2x = 0, losses2x = 0;
     let playsPink = 0, winsPink = 0, lossesPink = 0;
     let bankroll = 1000.0;
+    const reasonsBreakdown = new Map<string, { total: number; wins: number; losses: number }>();
     
     for (let i = 0; i < totalRounds; i++) {
         const memory = chronological.slice(i, i + MEMORY_SIZE);
@@ -97,11 +108,21 @@ for (const file of files) {
         // Roxa
         if (analysis.recommendation2x.action === 'PLAY_2X') {
             plays2x++;
+            const reason = analysis.recommendation2x.reason;
+            
+            if (!reasonsBreakdown.has(reason)) {
+                reasonsBreakdown.set(reason, { total: 0, wins: 0, losses: 0 });
+            }
+            const stats = reasonsBreakdown.get(reason)!;
+            stats.total++;
+            
             if (nextValue >= 2.0) {
                 wins2x++;
+                stats.wins++;
                 bankroll += BET_2X;
             } else {
                 losses2x++;
+                stats.losses++;
                 bankroll -= BET_2X;
             }
         }
@@ -137,7 +158,8 @@ for (const file of files) {
         lossesPink,
         assertividadePink,
         profit,
-        roi
+        roi,
+        reasonsBreakdown
     });
     
     console.log(`✅ ${file}: ${totalRounds} rodadas, ${plays2x} jogadas 2x, ${assertividade2x.toFixed(1)}% acerto, R$ ${profit.toFixed(2)}`);
@@ -265,106 +287,135 @@ if (winRate < 60) {
     console.log(`   • Taxa de vitória baixa. Sistema precisa de ajustes.`);
 }
 
-// Análise de regras
+// Análise de regras/motivos
 console.log(`\n${'='.repeat(80)}`);
-console.log(`ANÁLISE DE REGRAS`);
+console.log(`ANÁLISE DETALHADA DE ESTRATÉGIAS E REGRAS`);
 console.log(`${'='.repeat(80)}\n`);
 
-// Analisar quais features mais contribuem
-if (totalPlays2x > 0) {
-    console.log(`📊 ANÁLISE DE PERFORMANCE:\n`);
+// Consolidar motivos de todos os grafos
+const globalReasons = new Map<string, { total: number; wins: number; losses: number }>();
+results.forEach(r => {
+    r.reasonsBreakdown.forEach((stats, reason) => {
+        if (!globalReasons.has(reason)) {
+            globalReasons.set(reason, { total: 0, wins: 0, losses: 0 });
+        }
+        const global = globalReasons.get(reason)!;
+        global.total += stats.total;
+        global.wins += stats.wins;
+        global.losses += stats.losses;
+    });
+});
+
+if (globalReasons.size > 0) {
+    console.log(`📊 BREAKDOWN POR TIPO DE ENTRADA (MOTIVO):\n`);
     
-    // Taxa de entrada
-    const entryRate = (totalPlays2x / totalRounds) * 100;
-    if (entryRate < 5) {
-        console.log(`   ⚠️  Taxa de entrada MUITO BAIXA (${entryRate.toFixed(1)}%)`);
-        console.log(`      → Sistema está jogando pouco demais`);
-        console.log(`      → Sugestão: Diminuir threshold em 5-10 pontos\n`);
-    } else if (entryRate > 20) {
-        console.log(`   ⚠️  Taxa de entrada MUITO ALTA (${entryRate.toFixed(1)}%)`);
-        console.log(`      → Sistema está jogando demais`);
-        console.log(`      → Sugestão: Aumentar threshold em 5-10 pontos\n`);
-    } else {
-        console.log(`   ✅ Taxa de entrada ADEQUADA (${entryRate.toFixed(1)}%)\n`);
-    }
+    // Ordenar por total de jogadas
+    const sortedReasons = Array.from(globalReasons.entries())
+        .sort((a, b) => b[1].total - a[1].total);
     
-    // Assertividade
-    if (avgAssertividade2x < 50) {
-        console.log(`   ❌ ASSERTIVIDADE CRÍTICA (${avgAssertividade2x.toFixed(1)}%)`);
-        console.log(`      → Regras estão falhando muito`);
-        console.log(`      → Sugestões:`);
-        console.log(`         1. Aumentar threshold para ser mais seletivo`);
-        console.log(`         2. Revisar pesos das features`);
-        console.log(`         3. Adicionar mais hard blocks\n`);
-    } else if (avgAssertividade2x < 60) {
-        console.log(`   ⚠️  ASSERTIVIDADE BAIXA (${avgAssertividade2x.toFixed(1)}%)`);
-        console.log(`      → Precisa melhorar`);
-        console.log(`      → Sugestão: Ajustar pesos ou threshold\n`);
-    } else if (avgAssertividade2x < 70) {
-        console.log(`   ✅ ASSERTIVIDADE BOA (${avgAssertividade2x.toFixed(1)}%)`);
-        console.log(`      → Sistema funcionando bem`);
-        console.log(`      → Pode otimizar ainda mais\n`);
-    } else {
-        console.log(`   🎉 ASSERTIVIDADE EXCELENTE (${avgAssertividade2x.toFixed(1)}%)`);
-        console.log(`      → Sistema muito bem calibrado!\n`);
-    }
-    
-    // ROI
-    if (avgROI < -10) {
-        console.log(`   🚨 PREJUÍZO ALTO (${avgROI.toFixed(1)}% ROI)`);
-        console.log(`      → URGENTE: Sistema precisa de ajustes imediatos`);
-        console.log(`      → Sugestão: Aumentar threshold drasticamente\n`);
-    } else if (avgROI < 0) {
-        console.log(`   ❌ PREJUÍZO (${avgROI.toFixed(1)}% ROI)`);
-        console.log(`      → Sistema não está lucrando`);
-        console.log(`      → Sugestão: Revisar estratégia\n`);
-    } else if (avgROI < 10) {
-        console.log(`   ⚠️  LUCRO BAIXO (${avgROI.toFixed(1)}% ROI)`);
-        console.log(`      → Pode melhorar`);
-        console.log(`      → Meta: 20-30% ROI\n`);
-    } else if (avgROI < 30) {
-        console.log(`   ✅ LUCRO BOM (${avgROI.toFixed(1)}% ROI)`);
-        console.log(`      → Sistema lucrativo!\n`);
-    } else {
-        console.log(`   🎉 LUCRO EXCELENTE (${avgROI.toFixed(1)}% ROI)`);
-        console.log(`      → Sistema muito lucrativo!\n`);
-    }
-    
-    // Consistência
-    if (winRate >= 70) {
-        console.log(`   ✅ CONSISTÊNCIA ALTA (${winRate.toFixed(1)}% grafos lucrativos)`);
-        console.log(`      → Sistema confiável\n`);
-    } else if (winRate >= 50) {
-        console.log(`   ⚠️  CONSISTÊNCIA MÉDIA (${winRate.toFixed(1)}% grafos lucrativos)`);
-        console.log(`      → Precisa melhorar estabilidade\n`);
-    } else {
-        console.log(`   ❌ CONSISTÊNCIA BAIXA (${winRate.toFixed(1)}% grafos lucrativos)`);
-        console.log(`      → Sistema instável\n`);
-    }
+    sortedReasons.forEach(([reason, stats]) => {
+        const assertividade = (stats.wins / stats.total) * 100;
+        const emoji = assertividade >= 65 ? '✅' : assertividade >= 55 ? '⚠️' : '❌';
+        
+        console.log(`${emoji} ${reason}:`);
+        console.log(`   Total: ${stats.total} jogadas (${((stats.total / totalPlays2x) * 100).toFixed(1)}% do total)`);
+        console.log(`   Greens: ${stats.wins} | Losses: ${stats.losses}`);
+        console.log(`   Assertividade: ${assertividade.toFixed(1)}%`);
+        
+        if (assertividade >= 70) {
+            console.log(`   💡 Estratégia EXCELENTE! Continue usando.`);
+        } else if (assertividade >= 60) {
+            console.log(`   💡 Estratégia BOA. Pode otimizar.`);
+        } else if (assertividade >= 50) {
+            console.log(`   ⚠️  Estratégia MEDIANA. Considere ajustar pesos.`);
+        } else {
+            console.log(`   🚨 Estratégia RUIM. Considere remover ou revisar.`);
+        }
+        console.log('');
+    });
+} else {
+    console.log(`⚠️  Nenhuma jogada realizada para análise.\n`);
 }
 
-console.log(`\n${'='.repeat(80)}\n`);
+// Análise de performance geral
+console.log(`${'='.repeat(80)}`);
+console.log(`ANÁLISE DE PERFORMANCE GERAL`);
+console.log(`${'='.repeat(80)}\n`);
 
-// Salvar relatório
+// Taxa de entrada
+const entryRate = (totalPlays2x / totalRounds) * 100;
+if (entryRate < 5) {
+    console.log(`⚠️  Taxa de entrada MUITO BAIXA (${entryRate.toFixed(1)}%)`);
+    console.log(`   → Sistema está jogando pouco demais`);
+    console.log(`   → Sugestão: Diminuir threshold em 5-10 pontos\n`);
+} else if (entryRate > 20) {
+    console.log(`⚠️  Taxa de entrada MUITO ALTA (${entryRate.toFixed(1)}%)`);
+    console.log(`   → Sistema está jogando demais`);
+    console.log(`   → Sugestão: Aumentar threshold em 5-10 pontos\n`);
+} else {
+    console.log(`✅ Taxa de entrada ADEQUADA (${entryRate.toFixed(1)}%)\n`);
+}
+
+// Assertividade
+if (avgAssertividade2x < 50) {
+    console.log(`❌ ASSERTIVIDADE CRÍTICA (${avgAssertividade2x.toFixed(1)}%)`);
+    console.log(`   → Regras estão falhando muito`);
+    console.log(`   → Sugestões:`);
+    console.log(`      1. Aumentar threshold para ser mais seletivo`);
+    console.log(`      2. Revisar pesos das features`);
+    console.log(`      3. Adicionar mais hard blocks\n`);
+} else if (avgAssertividade2x < 60) {
+    console.log(`⚠️  ASSERTIVIDADE BAIXA (${avgAssertividade2x.toFixed(1)}%)`);
+    console.log(`   → Precisa melhorar`);
+    console.log(`   → Sugestão: Ajustar pesos ou threshold\n`);
+} else if (avgAssertividade2x < 70) {
+    console.log(`✅ ASSERTIVIDADE BOA (${avgAssertividade2x.toFixed(1)}%)`);
+    console.log(`   → Sistema funcionando bem`);
+    console.log(`   → Pode otimizar ainda mais\n`);
+} else {
+    console.log(`🎉 ASSERTIVIDADE EXCELENTE (${avgAssertividade2x.toFixed(1)}%)`);
+    console.log(`   → Sistema muito bem calibrado!\n`);
+}
+
+// ROI
+if (avgROI < -10) {
+    console.log(`🚨 PREJUÍZO ALTO (${avgROI.toFixed(1)}% ROI)`);
+    console.log(`   → URGENTE: Sistema precisa de ajustes imediatos`);
+    console.log(`   → Sugestão: Aumentar threshold drasticamente\n`);
+} else if (avgROI < 0) {
+    console.log(`❌ PREJUÍZO (${avgROI.toFixed(1)}% ROI)`);
+    console.log(`   → Sistema não está lucrando`);
+    console.log(`   → Sugestão: Revisar estratégia\n`);
+} else if (avgROI < 10) {
+    console.log(`⚠️  LUCRO BAIXO (${avgROI.toFixed(1)}% ROI)`);
+    console.log(`   → Pode melhorar`);
+    console.log(`   → Meta: 20-30% ROI\n`);
+} else if (avgROI < 30) {
+    console.log(`✅ LUCRO BOM (${avgROI.toFixed(1)}% ROI)`);
+    console.log(`   → Sistema lucrativo!\n`);
+} else {
+    console.log(`🎉 LUCRO EXCELENTE (${avgROI.toFixed(1)}% ROI)`);
+    console.log(`   → Sistema muito lucrativo!\n`);
+}
+
+// Consistência
+if (winRate >= 70) {
+    console.log(`✅ CONSISTÊNCIA ALTA (${winRate.toFixed(1)}% grafos lucrativos)`);
+    console.log(`   → Sistema confiável\n`);
+} else if (winRate >= 50) {
+    console.log(`⚠️  CONSISTÊNCIA MÉDIA (${winRate.toFixed(1)}% grafos lucrativos)`);
+    console.log(`   → Precisa melhorar estabilidade\n`);
+} else {
+    console.log(`❌ CONSISTÊNCIA BAIXA (${winRate.toFixed(1)}% grafos lucrativos)`);
+    console.log(`   → Sistema instável\n`);
+}
+
+console.log(`${'='.repeat(80)}\n`);
+
+// Salvar relatório COMPLETO
 const reportPath = path.join(graphsDir, `relatorio_${profile}_${Date.now()}.txt`);
-const report = `
-RELATÓRIO CONSOLIDADO - ${new Date().toLocaleString('pt-BR')}
-Perfil: ${profile.toUpperCase()}
-Threshold 2x: ${weights.roxa.threshold}
-Threshold Pink: ${weights.rosa.threshold}
+fs.writeFileSync(reportPath, fullOutput);
 
-ESTATÍSTICAS:
-- Grafos: ${totalGraphs}
-- Rodadas: ${totalRounds}
-- Jogadas 2x: ${totalPlays2x}
-- Assertividade 2x: ${avgAssertividade2x.toFixed(1)}%
-- Lucro médio: R$ ${avgProfit.toFixed(2)}
-- ROI médio: ${avgROI.toFixed(1)}%
-- Taxa de vitória: ${winRate.toFixed(1)}%
-
-DETALHES POR GRAFO:
-${results.map(r => `${r.filename}: ${r.plays2x} jogadas, ${r.assertividade2x.toFixed(1)}% acerto, R$ ${r.profit.toFixed(2)}`).join('\n')}
-`;
-
-fs.writeFileSync(reportPath, report);
-console.log(`📄 Relatório salvo em: ${reportPath}\n`);
+// Restaurar console.log original
+console.log = originalLog;
+console.log(`📄 Relatório completo salvo em: ${reportPath}\n`);
