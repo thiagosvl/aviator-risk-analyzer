@@ -11,7 +11,7 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Buscando sinal claro. |
+| **Roxa (2x)** | ✅ ENTRAR | Padrão Xadrez Detectado. |
 | **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
 
 **Minha Análise:** tem padrão de rosa, entao joga pra rosa. A ultima vela foi azul, o grafico está predominante ROXO e ainda tem um detalhe que nao falamos: XADREZ. Podemos esperar quebrar 2azul pra jgoar (pq é o maximo que estamos vendo, e está dentro do nosso limite de jogar até 2 azul, caso a tendencia esteja pra roxo/rosa), ou confiamos que seguirá no xadrez.
@@ -23,8 +23,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência (Conversão ≥55%). |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (2/3). |
 
 **Minha Análise:** Nao joga pra rosa, sem padrão. MAs está na tendencia de roxo (predominancia), entao vale jogar pro roxo.
 
@@ -35,7 +35,7 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência (Conversão ≥55%). |
+| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência Confirmada. |
 | **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
 
 **Minha Análise:** Padrão de rosa (padrao de 4 velas-1, 1 antes), entao joga essa e a proxima para rosa. Para roxo, se a predominancia é roxo, podemos ver se vale a pena desconsiderar essas 3 azul em seguida antes da rosa, pq lá atrás ja teve uma sequencia de 5 seguidas (4 roxas e 1 rosa) e outra de 5 seguidas (2 rosas 3 roxas).
@@ -47,7 +47,7 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Recuperação Lenta (3 Reds Recentes). |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando 2ª vela roxa. |
 | **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
 
 **Minha Análise:** Se tiver padrao de rosa (zona de tiro), joga. PAra roxo, espera, pq quebrou 3x azul.
@@ -60,7 +60,7 @@
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
 | **Roxa (2x)** | ⏳ AGUARDAR | Aguardando 2ª vela roxa. |
-| **Rosa (10x)** | 🌸 ENTRAR | 💎 Padrão Intervalo 4 detectado. |
+| **Rosa (10x)** | 🌸 ENTRAR | 🌸 Alvo V3.9: Intervalo 4 (EXATO) |
 
 **Minha Análise:** Predominancia roxa absurda, joga para 2x. Para rosa, se estiver no padrão e zona de tiro, joga 10x tbm.
 
@@ -83,8 +83,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Trava Pós-Rosa (Aguarde 3 velas). |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (0/3). |
 
 **Minha Análise:** Aqui predominancia roxa, jogamos. Sem padrao de rosa, nao jogamos por rosa.
 
@@ -95,7 +95,7 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência (Conversão ≥55%). |
+| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência Confirmada. |
 | **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
 
 **Minha Análise:** Predominancia roxa, jogamos. Sem padrão de rosa, esperamos.
@@ -107,8 +107,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência (Conversão ≥55%). |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (2/3). |
 
 **Minha Análise:** Padrão de rosa, jogamos. Predominancia rosa, jogamos até quebrar 2x (ja que o historico é de quebrar só 1x.). QUando quebrar 3x, nao jogamos mais por roxo até o grafico melhorar.
 
@@ -119,8 +119,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência (Conversão ≥55%). |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (1/3). |
 
 **Minha Análise:** Jogamos por roxo, tendencia forte. Ainda nao tem padrão de rosa, mas logo terá (zona de tiro), entao logo jogaremos tbm, mas nao agora.
 

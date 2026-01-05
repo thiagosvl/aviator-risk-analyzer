@@ -11,8 +11,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Recuperação Lenta (3 Reds Recentes). |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Dominância Azul (>60%). Risco alto. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 0/2). |
 
 **Minha Análise:**  Sem rosa, jogamos nem 2x nem 10x.
 
@@ -23,8 +23,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds). Aguarde 2 Roxas. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Dominância Azul (>60%). Risco alto. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 1/2). |
 
 **Minha Análise:**  Tem rosa, porem só 1, entao não buscamos rosa (nao tem como haver padrão). O que podemos é jogar 2x, mas já quebrou 3x azul depois da ultima rosa, fora que no historico geral ja tem qubra de 3x tambem, entao a tendencia é nao jogar.
 
@@ -35,8 +35,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds). Aguarde 2 Roxas. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Dominância Azul (>60%). Risco alto. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 0/2). |
 
 **Minha Análise:**  Mesma resposta do cenario 1.
 
@@ -47,7 +47,7 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds). Aguarde 2 Roxas. |
+| **Roxa (2x)** | ⏳ AGUARDAR | Dominância Azul (>60%). Risco alto. |
 | **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
 
 **Minha Análise:**  Nada de jogar por azul, tem sequencias maiores do que 2 azuis quebradas (3+). Podemos aguardar um rosa e tentar pegar ele por 3 casas seguidas, já que as ultimas vieram no padrão de ROSA-VELA-ROSA, ou seja, 1 casa de diferença. Na proxima rosa que vier, podemos jogar para pegala uma antes (ou seja, colada, padrão-1), uma depois (no padrao exato) ou duas depois (seria o cenario do padrao+1)
@@ -59,8 +59,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Recuperação Lenta (3 Reds Recentes). |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Dominância Azul (>60%). Risco alto. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 0/2). |
 
 **Minha Análise:**  Mesma resposta do cenario 3.
 
@@ -71,8 +71,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Buscando sinal claro. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Dominância Azul (>60%). Risco alto. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 0/2). |
 
 **Minha Análise:**  Mesma resposta do cenario 5.
 
@@ -83,8 +83,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Trava Pós-Rosa (Aguarde 3 velas). |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (0/3). |
 
 **Minha Análise:**  mesma resposta do cenario 4.
 
@@ -95,8 +95,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds). Aguarde 2 Roxas. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Dominância Azul (>60%). Risco alto. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 1/2). |
 
 **Minha Análise:**  quebrou 3 depois da rosa, nao jogamos mais por roxo. Só tem 1 rosa, entao nao buscamos rosa (nao há padrao). E se nao tivesse essa rosa, nao jogariamos nem roxo nem rosa. Sem rosa nao há jogada.
 
@@ -107,8 +107,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds). Aguarde 2 Roxas. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 1/2). |
 
 **Minha Análise:**  quebrou 3 depois da rosa, nao jogamos mais por roxo. Só tem 1 rosa, entao nao buscamos rosa (nao há padrao). E se nao tivesse essa rosa, nao jogariamos nem roxo nem rosa. Sem rosa nao há jogada.
 
@@ -119,8 +119,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds). Aguarde 2 Roxas. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | 🛑 STOP | Stop Loss (2 Reds Seguidos). Aguarde 2 Roxas. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 0/2). |
 
 **Minha Análise:**  Não tem rosa, nao jogamos por nada, nem analisamos.
 

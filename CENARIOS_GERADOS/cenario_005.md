@@ -11,8 +11,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência Confirmada. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (1/3). |
 
 **Minha Análise:** tem padrao pra rosa, entao joga pra 10x. Está surfando sequencia de roxo, entao pode seguir jogando até tomar o red (se olhar as ultimas 25, o histórico e ALTAMENTE favoravel para roxo/rosa). NEssas situações, podemos abrir exceção para a regra que bloqueia jogar nas 3 primeiras após rosa. Pode quebrar logo em seguida? pode, mas nesse cenario, vale o risco.
 
@@ -35,8 +35,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência Confirmada. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (1/3). |
 
 **Minha Análise:** Ainda nao tem padrão pra rosa, entao aguardamos. Sobre o roxo, é o mesmo que falei no primeiro cenario. Faz sentido jogar roxo.
 
@@ -47,8 +47,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando 2ª vela roxa. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (0/3). |
 
 **Minha Análise:** Percentual de roxo/rosa é muito alto, favoravel, entao jogamos roxo. Tem padrão de rosa, entao jogamos também.
 
@@ -83,8 +83,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência Confirmada. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (0/3). |
 
 **Minha Análise:** Padrão de rosa, joga. Surf de roxo, entao joga tambem. Cenario semelhante ao cenario 6.
 
@@ -95,7 +95,7 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência Confirmada. |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando 3ª vela roxa. |
 | **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
 
 **Minha Análise:** Quebrou 3 azul pós ultima rosa, nao joga mais. Nao tem padrao de rosa, entao nao tenta jogar rosa.
@@ -107,8 +107,8 @@
 
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
-| **Roxa (2x)** | ✅ ENTRAR | Surfando Sequência Confirmada. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Roxa (2x)** | ⏳ AGUARDAR | Aguardando correção pós-rosa. |
+| **Rosa (10x)** | ⏳ AGUARDAR | Trava Pós-Rosa (2/3). |
 
 **Minha Análise:** Padrão de rosa, entao joga. Alto surf de velas roxas com alta tendencia de pague, entao continua jogando.
 
@@ -120,7 +120,7 @@
 | Estratégia | Recomendação | Motivo |
 | :--- | :--- | :--- |
 | **Roxa (2x)** | ⏳ AGUARDAR | Buscando sinal claro. |
-| **Rosa (10x)** | ⏳ AGUARDAR | Buscando padrão confirmado... |
+| **Rosa (10x)** | ⏳ AGUARDAR | Aguardando 2ª Rosa na janela (Ative: 1/2). |
 
 **Minha Análise:** Acabou de quebrar, mas nao há historico de quebrar 2 seguidas, a tendencia (percentual de roxo) é alta, entao faz sentido seguir jogando e só aprar caso quebre 2x no azul seguidamente. Nao tem padrao de rosa, entao nao arrisca.
 
