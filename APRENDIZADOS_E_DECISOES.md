@@ -14,25 +14,29 @@
 **Decisão:**
 *   Não confiar em winrates globais (ex: "60% de acerto").
 *   Confiar apenas em performance por **Contexto/Regime** (ex: "Performance pós-deserto").
-*   **Nova Classificação de Regimes (3 Estados):**
-    *   🟢 **Expansão:** Assimetria permitida (Stake Normal). O sistema busca lucro.
-    *   🟡 **Incerteza:** O perigo real. Onde a maioria dos danos ocorre. (Stake Reduzida/Mínima).
-    *   🔴 **Hostil/Deserto:** Sobrevivência pura (Exposição Zero/Wait).
-    *   *Erro Anterior:* Pular de Normal para Deserto ignorava a fase de transição (Incerteza), pagando o "Custo de Descoberta" caro demais.
+*   **Novo Modelo de Regimes (3 Estados):**
+    *   🟢 **EXPANSÃO (Stake 100%):** Assimetria favorável. Busca de lucro.
+    *   🟡 **INCERTEZA (Stake 50%):** Fase de transição perigosa (>60% azuis recentes). ABS Ativo.
+    *   🔴 **HOSTIL (Stake 0%):** Deserto confirmado (>12 velas). Proteção Total.
+*   *Virada de Chave:* Detectar o amarelo (🟡) antes de levar o tiro do vermelho (🔴).
 
 ## 3. Mecanismos de Defesa Aprovados
 Estes mecanismos deixam de ser "ideias" e passam a ser **REQUISITOS OBRIGATÓRIOS** para a V9/Final:
 
-*   **Conceito Refinado:** O ABS não deve reagir apenas à perda financeira ("Perdi R$ 100"), mas à **perda de confiança estatística**.
-*   **Regra V2:** Se entrarmos no regime de **Incerteza (🟡)**, a stake cai pela metade *imediatamente*, mesmo se ainda estivermos no lucro.
-*   **Por quê:** Reduz o "Custo de Descoberta" antes que o regime Hostil se confirme.
-*   **Objetivo:** "Errar pequeno" quando estamos cegos.
+### A. Freio ABS Elástico (Contextual)
+*   **Conceito:** O sistema tem "marchas". Não opera sempre na velocidade máxima.
+*   **Regra:**
+    *   **Normal:** R$ 50 (100%)
+    *   **Incerteza:** R$ 25 (50%) - *Gatilho: Densidade de azuis ou drawdown leve.*
+    *   **Recovery:** R$ 75 (150%) - *Gatilho: Sniper pós-deserto.*
+*   **Objetivo:** Reduzir o **Custo de Descoberta** e maximizar janelas curtas.
 
 ### B. Cool Down (Lógica de Geladeira)
 *   **Conceito:** Evitar a "tilt" algorítmico onde perdas em sequência geram sinais ruins em sequência.
 *   **Regra:** 3 Loss Consecutivos (ou Drawdown rápido) = Stop de X minutos ou Y velas.
 *   **Por quê:** Quebra a correlação temporal de perdas.
 
+### C. Lock Profit Inteligente
 *   **Conceito:** Garantir que um dia bom não vire um dia ruim.
 *   **Regra:** Bateu 50% da Meta? Ativar "Trailing Stop" de lucro (não devolver mais do que 30% do lucro obtido).
 *   **Filosofia:** "Um sistema robusto aceita perder oportunidades para evitar catástrofes."
@@ -47,11 +51,15 @@ Estes mecanismos deixam de ser "ideias" e passam a ser **REQUISITOS OBRIGATÓRIO
 **Aprendizado:** Saber *quando* parar é mais importante do que saber *quando* entrar.
 **Problema Aberto:** O sistema V8 detecta o regime 🔴 (Deserto) tarde demais.
 **Solução Proposta (Transition Detector):**
-*   Precisamos identificar o regime 🟡 (Incerteza).
-*   *Hipótese:* Aumento de densidade de velas < 2.0x nas últimas 20 rodadas = Início de Incerteza.
-*   *Ação:* Reduzir Stake (ABS) preventivamente.
+*   **Hipótese:** Se `(velas < 2.0x nas últimas 20) > 12`, entramos em INCERTEZA (🟡).
+*   **Ação:** Stake cai para 50% automaticamente.
+
+## 6. Métricas de Sucesso da V9
+1.  **Taxa de Ruína:** Meta < 15% (Hoje 35%).
+2.  **Drawdown Médio:** Meta < R$ 1.000 (Hoje R$ 1.714).
+3.  **Survival Time:** Maximizar rodadas vivas no Stress Test.
 
 ---
 **Status Atual:**
-Aguardando feedback da IA Externa (Ciclo 3) para validar se a engenharia dessas defesas está sólida.
-**Próxima Etapa:** Implementar "Freio ABS" e "Cool Down" no simulador V8.
+Planejamento da Fase 2 (Sobrevivência) CONCLUÍDO.
+**Próxima Etapa:** Implementar `StrategyCore` com lógica de 3 Estados e `backtest` com Stake Dinâmica. Aguardando sinal verde.
