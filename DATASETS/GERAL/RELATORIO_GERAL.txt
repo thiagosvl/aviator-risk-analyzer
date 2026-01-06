@@ -1,0 +1,32 @@
+
+================================================================
+ RELATÓRIO DE PERFORMANCE V9 - SURVIVAL & RECOVERY
+ Data: 06/01/2026, 18:00:26
+================================================================
+ 💰 SALDO FINAL:          R$ 2475.00 (Lucro: R$ -525.00)
+ 📉 MONTHLY MAX DRAWDOWN: R$ 525.00
+    ↳ Period: 11_142.txt ➔ 11_142.txt
+ ⚠️ DAILY MAX DRAWDOWN:   R$ 525.00 (Highest Single Session Risk)
+ 📊 ASSERTIVIDADE:    0.00% (0/11)
+----------------------------------------------------------------
+ 🏆 SESSÕES:
+    ✅ TOTAL GREEN:   0 (Meta: 0 | Fim Positivo: 0)
+    💀 TOTAL RED:     1 (Stop: 1 | Fim Negativo: 0)
+    ➖ EMPATE (0.00):  0
+----------------------------------------------------------------
+ 📍 PERFORMANCE POR REGIME (Assertividade | Pinks Capturados):
+    EXPANSION   : 0.0% (0/7) | Capture: 0.0% (0/0)
+    UNCERTAINTY : 0.0% (0/4) | Capture: 0.0% (0/0)
+    HOSTILE     : 0.0% (0/0) | Capture: 0.0% (0/0)
+----------------------------------------------------------------
+ 🔫 DETALHE DOS GATILHOS (Performance):
+    [Gatilho]         | Winrate         | Profit Líquido | ROI
+    RECOVERY          |   0.0% (0/2) | R$   -100 | -100.0%
+    COLADA (C1)       |   0.0% (0/1) | R$    -25 | -50.0%
+    SNIPER ZONE (C3-C5) |   0.0% (0/8) | R$   -400 | -100.0%
+----------------------------------------------------------------
+ 🌵 RECUPERAÇÃO PÓS-DESERTO:
+    Quebras de Deserto Detectadas: 0
+================================================================
+ DETALHE POR GRAFO:
+| 11_142.txt      | 11   | 0    | -525.00   | R$ 2475     | 💀 |

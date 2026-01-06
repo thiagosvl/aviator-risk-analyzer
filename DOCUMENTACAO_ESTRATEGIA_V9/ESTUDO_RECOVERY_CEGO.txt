@@ -1,0 +1,36 @@
+================================================================
+ ESTUDO TÉCNICO: JANELA 3-CASAS PÓS-DESERTO
+================================================================
+
+📌 DESERTO: 8 velas
+➡️  JANELA CEGA:      R$ 13.750   | ROI: 46.22% | Wins: 87/230
+➡️  JANELA HESITANTE: R$ 14.400   | ROI: 49.48% | Wins: 87/230
+💡 Conclusão: A Janela CEGA lucrou R$ -650 A MENOS que a Hesitante.
+
+📌 DESERTO: 10 velas
+➡️  JANELA CEGA:      R$ 8.350    | ROI: 38.57% | Wins: 60/167
+➡️  JANELA HESITANTE: R$ 8.950    | ROI: 42.52% | Wins: 60/167
+💡 Conclusão: A Janela CEGA lucrou R$ -600 A MENOS que a Hesitante.
+
+📌 DESERTO: 12 velas
+➡️  JANELA CEGA:      R$ 7.150    | ROI: 42.43% | Wins: 48/130
+➡️  JANELA HESITANTE: R$ 7.450    | ROI: 45.02% | Wins: 48/130
+💡 Conclusão: A Janela CEGA lucrou R$ -300 A MENOS que a Hesitante.
+
+📌 DESERTO: 14 velas
+➡️  JANELA CEGA:      R$ 4.150    | ROI: 33.60% | Wins: 33/95
+➡️  JANELA HESITANTE: R$ 4.300    | ROI: 35.25% | Wins: 33/95
+💡 Conclusão: A Janela CEGA lucrou R$ -150 A MENOS que a Hesitante.
+
+📌 DESERTO: 16 velas
+➡️  JANELA CEGA:      R$ 2.150    | ROI: 24.29% | Wins: 22/68
+➡️  JANELA HESITANTE: R$ 2.300    | ROI: 26.44% | Wins: 22/68
+💡 Conclusão: A Janela CEGA lucrou R$ -150 A MENOS que a Hesitante.
+
+================================================================
+ VEREDITO FINAL:
+ No cenário de RECOVERY (pós-deserto), a Janela CEGA é superior
+ porque o Aviator tende a "corrigir o RTP" soltando velas altas
+ próximas uma da outra. A hesitação faz você perder o "pulo"
+ da recuperação, mesmo que economize alguns reds.
+================================================================

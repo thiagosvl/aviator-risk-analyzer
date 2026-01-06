@@ -1,0 +1,92 @@
+================================================================
+ ANÁLISE SURVIVAL V9.5: 25_DEZ_03_142.txt
+ Cronologia: [Round 1: Antigo] -> [Round 142: Novo]
+================================================================
+ ROUND | VALOR | SINAL | REGIME     | STAKE | AÇÃO       | MOTIVO                    | RESULTADO | SALDO   | CD
+---------------------------------------------------------------------------------------------------------
+ 1     | 3.27  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 2     | 1.23  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 3     | 1.11  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 4     | 1.21  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 5     | 3.01  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 6     | 1.78  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 7     | 1.07  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 8     | 10.07 | 🌸    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 9     | 4.24  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 10    | 1.90  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 11    | 1.08  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 12    | 1.37  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 13    | 83.29 | 🌸    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 14    | 2.00  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 15    | 5.83  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 16    | 3.69  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 17    | 2.34  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 18    | 1.31  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 19    | 10.33 | 🌸    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 20    | 4.49  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 21    | 1.60  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 22    | 1.68  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 23    | 2.62  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 24    | 3.27  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 25    | 1.19  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+-------------------------- INÍCIO DA SESSÃO --------------------------
+ 26    | 1.68  | 🔵    | EXPANSION  | 0%    | WAIT       | 🚧 PERIGO (C7)            | -         | R$ 3000 | -
+ 27    | 1.22  | 🔵    | UNCERTAINT | 100%  | PLAY 10x   | 🐫 DESERT BREAK (C8)      | LOSS -50  | R$ 2950 | -
+ 28    | 5.60  | 🟣    | HOSTILE    | 100%  | PLAY 10x   | 🐫 DESERT BREAK (C9)      | LOSS -50  | R$ 2900 | -
+ 29    | 1.74  | 🔵    | HOSTILE    | 100%  | PLAY 10x   | 🐫 DESERT BREAK (C10)     | LOSS -50  | R$ 2850 | ACTIVATED
+ 30    | 1.70  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+ 31    | 2.79  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+ 32    | 2.34  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+ 33    | 2.33  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+ 34    | 4.85  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+ 35    | 1.58  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+ 36    | 2.90  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+ 37    | 4.50  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2850 | ON
+   >>> 🟢 [Round 38] COOL DOWN LIBERADO POR ROSA (41.13x) <<<
+ 38    | 41.13 | 🌸    | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 2850 | RELEASE
+ 39    | 1.00  | 🔵    | EXPANSION  | 100%  | PLAY 10x   | 🔥 RECOVERY (C1)          | LOSS -50  | R$ 2800 | -
+ 40    | 2.76  | 🟣    | EXPANSION  | 0%    | WAIT       | 💀 TRAP ZONE (C2)         | -         | R$ 2800 | -
+ 41    | 3.30  | 🟣    | EXPANSION  | 100%  | PLAY 10x   | 🏆 SNIPER ZONE (C3)       | LOSS -50  | R$ 2750 | -
+ 42    | 1.75  | 🔵    | EXPANSION  | 100%  | PLAY 10x   | 🏆 SNIPER ZONE (C4)       | LOSS -50  | R$ 2700 | ACTIVATED
+ 43    | 1.37  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+ 44    | 1.00  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+ 45    | 2.98  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+ 46    | 1.07  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+ 47    | 4.18  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+ 48    | 2.22  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+ 49    | 5.74  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+ 50    | 1.48  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2700 | ON
+   >>> 🟢 [Round 51] COOL DOWN LIBERADO POR ROSA (10.90x) <<<
+ 51    | 10.90 | 🌸    | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 2700 | RELEASE
+ 52    | 3.49  | 🟣    | EXPANSION  | 100%  | PLAY 10x   | 🔥 RECOVERY (C1)          | LOSS -50  | R$ 2650 | -
+ 53    | 2.59  | 🟣    | EXPANSION  | 0%    | WAIT       | 💀 TRAP ZONE (C2)         | -         | R$ 2650 | -
+ 54    | 1.25  | 🔵    | EXPANSION  | 100%  | PLAY 10x   | 🏆 SNIPER ZONE (C3)       | LOSS -50  | R$ 2600 | -
+ 55    | 3.23  | 🟣    | EXPANSION  | 100%  | PLAY 10x   | 🏆 SNIPER ZONE (C4)       | LOSS -50  | R$ 2550 | ACTIVATED
+ 56    | 1.09  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 57    | 1.06  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 58    | 2.91  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 59    | 1.66  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 60    | 2.68  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 61    | 3.15  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 62    | 1.09  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 63    | 8.28  | ⛔     | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 64    | 1.01  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 65    | 2.40  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 66    | 1.68  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 67    | 8.63  | ⛔     | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 68    | 1.95  | 🔵    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 69    | 2.83  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+ 70    | 2.00  | 🟣    | COOL_DOWN  | 0%    | BLOCKED    | Smart Cool Down           | CD-WAIT   | R$ 2550 | ON
+   >>> 🟢 [Round 71] COOL DOWN LIBERADO POR ROSA (15.26x) <<<
+ 71    | 15.26 | 🌸    | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 2550 | RELEASE
+ 72    | 1.24  | 🔵    | EXPANSION  | 100%  | PLAY 10x   | 🔥 RECOVERY (C1)          | LOSS -50  | R$ 2500 | -
+
+🛑 LIMITE DE PERDA (STOP LOSS): R$ -500.00
+----------------------------------------------------------------
+ RESUMO DO GRAFO:
+ Status: STOP_LOSS
+ Jogadas: 10 | Wins: 0 | Assertividade: 0.00%
+ Saldo Inicial: R$ 3000.00 | Final: R$ 2500.00
+ Lucro Líquido: R$ -500.00
+ Drawdown Máx:  R$ 500.00
+================================================================

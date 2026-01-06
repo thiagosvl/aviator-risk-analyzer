@@ -224,9 +224,15 @@ export class DOMAnalyzer {
     }
 
     if (scrapedValues.length > 0) {
-        const frameTag = window.self !== window.top ? `[Iframe: ${window.location.pathname.substring(0, 20)}]` : '[Top]';
+        const frameTag = window.self !== window.top ? `[Iframe: ${window.location.pathname.substring(0, 30)}]` : '[Top]';
         // Log apenas se encontrarmos algo, para ajudar a identificar o frame correto
         console.log(`[Aviator Analyzer] DOM ${frameTag}: Encontradas ${scrapedValues.length} velas.`);
+    } else {
+        // Log ocasional se não encontrar nada (debug mode)
+        const frameTag = window.self !== window.top ? `[Iframe: ${window.location.pathname.substring(0, 30)}]` : '[Top]';
+        if (Math.random() < 0.05) {
+             console.log(`[Aviator Analyzer] DOM ${frameTag}: Tentativa de varredura sem sucesso.`);
+        }
     }
     // Se scrapedValues estiver vazio, não fazemos nada.
     if (scrapedValues.length > 0) {
@@ -257,53 +263,72 @@ export class DOMAnalyzer {
         
         // Anti-Flicker: Only update if scrapedValues is valid and different
         if (scrapedValues.length > 0) {
-             // Basic change detection: Check first item or length
-             // We map new timestamps only to NEW items to preserve relative time? 
-             // Actually, for strict sync, we just want the values. Timestamps are secondary (used for race-cond fix).
-             // To support the Race-Condition fix (lines 90+ in useBankroll), we need STABLE timestamps for existing items.
+             const currentHistory = this.gameState.history;
+             const topStored = currentHistory.length > 0 ? currentHistory[0] : null;
              
-             // Smart Map: Reuse timestamps for values that look identical and seem shifted?
-             // Too complex and risky. 
-             // If we generate new timestamps every frame, `useBankroll` might get confused if it relies on EXACT timestamp match.
-             // `useBankroll` uses `latestCandle.timestamp`.
-             // If `latestCandle` (index 0) is the same value (e.g. 1.50x), but we generate a NEW timestamp......
-             // Then `useBankroll` thinks it's a NEW ROUND.
-             // CRITICAL: We must NOT generate new timestamps for the SAME top candle.
-             
-             const topScraped = scrapedValues[0];
-             const topStored = this.gameState.history.length > 0 ? this.gameState.history[0] : null;
-             
-             // Detect Shift: Did a new candle appear?
-             const isSameTop = topStored && isSame(topScraped, topStored.value);
-             
-             const newHistory = scrapedValues.map((v, i) => {
-                 // CASE 1: Top Item
-                 if (i === 0) {
-                     return { 
-                         value: v, 
-                         timestamp: isSameTop ? topStored!.timestamp : now 
-                     };
-                 }
-                 
-                 // CASE 2: Older Items - Try to Find Original Timestamp
-                 // If isSameTop, then index 'i' should match old history index 'i'
-                 // If !isSameTop (Shift), then index 'i' should match old history index 'i - 1'
-                 
-                 const prevIndex = isSameTop ? i : i - 1;
-                 
-                 if (prevIndex >= 0 && prevIndex < this.gameState.history.length) {
-                     const prevItem = this.gameState.history[prevIndex];
-                     if (isSame(v, prevItem.value)) {
-                         return { value: v, timestamp: prevItem.timestamp };
+             // 1. Check for State Stability (No Change)
+             // If the scraped array looks exactly like the stored array (values match), do nothing.
+             // We check the first 3 items to be sure.
+             let isSameState = false;
+             if (topStored && scrapedValues.length >= currentHistory.length) {
+                 const limit = Math.min(scrapedValues.length, 3);
+                 let matches = 0;
+                 for(let i=0; i<limit; i++) {
+                     if (currentHistory[i] && Math.abs(scrapedValues[i] - currentHistory[i].value) < 0.01) {
+                         matches++;
                      }
                  }
-                 
-                 // Fallback if no match found (or mismatch)
-                 return { value: v, timestamp: now - (i * 1000) }; 
-             });
-              
-             this.gameState.history = newHistory;
-             this.gameState.lastCrash = newHistory[0].value;
+                 if (matches === limit) isSameState = true;
+             }
+
+             // 2. Check for New Round (Shift)
+             // Logic: If Scraped[0] is NEW, then Scraped[1] should match Stored[0], Scraped[2] match Stored[1], etc.
+             let isNewRound = false;
+             if (!isSameState && topStored) {
+                 // Hypothesize that scrapedValues has 1 new item at head.
+                 // So scrapedValues[1] should == currentHistory[0].value
+                 if (scrapedValues.length > 1 && Math.abs(scrapedValues[1] - topStored.value) < 0.01) {
+                     isNewRound = true;
+                 }
+                 // If values are completely different (e.g. initial load or massive lag), we also treat as new/reset.
+                 else if (Math.abs(scrapedValues[0] - topStored.value) > 0.01) {
+                     isNewRound = true; // Value changed and didn't shift? Just update.
+                 }
+             } else if (!topStored) {
+                 isNewRound = true; // First run
+             }
+
+             // 3. Update State
+             if (isNewRound) {
+                  const newTimestamp = now;
+                  
+                  // Map timestamps: 
+                  // If it's a shift, scraped[i] corresponds to history[i-1]
+                  // If it's a hard reset/initial, we gen new timestamps.
+                  
+                  const isShift = scrapedValues.length > 1 && topStored && Math.abs(scrapedValues[1] - topStored.value) < 0.01;
+
+                  const newHistory = scrapedValues.map((v, i) => {
+                       if (i === 0) return { value: v, timestamp: newTimestamp };
+                       
+                       // Attempt to inherit timestamp from history
+                       if (isShift) {
+                           const prevItem = currentHistory[i - 1];
+                           if (prevItem && Math.abs(prevItem.value - v) < 0.01) {
+                               return { value: v, timestamp: prevItem.timestamp };
+                           }
+                       }
+                       
+                       // Fallback for older items or non-shift updates
+                       return { value: v, timestamp: now - (i * 1000) };
+                  });
+                  
+                  this.gameState.history = newHistory;
+                  this.gameState.lastCrash = newHistory[0].value;
+                  
+                  console.log(`[Aviator Analyzer] DOM: 🆕 Round Detected! ${newHistory[0].value}x`);
+             }
+             // If isSameState, we do nothing to preserve timestamps and prevent "flicker/phantom" updates.
         }
     }
   }

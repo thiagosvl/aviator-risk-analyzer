@@ -1,0 +1,18 @@
+================================================================
+ OTIMIZAÇÃO: RÉGUA DE DESERTO PARA RECOVERY (JANELA CEGA)
+================================================================
+ POS | DESERTO | LUCRO TOTAL | ROI      | VITÓRIAS | OPORTUNID.
+----------------------------------------------------------------
+🏆  1 |  8 velas | R$ 13.750    | 46.22 % | 87       | 230
+🥈  2 | 10 velas | R$ 8.350     | 38.57 % | 60       | 167
+🥉  3 | 12 velas | R$ 7.150     | 42.43 % | 48       | 130
+    4 | 14 velas | R$ 4.150     | 33.60 % | 33       | 95
+    5 | 20 velas | R$ 2.650     | 54.64 % | 15       | 39
+    6 | 16 velas | R$ 2.150     | 24.29 % | 22       | 68
+    7 | 18 velas | R$ 2.000     | 28.57 % | 18       | 54
+    8 | 25 velas | R$ 1.400     | 45.16 % | 9        | 24
+    9 | 30 velas | R$ 700       | 53.85 % | 4        | 11
+
+🏆 Veredito: Um deserto de 8 velas é o melhor gatilho para RECOVERY.
+   Neste cenário, ignorar a régua do Roxo traz o maior lucro absoluto.
+================================================================

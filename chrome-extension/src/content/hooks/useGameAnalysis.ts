@@ -36,7 +36,9 @@ export const useGameAnalysis = (
     conversionRate: 0,
     volatilityDensity: 'LOW',
     candlesSinceLastPink: 0,
-    marketStats: { bluePercent: 0, purplePercent: 0, pinkPercent: 0 }
+    marketStats: { bluePercent: 0, purplePercent: 0, pinkPercent: 0 },
+    phase: 'NORMAL',
+    volatilityScore: 0
   });
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);

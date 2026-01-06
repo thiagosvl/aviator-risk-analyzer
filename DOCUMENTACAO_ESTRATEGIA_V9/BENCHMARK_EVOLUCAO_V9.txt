@@ -1,0 +1,18 @@
+================================================================
+ COMPARATIVO TÉCNICO V9: EVOLUÇÃO SCAN & PROTEÇÃO
+================================================================
+
+🔹 ATUAL (Slow-Scan + Smart-CD):
+   LUCRO TOTAL MÉDIO (40 GRAFOS): R$ 31.807,50
+
+🔹 NOVO (Fast-Scan + Smart-CD):
+   LUCRO TOTAL MÉDIO (40 GRAFOS): R$ 29.850,00
+
+🔹 NOVO (Fast-Scan + Hard-CD):
+   LUCRO TOTAL MÉDIO (40 GRAFOS): R$ 15.800,00
+
+📊 ANÁLISE DO IMPACTO:
+   ✅ IMPACTO FAST-SCAN: +R$ -1.957,5 (Evita erros de sincronia)
+   ✅ IMPACTO HARD-CD:   R$ -14.050 (Mudança na proteção de deserto)
+
+================================================================

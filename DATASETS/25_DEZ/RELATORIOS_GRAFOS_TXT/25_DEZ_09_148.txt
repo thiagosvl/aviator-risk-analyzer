@@ -1,0 +1,58 @@
+================================================================
+ ANÁLISE SURVIVAL V9.5: 25_DEZ_09_148.txt
+ Cronologia: [Round 1: Antigo] -> [Round 148: Novo]
+================================================================
+ ROUND | VALOR | SINAL | REGIME     | STAKE | AÇÃO       | MOTIVO                    | RESULTADO | SALDO   | CD
+---------------------------------------------------------------------------------------------------------
+ 1     | 1.35  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 2     | 1.77  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 3     | 3.60  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 4     | 2.30  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 5     | 2.08  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 6     | 5.77  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 7     | 1.04  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 8     | 1.59  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 9     | 14.87 | 🌸    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 10    | 2.22  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 11    | 1.24  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 12    | 1.45  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 13    | 2.78  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 14    | 1.00  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 15    | 1.97  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 16    | 4.84  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 17    | 1.31  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 18    | 1.57  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 19    | 3.47  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 20    | 1.10  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 21    | 1.39  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 22    | 2.46  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 23    | 2.62  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 24    | 1.05  | 🔵    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+ 25    | 6.58  | 🟣    | MEMORY     | -     | -          | [Lendo Histórico]         | -         | R$ 3000 | -
+-------------------------- INÍCIO DA SESSÃO --------------------------
+ 26    | 2.34  | 🟣    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (16 velas) | -         | R$ 3000 | -
+ 27    | 9.43  | ⛔     | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (17 velas) | -         | R$ 3000 | -
+ 28    | 1.04  | 🔵    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (18 velas) | -         | R$ 3000 | -
+ 29    | 1.12  | 🔵    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (19 velas) | -         | R$ 3000 | -
+ 30    | 2.12  | 🟣    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (20 velas) | -         | R$ 3000 | -
+ 31    | 1.04  | 🔵    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (21 velas) | -         | R$ 3000 | -
+ 32    | 1.08  | 🔵    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (22 velas) | -         | R$ 3000 | -
+ 33    | 6.88  | 🟣    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (23 velas) | -         | R$ 3000 | -
+ 34    | 1.20  | 🔵    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (24 velas) | -         | R$ 3000 | -
+ 35    | 2.98  | 🟣    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (25 velas) | -         | R$ 3000 | -
+ 36    | 3.78  | 🟣    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (26 velas) | -         | R$ 3000 | -
+ 37    | 15.29 | 🌸    | HOSTILE    | 0%    | WAIT       | 🌵 PROTEÇÃO: Deserto Profundo (27 velas) | -         | R$ 3000 | -
+ 38    | 70.04 | 🌸    | EXPANSION  | 100%  | PLAY 10x   | 🔥 RECOVERY (C1)          | WIN +450  | R$ 3450 | -
+ 39    | 3.92  | 🟣    | EXPANSION  | 50%   | PLAY 10x   | ⚖️ COLADA (C1)            | LOSS -25  | R$ 3425 | -
+ 40    | 2.22  | 🟣    | EXPANSION  | 0%    | WAIT       | 💀 TRAP ZONE (C2)         | -         | R$ 3425 | -
+ 41    | 11.65 | 🌸    | EXPANSION  | 100%  | PLAY 10x   | 🏆 SNIPER ZONE (C3)       | WIN +450  | R$ 3875 | -
+
+🛑 META BATIDA (STOP WIN): +R$ 875.00
+----------------------------------------------------------------
+ RESUMO DO GRAFO:
+ Status: STOP_WIN
+ Jogadas: 3 | Wins: 2 | Assertividade: 66.67%
+ Saldo Inicial: R$ 3000.00 | Final: R$ 3875.00
+ Lucro Líquido: R$ 875.00
+ Drawdown Máx:  R$ 25.00
+================================================================

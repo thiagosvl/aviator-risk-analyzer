@@ -14,9 +14,9 @@ import { useEffect, useRef, useState } from 'react';
  */
 
 import {
-  ChevronDown,
-  ChevronUp,
-  Maximize2
+    ChevronDown,
+    ChevronUp,
+    Maximize2
 } from 'lucide-react';
 
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
@@ -63,30 +63,71 @@ const MarketTemperature = ({ stats }: { stats?: { bluePercent: number; purplePer
 export const AnalyzerOverlay = () => {
   // Conexão com o Bridge via Hook
   const { gameState, analysis } = useOverseer();
-  
-  const [bet2x, setBet2x] = useState(100.00);
-  const [bet10x, setBet10x] = useState(50.00);
 
-  // Bankroll Management
-  const { balance, setBalance, history, stats, isCoolDown } = useBankrollLogic(gameState, analysis, { bet2x, bet10x });
+  // --- CONFIGURAÇÃO (VARIÁVEIS GLOBAIS - AJUSTE AQUI) ---
+  const CONFIG = {
+      BANCA_INICIAL: 3000.00,    // Valor inicial do simulador
+      META_LUCRO: 500.00,        // Meta de lucro da sessão
+      STOP_LOSS: 500.00,         // Limite de perda aceitável
+      
+      // Apostas Base (Rosa/10x)
+      STAKE_10X_PADRAO: 50.00,   // Aposta 100%
+      STAKE_10X_REDUZIDA: 25.00, // Aposta 50%
+      STAKE_10X_AUMENTADA: 75.00, // Aposta 150% (Recovery)
+
+      // Apostas Base (Roxa/2x)
+      STAKE_2X_BASE: 100.00,     
+  };
+
+  // V9 Metrics & ABS Logic
+  const regime = analysis?.regime || 'EXPANSION';
+  const absStake = analysis?.absStake !== undefined ? analysis.absStake : 1.0;
+  
+  // Custom Stake calculation for display
+  const currentStake10x = (absStake === 0.5) ? CONFIG.STAKE_10X_REDUZIDA : 
+                          (absStake === 1.5) ? CONFIG.STAKE_10X_AUMENTADA : 
+                          CONFIG.STAKE_10X_PADRAO;
+
+  // Passando configurações para o Bankroll
+  const { balance, setBalance, history, stats, isCoolDown } = useBankrollLogic(
+      gameState, 
+      analysis, 
+      { bet2x: CONFIG.STAKE_2X_BASE, bet10x: CONFIG.STAKE_10X_PADRAO },
+      CONFIG.BANCA_INICIAL 
+  );
   
   const [isVisible, setIsVisible] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
-  const [showDetails, setShowDetails] = useState(false); // Default CLOSED to reduce noise
+  const [showDetails, setShowDetails] = useState(true); 
   const [isMinimized, setIsMinimized] = useState(false);
-  const [isEditingBalance, setIsEditingBalance] = useState(false);
-  const [balanceInput, setBalanceInput] = useState('1000.00');
   const [isStealthMode, setIsStealthMode] = useState(false);
 
-  // V9 Metrics
-  const regime = analysis.regime || 'EXPANSION';
-  const absStake = analysis.absStake !== undefined ? analysis.absStake : 1.0;
-  
-  // Dynamic Stake Calculation
-  const adjustedStake10x = bet10x * absStake;
+  // SESSION PROFIT CALCULATION
+  const sessionProfit = balance - CONFIG.BANCA_INICIAL;
+  const isMetaBatida = sessionProfit >= CONFIG.META_LUCRO;
+  const isStopLoss = sessionProfit <= -CONFIG.STOP_LOSS;
 
-  // Draggable State - DEFAULT POSITION LEFT
-  const [position, setPosition] = useState({ x: 20, y: 100 }); 
+  // ENTRY CANDLE TRACKING
+  const [entryCandle, setEntryCandle] = useState<{value: number, id: string} | null>(null);
+
+  useEffect(() => {
+     if (!entryCandle && gameState.history.length > 0) {
+         setEntryCandle({ 
+             value: gameState.history[0].value, 
+             id: (gameState.history[0] as any).roundId || `${gameState.history[0].value}-${Date.now()}` 
+         });
+     }
+  }, [gameState.history, entryCandle]);
+
+  const isEntryCandleGone = entryCandle && !gameState.history.find(h => h.value === entryCandle.value);
+  const isEntryCandleLast = entryCandle && gameState.history.length > 0 && gameState.history[gameState.history.length - 1].value === entryCandle.value;
+
+
+  // Draggable State - Persisted
+  const [position, setPosition] = useState(() => {
+    const saved = localStorage.getItem('aviator_analyzer_pos');
+    return saved ? JSON.parse(saved) : { x: 20, y: 100 };
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -105,10 +146,12 @@ export const AnalyzerOverlay = () => {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
-      setPosition({
+      const newPos = {
         x: e.clientX - dragOffset.x,
         y: e.clientY - dragOffset.y,
-      });
+      };
+      setPosition(newPos);
+      localStorage.setItem('aviator_analyzer_pos', JSON.stringify(newPos));
     };
     const handleMouseUp = () => setIsDragging(false);
 
@@ -252,6 +295,7 @@ export const AnalyzerOverlay = () => {
   };
 
   return (
+    <>
     <div
       ref={overlayRef}
       className={cn("fixed z-[999999] select-none flex flex-col gap-2 font-sans", isCoolDown && "grayscale-[0.5]")}
@@ -265,65 +309,74 @@ export const AnalyzerOverlay = () => {
       
       {/* HEADER & CONTROLS (V9 REGIME BAR) */}
       <div 
-        className={cn("flex items-center justify-between backdrop-blur border border-b-0 rounded-t-lg p-2 cursor-grab active:cursor-grabbing transition-colors relative z-20", // Added z-20 to stay above
+        className={cn("flex items-center justify-between backdrop-blur border border-b-0 rounded-t-lg p-2 cursor-grab active:cursor-grabbing transition-colors",
              regime === 'HOSTILE' ? "bg-red-950/90 border-red-900" :
              regime === 'UNCERTAINTY' ? "bg-amber-950/90 border-amber-900" :
-             "bg-emerald-950/90 border-emerald-900" // Changed directly to emerald-950 for BOM
+             "bg-emerald-950/90 border-emerald-900" // BOM = emerald
         )}
         onMouseDown={handleMouseDown}
       >
          <div className="flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-slate-500"/>
-            <div className="flex flex-col leading-none">
-                <span className="text-xs font-bold text-slate-200">Aviator Analyzer</span>
-                <span className={cn("text-[10px] font-black uppercase tracking-widest", 
-                    regime === 'HOSTILE' ? 'text-red-500' :
-                    regime === 'UNCERTAINTY' ? 'text-amber-500' : 'text-emerald-500'
-                )}>
-                    {regime === 'HOSTILE' ? 'RUIM' : regime === 'UNCERTAINTY' ? 'MÉDIO' : 'BOM'}
-                </span>
-            </div>
+             <GripVertical className="w-4 h-4 text-slate-500"/>
+             <div className="flex flex-col leading-none">
+                 <span className="text-xs font-bold text-slate-200">Aviator Analyzer</span>
+                 <span className={cn("text-[10px] font-black uppercase tracking-widest", 
+                     regime === 'HOSTILE' ? 'text-red-500' :
+                     regime === 'UNCERTAINTY' ? 'text-amber-500' : 'text-emerald-500'
+                 )}>
+                     {regime === 'HOSTILE' ? 'RUIM' : regime === 'UNCERTAINTY' ? 'MÉDIO' : 'BOM'}
+                 </span>
+             </div>
          </div>
-         <div className="text-[10px] text-slate-500 font-mono">v0.9.3</div>
+         <div className="flex items-center gap-3">
+             {entryCandle && (
+                 <div className="flex flex-col items-end leading-none border-r border-white/10 pr-3">
+                     <span className="text-[8px] text-slate-500 uppercase font-bold tracking-tighter">Entrada (Ref)</span>
+                     <span className={cn("text-[11px] font-mono font-black", 
+                         entryCandle.value >= 10.0 ? "text-pink-500 drop-shadow-[0_0_5px_rgba(244,63,94,0.4)]" :
+                         entryCandle.value >= 8.0 ? "text-purple-400" : // Roxo Alto
+                         entryCandle.value >= 2.0 ? "text-indigo-400" : "text-blue-400"
+                     )}>
+                         {entryCandle.value.toFixed(2)}x
+                     </span>
+                 </div>
+             )}
+             <div className="text-[10px] text-slate-500 font-mono">v0.9.5</div>
+         </div>
       </div>
 
      <div className="bg-slate-950/95 backdrop-blur border-x border-b border-slate-800 rounded-b-lg p-3 shadow-2xl space-y-4 relative overflow-hidden min-h-[200px]">
         
         {/* RESULT ALERTS */}
-        {(balance - 1000) >= 500 && (
+        {isMetaBatida && (
              <div className="bg-emerald-500/20 border border-emerald-500/50 p-2 rounded text-center animate-pulse mb-2">
                  <h3 className="text-emerald-400 font-bold text-sm">✅ META BATIDA!</h3>
-                 <p className="text-emerald-300/80 text-[10px]">Lucro: R$ {(balance - 1000).toFixed(2)}. Considere parar.</p>
+                 <p className="text-emerald-300/80 text-[10px]">Lucro: R$ {sessionProfit.toFixed(2)}. Considere parar.</p>
              </div>
         )}
-        {(balance - 1000) <= -500 && (
+        {isStopLoss && (
              <div className="bg-red-500/20 border border-red-500/50 p-2 rounded text-center animate-pulse mb-2">
                  <h3 className="text-red-400 font-bold text-sm">🛑 STOP LOSS</h3>
-                 <p className="text-red-300/80 text-[10px]">Prejuízo: R$ {(balance - 1000).toFixed(2)}. Encerre a sessão.</p>
+                 <p className="text-red-300/80 text-[10px]">Prejuízo: R$ {sessionProfit.toFixed(2)}. Encerre a sessão.</p>
              </div>
         )}
 
-        {/* COOL DOWN OVERLAY - Now inside the content area only */}
-        {isCoolDown && (
-             <div className="absolute inset-0 bg-slate-950/95 z-10 flex flex-col items-center justify-center text-center p-4 animate-in fade-in">
-                 <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mb-2 animate-pulse">
-                     <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                         <span className="text-xl">❄️</span>
-                     </div>
-                 </div>
-                 <h3 className="text-blue-400 font-bold text-lg mb-1">COOL DOWN</h3>
-                 <p className="text-slate-400 text-xs max-w-[200px] mb-3">
-                     3 Red Hooks. Aguardando Rosa acima de 10x.
-                 </p>
-                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-900/20 rounded-full border border-blue-500/30">
-                     <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                     <span className="text-[10px] font-bold text-blue-300 uppercase tracking-wider">Aguardando...</span>
-                 </div>
+        {/* ENTRY CANDLE ALERTS */}
+        {isEntryCandleLast && (
+             <div className="bg-orange-500/20 border border-orange-500/50 p-2 rounded text-center mb-2 animate-pulse">
+                 <h3 className="text-orange-400 font-bold text-sm">⚠️ VELAS ACABANDO</h3>
+                 <p className="text-orange-300/80 text-[10px]">A Vela de Entrada ({entryCandle?.value.toFixed(2)}x) é a última visível! O ciclo de ~60 rodadas está fechando.</p>
              </div>
         )}
-        
-        {/* 0. MARKET TEMPERATURE (V5 NEW) */}
-        <MarketTemperature stats={analysis.marketStats} />
+        {gameState.history.length > 50 && isEntryCandleGone && (
+            <div className="bg-orange-900/40 border border-orange-500/30 p-2 rounded text-center mb-2">
+                <h3 className="text-orange-500 font-bold text-sm">🔄 NOVO CICLO INICIADO</h3>
+                <p className="text-orange-400/60 text-[10px]">A Vela de Entrada já saiu do histórico. Renovação completa de dados.</p>
+            </div>
+        )}
+
+        {/* 0. MARKET TEMPERATURE */}
+        <MarketTemperature stats={analysis?.marketStats} />
         
         {/* 1. STATUS BAR (Lucro & Carteira) */}
         <div className="grid grid-cols-2 gap-2 text-center text-xs">
@@ -332,105 +385,78 @@ export const AnalyzerOverlay = () => {
              LUCRO: R$ {stats.totalProfit.toFixed(2)}
            </div>
            
-           {/* CARTEIRA EDITÁVEL */}
-           <div 
-             className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-300 cursor-pointer hover:bg-slate-800 transition-colors"
-             onClick={() => { setIsEditingBalance(true); setBalanceInput(balance.toFixed(2)); }}
-            >
-             {isEditingBalance ? (
-                <input 
-                  autoFocus
-                  type="number"
-                  className="w-full h-full bg-transparent text-center text-xs outline-none text-emerald-400"
-                  value={balanceInput}
-                  onChange={(e) => setBalanceInput(e.target.value)}
-                  onBlur={() => {
-                      const val = parseFloat(balanceInput);
-                      if (!isNaN(val)) setBalance(val);
-                      setIsEditingBalance(false);
-                  }}
-                  onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                          const val = parseFloat(balanceInput);
-                          if (!isNaN(val)) setBalance(val);
-                          setIsEditingBalance(false);
-                      }
-                  }}
-                />
-             ) : (
-                <span className={cn("font-bold", balance > 0 ? "text-emerald-400" : "text-red-400")}>
-                    BANCA: R$ {balance.toFixed(2)}
-                </span>
-             )}
+           {/* CARTEIRA (FIXA) */}
+           <div className="rounded border border-slate-700 bg-slate-900 p-1 text-slate-300 select-none">
+             <span className={cn("font-bold", balance > 0 ? "text-emerald-400" : "text-red-400")}>
+                 BANCA: R$ {balance.toFixed(2)}
+             </span>
            </div>
         </div>
 
         {/* 2. RECOMENDAÇÃO DUPLA (ROXA ACIMA, ROSA ABAIXO) */}
         
-        {/* CARD ROXA (2.00x) */}
-        {/* CARD ROXA (2.00x) - OCULTADO (V5 FOCO EM ROSA) */}
-        {/* 
-        <div className={cn("rounded-lg border-2 p-3 text-center transition-all duration-300 relative overflow-hidden", getCardStyle(rec2x, '2x'))}>
-            <div className="absolute top-0 right-0 bg-black/40 px-2 rounded-bl text-[8px] font-bold uppercase text-white/70">
-                Estratégia Defesa (2x)
-            </div>
-            <div className="text-xl font-black tracking-tight mt-1">
-             {rec2x.action === 'WAIT' ? 'OFFLINE' : formatAction(rec2x.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
-           </div>
-            {rec2x.action === 'PLAY_2X' && rec2x.estimatedTarget && (
-              <div className="mt-1 bg-emerald-500/20 rounded py-0.5 border border-emerald-500/30">
-                <div className="text-[9px] font-bold text-emerald-400 leading-none">ALVO DINÂMICO</div>
-                <div className="text-sm font-black text-white italic tracking-tighter">Sair em {rec2x.estimatedTarget.toFixed(2)}x</div>
+        {/* WRAPPER RELATIVE FOR CARDS + COOL DOWN OVERLAY */}
+         <div className="relative min-h-[120px]">
+             {/* COOL DOWN OVERLAY - Now COVERS ONLY THE CARDS */}
+             {isCoolDown && (
+                  <div className="absolute inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center text-center p-2 rounded-lg border border-blue-900/30 animate-in fade-in backdrop-blur-sm">
+                      <div className="w-8 h-8 bg-blue-500/10 rounded-full flex items-center justify-center mb-1 animate-pulse">
+                          <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                              <span className="text-sm">❄️</span>
+                          </div>
+                      </div>
+                      <h3 className="text-blue-400 font-bold text-sm mb-0.5">MODO GELO (COOL DOWN)</h3>
+                      <p className="text-slate-400 text-[10px] max-w-[180px] mb-2 leading-tight">
+                          3 Ganchos Vermelhos detectados. Aguardando Rosa  {'>'} 10x para destravar.
+                      </p>
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-900/20 rounded-full border border-blue-500/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                          <span className="text-[9px] font-bold text-blue-300 uppercase tracking-wider">Aguardando Rosa...</span>
+                      </div>
+                  </div>
+             )}
+ 
+             {/* 2. CARD ROSA (10.00x) - V9 STYLE */}
+             <div className={cn("rounded-lg border-2 p-3 text-center transition-all duration-300 relative overflow-hidden h-full", getCardStyle(recPink, 'pink'))}>
+                 {/* ABS STAKE BADGE: REDUCED */}
+                 {absStake < 1.0 && !isCoolDown && (
+                     <div className="absolute top-0 right-0 bg-amber-500/90 text-amber-950 text-[9px] font-bold px-1.5 py-0.5 rounded-bl shadow-sm">
+                         ⚠️ APENAS {absStake * 100}%
+                     </div>
+                 )}
+                 
+                 {/* ABS STAKE BADGE: BOOSTED */}
+                 {absStake > 1.0 && !isCoolDown && (
+                     <div className="absolute top-0 right-0 bg-blue-500/90 text-blue-50 text-[9px] font-bold px-1.5 py-0.5 rounded-bl shadow-sm animate-pulse">
+                         🚀 BOOST {absStake * 100}%
+                     </div>
+                 )}
+                 
+                <div className="text-xl font-black tracking-tight mt-1">
+                  {formatAction(recPink.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
+                </div>
+                
+                {/* STAKE AMOUNT DISPLAY */}
+                {recPink.action.includes('PLAY') && !isCoolDown && (
+                    <div className={cn("text-sm font-bold mt-[-2px] mb-1", absStake > 1.0 ? "text-blue-300" : "text-white/90")}>
+                       Entrada: R$ {currentStake10x.toFixed(2)}
+                    </div>
+                )}
+ 
+                 <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
+                   <span>{recPink.reason || '...'}</span>
+                   {getRiskBadge(recPink)}
+                 </div>
+                 <RuleChecklist checklist={recPink.ruleChecklist} />
+                 
+                 {/* DATA CAPTURE MONITOR */}
+                 <div className="mt-1 pt-1 border-t border-white/5 flex justify-center items-center gap-1.5">
+                     <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", gameState.history.length > 0 ? "bg-emerald-500" : "bg-red-500")} />
+                     <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
+                         {gameState.history.length > 0 ? `Capturando: ${gameState.history[0].value.toFixed(2)}x` : 'Aguardando Dados...'}
+                     </span>
+                 </div>
               </div>
-            )}
-            <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
-              <span>{rec2x.reason || '...'}</span>
-              {getRiskBadge(rec2x)}
-            </div>
-            <RuleChecklist checklist={rec2x.ruleChecklist} />
-         </div> 
-         */}
-
-        {/* 2. CARD ROSA (10.00x) - V9 STYLE */}
-        <div className={cn("rounded-lg border-2 p-3 text-center transition-all duration-300 relative overflow-hidden", getCardStyle(recPink, 'pink'))}>
-            {/* ABS STAKE BADGE: REDUCED */}
-            {absStake < 1.0 && !isCoolDown && (
-                <div className="absolute top-0 right-0 bg-amber-500/90 text-amber-950 text-[9px] font-bold px-1.5 py-0.5 rounded-bl shadow-sm">
-                    ⚠️ STAKE {absStake * 100}%
-                </div>
-            )}
-            
-            {/* ABS STAKE BADGE: BOOSTED */}
-            {absStake > 1.0 && !isCoolDown && (
-                <div className="absolute top-0 right-0 bg-blue-500/90 text-blue-50 text-[9px] font-bold px-1.5 py-0.5 rounded-bl shadow-sm animate-pulse">
-                    🚀 BOOST {absStake * 100}%
-                </div>
-            )}
-            
-           <div className="text-xl font-black tracking-tight mt-1">
-             {formatAction(recPink.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
-           </div>
-           
-           {/* STAKE AMOUNT DISPLAY */}
-           {recPink.action.includes('PLAY') && !isCoolDown && (
-               <div className={cn("text-sm font-bold mt-[-2px] mb-1", absStake > 1.0 ? "text-blue-300" : "text-white/90")}>
-                  R$ {adjustedStake10x.toFixed(2)}
-               </div>
-           )}
-
-            <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
-              <span>{recPink.reason || '...'}</span>
-              {getRiskBadge(recPink)}
-            </div>
-            <RuleChecklist checklist={recPink.ruleChecklist} />
-            
-            {/* DATA CAPTURE MONITOR */}
-            <div className="mt-1 pt-1 border-t border-white/5 flex justify-center items-center gap-1.5">
-                <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", gameState.history.length > 0 ? "bg-emerald-500" : "bg-red-500")} />
-                <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest">
-                    {gameState.history.length > 0 ? `Capturando: ${gameState.history[0].value.toFixed(2)}x` : 'Aguardando Dados...'}
-                </span>
-            </div>
          </div>
 
         {/* BOTÕES DE CONTROLE */}
@@ -470,33 +496,18 @@ export const AnalyzerOverlay = () => {
               <span>📊 Detalhes da Sessão</span>
             </div>
            
-            {/* Last 10 Candles Removed as per user request */}
-
            <div className="mb-2 p-2 bg-slate-900 rounded border border-slate-800">
              <div className="text-[10px] text-slate-500 mb-1 flex justify-between items-center">
-                <span>Configuração de Aposta (Simulador)</span>
+                <span>Configuração de Aposta (Automática)</span>
                 <span className="text-[9px] opacity-70">Valores em R$</span>
              </div>
              <div className="flex gap-2">
-                {/* 
-                <div className="flex-1">
-                   <label className="text-[9px] text-purple-400 block">Alvo 2.00x</label>
-                   <input 
-                      type="number" 
-                      className="w-full bg-black/50 border border-slate-700 rounded px-1 text-xs text-slate-200 focus:border-purple-500 outline-none"
-                      value={bet2x}
-                      onChange={(e) => setBet2x(Number(e.target.value))}
-                   />
-                </div>
-                */}
                 <div className="w-full">
-                   <label className="text-[9px] text-pink-400 block">Alvo 10.00x</label>
-                   <input 
-                      type="number" 
-                      className="w-full bg-black/50 border border-slate-700 rounded px-1 text-xs text-slate-200 focus:border-pink-500 outline-none"
-                      value={bet10x}
-                      onChange={(e) => setBet10x(Number(e.target.value))}
-                   />
+                   <div className="text-[9px] text-pink-400 block mb-0.5">Alvo 10.00x</div>
+                   <div className="w-full bg-black/50 border border-slate-700 rounded px-2 py-1 text-xs text-slate-400 flex justify-between items-center">
+                      <span>Base: R$ {CONFIG.STAKE_10X_PADRAO.toFixed(2)}</span>
+                      <span className="text-[8px] text-slate-600 uppercase">Sistema</span>
+                   </div>
                 </div>
              </div>
            </div>
@@ -506,8 +517,8 @@ export const AnalyzerOverlay = () => {
                  <div className="flex justify-between border-b border-gray-700/50 pb-1 items-center">
                     <span className="flex items-center gap-2">
                         <span>Densidade Rosa</span>
-                        <span className={cn("font-bold", analysis.volatilityDensity === 'HIGH' ? "text-pink-400" : "text-gray-500")}>
-                            {analysis.volatilityDensity === 'HIGH' ? 'ALTA' : analysis.volatilityDensity === 'MEDIUM' ? 'MÉDIA' : 'BAIXA'}
+                        <span className={cn("font-bold", analysis?.volatilityDensity === 'HIGH' ? "text-pink-400" : "text-gray-500")}>
+                            {analysis?.volatilityDensity === 'HIGH' ? 'ALTA' : analysis?.volatilityDensity === 'MEDIUM' ? 'MÉDIA' : 'BAIXA'}
                         </span>
                     </span>
                     <span className="flex items-center gap-2">
@@ -520,48 +531,49 @@ export const AnalyzerOverlay = () => {
                     </span>
                  </div>
             </div>
-            {/* --- PADRÕES DE INTERVALO (NOVO) --- */}
-             {analysis.pinkIntervals && analysis.pinkIntervals.topIntervals.length > 0 && (
-               <div className="mt-2 p-2 bg-slate-900/50 rounded border border-slate-700/30">
-                 <div className="text-[10px] font-bold text-pink-400 mb-1">📊 Padrões de Intervalo</div>
-                 <div className="space-y-1">
-                   {/* Último Padrão */}
-                   {analysis.pinkIntervals.lastPattern !== null && (
-                     <div className="flex justify-between text-[9px] border-b border-slate-700/30 pb-1">
-                       <span className="text-slate-400">Último Padrão:</span>
-                       <span className="font-bold text-emerald-400">{analysis.pinkIntervals.lastPattern} velas</span>
-                     </div>
-                   )}
+            {/* --- PADRÕES DE INTERVALO (NOVO - FONTES MAIORES) --- */}
+              {analysis?.pinkIntervals && analysis.pinkIntervals.topIntervals.length > 0 && (
+                <div className="mt-2 p-2 bg-slate-900/50 rounded border border-slate-700/30">
+                  <div className="text-sm font-bold text-pink-400 mb-2">📊 Padrões de Intervalo (Casas até Rosa)</div>
+                  <div className="space-y-2">
+                    {/* Último Padrão */}
+                    {analysis?.pinkIntervals.lastPattern !== null && (
+                      <div className="flex justify-between text-xs border-b border-slate-700/30 pb-1">
+                        <span className="text-slate-300">Último Intervalo:</span>
+                        <span className="font-bold text-emerald-400 text-sm">{analysis?.pinkIntervals.lastPattern} velas atrás</span>
+                      </div>
+                    )}
                    
                    {/* Top Intervalos */}
-                   <div className="text-[9px] text-slate-500 mt-1">Mais Frequentes:</div>
-                   <div className="flex flex-wrap gap-1">
+                   <div className="text-xs text-slate-400 mt-1">Padrões mais frequentes:</div>
+                   <div className="flex flex-wrap gap-2 mt-1">
                      {analysis.pinkIntervals.topIntervals.slice(0, 4).map(({ interval, count }) => (
                        <span 
                          key={interval}
                          className={cn(
-                           "px-1.5 py-0.5 rounded text-[8px] font-bold",
+                           "px-2 py-1 rounded text-xs font-bold",
                            interval === analysis.pinkIntervals?.lastPattern 
                              ? "bg-emerald-900/40 text-emerald-400 border border-emerald-500/30 animate-pulse" 
-                             : "bg-slate-800 text-slate-400"
+                             : "bg-slate-800 text-slate-300"
                          )}
                        >
-                         {interval}x: {count}
+                         {interval} casas: {count}x
                        </span>
                      ))}
                    </div>
                    
                    {/* Indicador de Proximidade */}
                    {analysis.pinkIntervals.lastPattern !== null && analysis.candlesSinceLastPink > 0 && (
-                     <div className="mt-1 text-[8px] text-slate-500 italic">
+                     <div className="mt-1 text-xs text-slate-400 italic">
                        {analysis.candlesSinceLastPink === analysis.pinkIntervals.lastPattern && (
-                         <span className="text-yellow-400 font-bold">🎯 EXATO! Repetindo padrão!</span>
+                         <span className="text-yellow-400 font-bold block">🎯 ESTAMOS NO GATILHO! Repetição de padrão exato!</span>
                        )}
                        {analysis.candlesSinceLastPink >= analysis.pinkIntervals.lastPattern - 1 && 
                         analysis.candlesSinceLastPink <= analysis.pinkIntervals.lastPattern + 1 &&
                         analysis.candlesSinceLastPink !== analysis.pinkIntervals.lastPattern && (
-                         <span className="text-yellow-400 font-bold">⚡ Próximo ao último padrão!</span>
+                         <span className="text-yellow-400 font-bold block">⚡ Atenção: Zona de Padrão!</span>
                        )}
+                       <span className="block mt-1 opacity-70">Estamos na {analysis.candlesSinceLastPink}ª casa desde a última Rosa.</span>
                      </div>
                    )}
                  </div>
@@ -573,54 +585,61 @@ export const AnalyzerOverlay = () => {
                {/* ROSA (10x) STATS - FULL WIDTH */}
                <div className="bg-[#be185d]/20 border border-[#f43f5e]/30 rounded p-2 flex flex-col items-center w-full">
                    <span className="text-[#fb7185] font-bold mb-1">DESEMPENHO ROSA (10.00x)</span>
-                   <div className="grid grid-cols-2 w-full gap-y-1 text-[10px] text-gray-300">
+                   <div className="grid grid-cols-2 w-full gap-y-1 text-xs text-gray-300">
                        <span>Tentativas:</span> <span className="text-right text-white">{stats.statsPink.attempts}</span>
                        <span>Acertos:</span> <span className="text-right text-green-400">{stats.statsPink.wins} ({stats.statsPink.winRate}%)</span>
-                       <span>Lucro:</span> 
-                       <span className={`text-right font-bold ${stats.statsPink.profit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                           R$ {stats.statsPink.profit.toFixed(2)}
-                       </span>
                    </div>
                </div>
            </div>
         </div>
       )}
 
-      {/* DRAGGABLE HISTORY COMPONENT INSTANCE (Using Bankroll History) */}
-      <DraggableHistory history={history} />
-    </div>
+      </div>
+
+    {/* DRAGGABLE HISTORY COMPONENT - MOVED OUTSIDE */}
+    <DraggableHistory history={history} regime={regime} />
+    </>
   );
 };
 
 // --- DRAGGABLE HISTORY COMPONENT ---
-const DraggableHistory = ({ history }: { history: any[] }) => {
-    // Initial position: RIGHT SIDE
-    const [position, setPosition] = useState({ x: window.innerWidth - 260, y: 100 });
+const DraggableHistory = ({ history, regime }: { history: any[], regime: string }) => {
+    // Initial position: Persisted
+    const [position, setPosition] = useState(() => {
+        const saved = localStorage.getItem('aviator_history_pos');
+        return saved ? JSON.parse(saved) : { x: window.innerWidth - 280, y: 100 };
+    });
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+    const historyRef = useRef<HTMLDivElement>(null);
     
     // Drag Handlers
     const handleMouseDown = (e: React.MouseEvent) => {
+        if (!historyRef.current) return;
+        const rect = historyRef.current.getBoundingClientRect();
         setIsDragging(true);
         setDragOffset({
-            x: e.clientX - position.x,
-            y: e.clientY - position.y
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
         });
+        e.stopPropagation(); // Stop bubbling
+        e.preventDefault(); // Prevent text selection
     };
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (isDragging) {
-                setPosition({
+                const newPos = {
                     x: e.clientX - dragOffset.x,
                     y: e.clientY - dragOffset.y
-                });
+                };
+                setPosition(newPos);
+                // Save to localStorage with debounce? No, direct is fine for now.
+                localStorage.setItem('aviator_history_pos', JSON.stringify(newPos));
             }
         };
 
-        const handleMouseUp = () => {
-            setIsDragging(false);
-        };
+        const handleMouseUp = () => setIsDragging(false);
 
         if (isDragging) {
             window.addEventListener('mousemove', handleMouseMove);
@@ -633,75 +652,91 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
         };
     }, [isDragging, dragOffset]);
 
-    // SHOW ALWAYS (Even if empty, show container)
-    // if (!history || history.length === 0) return null;
-
     return (
+        <>
+        {/* DRAG SHIELD: Crucial for dragging over iframes */}
+        {isDragging && (
+            <div 
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100vw',
+                    height: '100vh',
+                    zIndex: 2147483647,
+                    cursor: 'grabbing'
+                }}
+            />
+        )}
         <div 
+            ref={historyRef}
             style={{ 
-                left: position.x, 
-                top: position.y,
-                width: '240px',
-                zIndex: 10001
+                left: `${position.x}px`, 
+                top: `${position.y}px`,
+                width: '260px',
+                zIndex: 999999,
+                pointerEvents: 'auto' // FORCE POINTER EVENTS
             }}
-            className="fixed bg-slate-950/95 border border-slate-700/50 rounded-lg shadow-2xl flex flex-col font-mono backdrop-blur-md overflow-hidden"
+            className="fixed flex flex-col font-sans select-none"
         >
-            {/* Header (Drag Handle) */}
+            {/* Header (Drag Handle) - Matching MAIN CARD style */}
             <div 
                 onMouseDown={handleMouseDown}
-                className="h-7 bg-slate-900/80 flex items-center justify-between px-2 cursor-move select-none border-b border-slate-800 group"
+                className={cn(
+                    "flex items-center justify-between backdrop-blur border border-b-0 rounded-t-lg p-1.5 cursor-grab active:cursor-grabbing transition-colors",
+                    regime === 'HOSTILE' ? "bg-red-950/90 border-red-900" :
+                    regime === 'UNCERTAINTY' ? "bg-amber-950/90 border-amber-900" :
+                    "bg-emerald-950/90 border-emerald-900"
+                )}
             >
-                <div className="flex items-center gap-1.5">
-                    <div className="flex gap-0.5">
-                        <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
-                        <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
+                <div className="flex items-center gap-1.5 pointer-events-none"> {/* Icon check */}
+                    <GripVertical className="w-3.5 h-3.5 text-slate-500"/>
+                    <div className="flex flex-col leading-none">
+                        <span className="text-[10px] font-bold text-slate-200">Histórico</span>
+                        <span className="text-[8px] text-slate-400 font-mono uppercase tracking-tighter">SIMULAÇÃO</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider group-hover:text-slate-200 transition-colors">
-                        Histórico (Simulação)
-                    </span>
                 </div>
+                <div className="text-[8px] text-slate-500 font-mono pr-1 pointer-events-none">v0.9.5</div>
             </div>
 
             {/* List Content */}
-            <div className="overflow-y-auto custom-scrollbar bg-black/20" style={{ maxHeight: 'calc(100vh - 200px)', minHeight: '150px' }}>
-                <table className="w-full text-[10px] border-collapse table-fixed">
-                    <thead className="bg-slate-900/80 text-slate-500 sticky top-0 backdrop-blur-sm z-10 text-[9px]">
-                        <tr>
-                            <th className="py-1 px-2 text-left w-1/5">HORA</th>
-                            <th className="py-1 px-1 text-center w-1/5">TIPO</th>
-                            <th className="py-1 px-1 text-center w-1/5">ALVO</th>
-                            <th className="py-1 px-1 text-center w-1/5">CRASH</th>
-                            <th className="py-1 px-2 text-right w-1/5">LUCRO</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {history.slice(0, 50).map((h, i) => (
-                             <tr key={h.roundId || i} className="border-b border-slate-800/30 hover:bg-white/5 transition-colors group">
-                                 <td className="py-1 px-2 text-slate-500 font-mono tracking-tighter opacity-70 group-hover:opacity-100">
-                                     {h.timestamp}
-                                 </td>
-                                 <td className="py-0.5 px-1 text-center font-bold text-[9px]">
-                                     {h.action === 'PLAY_10X' 
-                                        ? <span className="text-pink-400">10x</span> 
-                                        : <span className="text-purple-400">2x</span>
-                                     }
-                                 </td>
-                                 <td className="py-0.5 px-1 text-center font-mono text-white/50">
-                                     {h.target ? `${h.target.toFixed(2)}x` : '-'}
-                                 </td>
-                                 <td className={`py-0.5 px-1 text-center font-bold ${
-                                     h.crashPoint >= 10.0 ? 'text-[#fb7185] drop-shadow-[0_0_5px_rgba(251,113,133,0.3)]' : 
-                                     h.crashPoint >= 2.0 ? 'text-[#a78bfa]' : 'text-blue-400'
-                                 }`}>
-                                     {h.crashPoint.toFixed(2)}x
-                                 </td>
-                                 <td className={`py-0.5 px-2 text-right font-bold ${h.profit > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                      {h.profit > 0 ? '+' : ''}{h.profit.toFixed(2)}
-                                 </td>
-                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="bg-slate-950/95 backdrop-blur border-x border-b border-slate-800 rounded-b-lg p-1 shadow-2xl overflow-hidden">
+                <div className="overflow-y-auto custom-scrollbar bg-black/20 rounded border border-slate-800/50" style={{ maxHeight: 'calc(100vh - 300px)', minHeight: '150px' }}>
+                    <table className="w-full text-[10px] border-collapse table-fixed">
+                        <thead className="bg-slate-900/80 text-slate-500 sticky top-0 backdrop-blur-sm z-10 text-[9px]">
+                            <tr>
+                                <th className="py-1 px-1.5 text-left w-1/5">HORA</th>
+                                <th className="py-1 px-1 text-center w-4/20">ALVO</th>
+                                <th className="py-1 px-1 text-center w-5/20">CRASH</th>
+                                <th className="py-1 px-1.5 text-right w-6/20">LUCRO</th>
+                            </tr>
+                        </thead>
+                        <tbody className="font-mono">
+                            {history.slice(0, 50).map((h, i) => (
+                                <tr key={h.roundId || i} className="border-b border-slate-800/20 hover:bg-white/5 transition-colors group">
+                                    <td className="py-1 px-1.5 text-slate-500 tracking-tighter opacity-70 group-hover:opacity-100">
+                                        {h.timestamp}
+                                    </td>
+                                    <td className="py-0.5 px-1 text-center font-bold text-[9px]">
+                                        {h.action === 'PLAY_10X' 
+                                            ? <span className="text-pink-400">10x</span> 
+                                            : <span className="text-purple-400">2x</span>
+                                        }
+                                    </td>
+                                    <td className={`py-0.5 px-1 text-center font-bold ${
+                                        h.crashPoint >= 10.0 ? 'text-[#fb7185] drop-shadow-[0_0_5px_rgba(251,113,133,0.3)]' : 
+                                        h.crashPoint >= 2.0 ? 'text-[#a78bfa]' : 'text-blue-400'
+                                    }`}>
+                                        {h.crashPoint.toFixed(2)}x
+                                    </td>
+                                    <td className={`py-0.5 px-1.5 text-right font-bold ${h.profit > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                        {h.profit > 0 ? '+' : ''}{h.profit.toFixed(2)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
             <style>{`
@@ -711,6 +746,6 @@ const DraggableHistory = ({ history }: { history: any[] }) => {
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
             `}</style>
         </div>
+        </>
     );
 };
-

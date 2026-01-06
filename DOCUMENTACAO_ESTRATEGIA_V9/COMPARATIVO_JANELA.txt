@@ -1,0 +1,21 @@
+================================================================
+ ANÁLISE COMPARATIVA: JANELA 3 CASAS vs 4 CASAS
+================================================================
+
+📌 RESULTADOS DAS JANELAS BLIND (Pós-Rosa):
+   Ocorrências de Rosa: 886
+
+   🔹 JANELA DE 3 CASAS:
+      Taxa de Sucesso: 39.50% (350/886)
+      Apostas Médias: 3.00
+
+   🔹 JANELA DE 4 CASAS:
+      Taxa de Sucesso: 49.21% (436/886)
+      Apostas Médias: 4.00
+
+📌 COMPARATIVO DE LUCRATIVIDADE (ROI):
+   🚀 ROI (Janela 3): 31.68%
+   📉 ROI (Janela 4): 23.02%
+
+   Veredito: A Janela de 3 é mais eficiente (melhor retorno por aposta).
+================================================================

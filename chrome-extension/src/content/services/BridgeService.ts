@@ -41,9 +41,15 @@ class BridgeService {
     };
 
     // Send to top frame (Highest window)
-    if (window.top) {
+    if (window.top && window.top !== window.self) {
         console.log(`[Aviator Analyzer] Bridge: Enviando ${type} para o topo...`);
         window.top.postMessage(message, '*');
+    } else if (window.parent && window.parent !== window.self) {
+        console.log(`[Aviator Analyzer] Bridge: Enviando ${type} para o pai...`);
+        window.parent.postMessage(message, '*');
+    } else {
+        // We are already at the top, notify local listeners directly
+        this.notifyListeners(type, payload);
     }
   }
 

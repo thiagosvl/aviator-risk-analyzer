@@ -34,6 +34,7 @@ export interface PatternData {
   confidence: number;
   candlesUntilMatch: number;
   displayName?: string;
+  occurrences?: number;
 }
 
 export interface PinkIntervalAnalysis {

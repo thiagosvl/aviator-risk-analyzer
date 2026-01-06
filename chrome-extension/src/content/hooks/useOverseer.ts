@@ -40,6 +40,7 @@ export const useOverseer = () => {
 
     // Listen for updates from the spy
     const unsubscribe = bridge.on<{ gameState: GameData; analysis: AnalysisData }>('GAME_UPDATE', (payload) => {
+      console.log(`[Aviator Analyzer] Overseer: UPDATE RECEBIDO! Histórico: ${payload.gameState.history.length}`);
       lastUpdate = Date.now();
       setIsConnected(true);
       setGameState(payload.gameState);

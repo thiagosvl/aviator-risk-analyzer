@@ -1,0 +1,22 @@
+================================================================
+ ESTUDO: O IMPACTO DO MEDO DO ROXO ALTO (3.5x - 9.9x)
+================================================================
+
+🔹 JANELA CEGA (Joga 3 casas sem olhar o valor):
+   Rosas: 350/886
+   Bets: 2658
+   ROI: 31.68%
+   LUCRO TOTAL: R$ 42.100
+
+🔹 JANELA HESITANTE (Para se vier um Roxo Alto):
+   Rosas: 303/886
+   Bets: 1892
+   ROI: 60.15%
+   LUCRO TOTAL: R$ 56.900
+
+📊 CONCLUSÃO:
+   A Hesitação faz você perder R$ -14.800 de lucro.
+   Embora a estratégia hesitante tenha um ROI maior (mais eficiente),
+   ela lucra menos dinheiro no bolso porque joga menos volume.
+
+================================================================

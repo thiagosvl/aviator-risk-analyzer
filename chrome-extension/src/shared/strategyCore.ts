@@ -130,8 +130,8 @@ export class StrategyCore {
    */
   private static calculateRegimeAndPhaseV9(values: number[], candlesSinceLastPink: number) {
       // 1. DETECT HOSTILE (DESERT)
-      // Regra Antiga: 12 velas sem rosa.
-      if (candlesSinceLastPink >= 12) {
+      // Regra V9.5: 8 velas sem rosa (Antes era 12).
+      if (candlesSinceLastPink >= 8) {
           return { 
               regime: 'HOSTILE' as const, 
               phase: 'DESERT' as const, 
@@ -174,12 +174,12 @@ export class StrategyCore {
       // Actually, we can reuse the existing 'phase' if it was calculated before? 
       // The current flow calls this method to Return phase.
       
-      // RECOVERY DETECTION (V8 Logic)
+      // RECOVERY DETECTION (V9.5 Logic)
       if (candlesSinceLastPink <= 2) {
           const prevPinkIndex = values.slice(candlesSinceLastPink + 1).findIndex(v => v >= 10.0);
            if (prevPinkIndex !== -1) {
              const gap = prevPinkIndex;
-             if (gap >= 12) phase = 'RECOVERY';
+             if (gap >= 8) phase = 'RECOVERY'; // Gatilho de recuperação pós-8 velas de deserto
            }
       }
 
@@ -196,6 +196,9 @@ export class StrategyCore {
   /**
    * V9 DECISION ENGINE
    */
+  /**
+   * V9.5 DECISION ENGINE (GOLDEN SEQUENCE)
+   */
   private static decideActionV9(
     values: number[], 
     candlesSinceLastPink: number,
@@ -205,10 +208,11 @@ export class StrategyCore {
     if (values.length === 0) return { action: 'WAIT', reason: 'Aguardando dados...', riskLevel: 'LOW', confidence: 0 };
     
     // --- LAYER 1: REGIME FILTER ---
-    if (regime === 'HOSTILE') {
+    // HOSTILE starts at 11 now (After C8-C10 break attempt fails)
+    if (candlesSinceLastPink >= 11) {
       return { 
         action: 'WAIT', 
-        reason: `🔴 REGIME HOSTIL: ${candlesSinceLastPink} velas sem rosa. Proteção total.`, 
+        reason: `🌵 PROTEÇÃO: Deserto Profundo (${candlesSinceLastPink} velas)`, 
         riskLevel: 'HIGH', 
         confidence: 0,
         estimatedTarget: 10.0
@@ -216,57 +220,71 @@ export class StrategyCore {
     }
 
     const lastValue = values[0];
-    const baseAdvice = { action: 'WAIT', reason: 'Aguardando oportunidade.', riskLevel: 'LOW', confidence: 0 } as Recommendation;
+    const baseAdvice = { action: 'WAIT', reason: '🔍 ANALISANDO: Aguardando Golden Sequence.', riskLevel: 'LOW', confidence: 0 } as Recommendation;
+    
+    // --- LAYER 2: GOLDEN SEQUENCE (C1-C10) ---
+    const round = candlesSinceLastPink + 1; // 1-based index for logic
 
-    // --- LAYER 2: OPPORTUNITY SCANNERS ---
-
-    // A. RECOVERY (Alta prioridade)
-    if (phase === 'RECOVERY') {
-       const recoveryRound = candlesSinceLastPink + 1;
-       return {
-         action: 'PLAY_10X',
-         reason: `🔥 RECOVERY (${recoveryRound}/3). Pós-Deserto.`,
-         riskLevel: 'MEDIUM',
-         confidence: 90 - (candlesSinceLastPink * 10),
-         estimatedTarget: 10.0
-       };
+    // C1: COLADA (Neutral) -> Stake 50% or Wait
+    if (round === 1) {
+         // Se for Recovery (veio de deserto), joga full. Se for normal, joga low.
+         return {
+            action: 'PLAY_10X',
+            reason: phase === 'RECOVERY' ? `🔥 RECOVERY (C1): Pós-Deserto.` : `⚖️ COLADA (C1): Stake Reduzida.`,
+            riskLevel: 'MEDIUM',
+            confidence: 60,
+            estimatedTarget: 10.0
+         };
     }
 
-    // B. GATILHOS SNIPER (V8 -> V9)
-    // Gatilho 1: Azul (<2.0)
-    if (lastValue < 2.0) {
+    // C2: TRAP (Buraco Negro) -> SKIP
+    if (round === 2) {
+        return {
+            action: 'WAIT',
+            reason: `💀 TRAP ZONE (C2): Proteção Estatística.`,
+            riskLevel: 'HIGH',
+            confidence: 0
+        };
+    }
+
+    // C3, C4, C5: SNIPER ZONE (Ouro) -> BET FORTE
+    if (round >= 3 && round <= 5) {
+        // Se vier Roxo Alto (>8x) recente, calma.
+        if (lastValue >= 8.0 && lastValue < 10.0) {
+             return { action: 'WAIT', reason: `✋ HESITAÇÃO: Roxo Alto na Zona Sniper.`, riskLevel: 'MEDIUM', confidence: 0 };
+        }
+        
         return {
             action: 'PLAY_10X',
-            reason: `🎯 V9 GATILHO: Azul (${lastValue.toFixed(2)}x).`,
+            reason: `🏆 SNIPER ZONE (C${round}): Alta Probabilidade.`,
             riskLevel: 'MEDIUM',
+            confidence: 90,
+            estimatedTarget: 10.0
+        };
+    }
+
+    // C6, C7: DEATH VALLEY (Transição) -> SKIP
+    if (round >= 6 && round <= 7) {
+        return {
+            action: 'WAIT',
+            reason: `🚧 PERIGO (C${round}): Aproximando Deserto.`,
+            riskLevel: 'HIGH',
+            confidence: 0
+        };
+    }
+
+    // C8, C9, C10: DESERT BREAK (Resgate) -> BET
+    if (round >= 8 && round <= 10) {
+        return {
+            action: 'PLAY_10X',
+            reason: `🐫 DESERT BREAK (C${round}): Tentativa de Quebra.`,
+            riskLevel: 'HIGH',
             confidence: 85,
             estimatedTarget: 10.0
         };
     }
-    
-    // Gatilho 2: Roxa Baixa (2.0 - 3.5)
-    if (lastValue >= 2.0 && lastValue <= 3.5) {
-        return {
-            action: 'PLAY_10X',
-            reason: `🎯 V9 GATILHO: Roxa Baixa (${lastValue.toFixed(2)}x).`,
-            riskLevel: 'MEDIUM',
-            confidence: 80,
-            estimatedTarget: 10.0
-        };
-    }
 
-    // Gatilho 3: Sticky Pink (>=10.0) -> Reentrada
-    if (lastValue >= 10.0) {
-        return {
-            action: 'PLAY_10X',
-            reason: `🎯 V9 GATILHO: Rosa Colada (${lastValue.toFixed(2)}x).`,
-            riskLevel: 'MEDIUM',
-            confidence: 75,
-            estimatedTarget: 10.0
-        };
-    }
-
-    return baseAdvice; // Wait default
+    return baseAdvice;
   }
 
   // --- MÉTODOS AUXILIARES (Mantidos) ---

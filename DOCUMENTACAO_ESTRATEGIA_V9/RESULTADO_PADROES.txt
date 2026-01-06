@@ -1,0 +1,17 @@
+================================================================
+ ANÁLISE DE PADRÕES PROFUNDOS (40 GRAFOS)
+================================================================
+
+📌 GATILHOS ATUAIS:
+   🔵 Pós-Azul (< 2.0x):      14.08% (422/2998)
+   🟣 Pós-Roxo Baixo (2-3.5x): 14.64% (182/1243)
+
+📌 NOVOS GATILHOS PROPOSTOS:
+   ⚠️ Pós-Roxo Alto (3.5-9.9x): 13.74% (143/1041)
+
+📌 INTERVALOS PÓS-ROSA (Janela Estendida):
+   1ª vela após Rosa: 16.61% (150/903)
+   2ª vela após Rosa: 15.42% (138/895)
+   3ª vela após Rosa: 14.72% (131/890)
+
+================================================================
