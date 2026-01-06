@@ -118,23 +118,34 @@ export function useBankrollLogic(
     // Simplified: Just use the current recommendation.
     // The complex cache logic was causing crashes/freezes.
     
-    // 1. UPDATE PLANNED BETS DIRECTLY FROM ANALYSIS
+    // 4. PERSISTENT STATE TRACKING (Race Condition Fix verified)
+    // PROBLEM: When a new candle arrives, Analysis might update to 'WAIT' (for next round)
+    // BEFORE this hook processes the result. This overwrites the 'PLAY' signal.
+    // SOLUTION: "Latch" the bet. Once set to PLAY, it stays PLAY until we resolve it.
+    
+    // 1. UPDATE PLANNED BETS (LATCH PATTERN)
     useEffect(() => {
         const rec2x = analysis.recommendation2x || { action: 'WAIT' };
         const recPink = analysis.recommendationPink || { action: 'WAIT' };
         
-        const newPlan = { bet2x: null, betPink: null } as any;
-
+        // We do NOT reset to null here. We only WRITE if it's a PLAY signal.
+        // Clearing happens ONLY after resolution (in the other useEffect).
+        
         if (rec2x.action === 'PLAY_2X') {
-            newPlan.bet2x = { action: 'PLAY_2X', target: 2.00, amount: betConfig.bet2x };
+            plannedBetsRef.current.bet2x = { 
+                action: 'PLAY_2X', 
+                target: 2.00, 
+                amount: betConfig.bet2x 
+            };
         }
         
         if (recPink.action === 'PLAY_10X') {
             const losses = parseInt(localStorage.getItem('consecutive_losses') || '0');
             const totalProfit = history.reduce((acc, h) => acc + h.profit, 0);
             
+            // Re-evaluating safeguards here to be sure
             if (losses < 3 && totalProfit > -300) {
-                 newPlan.betPink = { 
+                 plannedBetsRef.current.betPink = { 
                     action: 'PLAY_10X', 
                     target: 10.00, 
                     amount: betConfig.bet10x,
@@ -144,8 +155,10 @@ export function useBankrollLogic(
             }
         }
         
-        plannedBetsRef.current = newPlan;
-    }, [analysis, betConfig, history]); // history added for profit check
+        // Note: If analysis says WAIT, we do NOTHING. We keep the "armed" bet 
+        // until the round actually happens.
+        
+    }, [analysis, betConfig, history]);
 
 
     // 2. DETECT NEW ROUND AND RESOLVE
@@ -154,11 +167,18 @@ export function useBankrollLogic(
         if (!latestCandle) return;
 
         // Initialization
+        // Initialization
         if (!isInitializedRef.current) {
-            console.log('[Bankroll] 🔰 Initializing Session... Clearing old data.');
+            // Check if we restored history from storage
+            if (history.length > 0) {
+                 console.log('[Bankroll] 🔄 Restored Session: Syncing simulation clock.');
+            } else {
+                 console.log('[Bankroll] 🔰 New/Empty Session: Setting verified start point.');
+                 setHistory([]); 
+            }
+            
             lastProcessedTimeRef.current = latestCandle.timestamp;
             isInitializedRef.current = true;
-            setHistory([]); 
             return;
         }
 
@@ -219,6 +239,9 @@ export function useBankrollLogic(
                      localStorage.setItem('consecutive_losses', '0');
                 }
             }
+            
+            // CRITICAL: Clear the latch after resolution to prevent double-betting next round
+            plannedBetsRef.current = { bet2x: null, betPink: null };
             
             lastProcessedTimeRef.current = latestCandle.timestamp;
         }
