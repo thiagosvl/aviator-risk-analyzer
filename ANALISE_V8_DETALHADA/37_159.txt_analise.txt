@@ -1,0 +1,45 @@
+================================================================
+ ANÁLISE DETALHADA: 37_159.txt
+ Data: 06/01/2026, 02:00:05
+================================================================
+ ROUND | INPUT | AÇÃO       | MOTIVO                        | RESULTADO | SALDO
+----------------------------------------------------------------
+ 1     | 6.09  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 2     | 1.89  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 3     | 2.18  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 4     | 1.90  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 5     | 119.00 | SKIP       | Building Memory               | -         | R$ 1000.00
+ 6     | 2.39  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 7     | 2.41  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 8     | 6.29  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 9     | 6.00  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 10    | 29.39 | SKIP       | Building Memory               | -         | R$ 1000.00
+ 11    | 2.16  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 12    | 177.00 | SKIP       | Building Memory               | -         | R$ 1000.00
+ 13    | 12.79 | SKIP       | Building Memory               | -         | R$ 1000.00
+ 14    | 1.00  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 15    | 1.82  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 16    | 2.82  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 17    | 1.99  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 18    | 1.65  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 19    | 59.79 | SKIP       | Building Memory               | -         | R$ 1000.00
+ 20    | 151.00 | SKIP       | Building Memory               | -         | R$ 1000.00
+ 21    | 149.00 | SKIP       | Building Memory               | -         | R$ 1000.00
+ 22    | 4.33  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 23    | 1.38  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 24    | 1.43  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 25    | 1.21  | SKIP       | Building Memory               | -         | R$ 1000.00
+ 26    | 18.68 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 1450.00
+ 27    | 2.17  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 1400.00
+ 28    | 1.00  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 1350.00
+ 29    | 81.31 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 1800.00
+
+🛑 META BATIDA (STOP WIN): +R$ 800.00
+----------------------------------------------------------------
+ RESUMO DO GRAFO:
+ Status: STOP_WIN
+ Jogadas: 4 | Wins: 2 | Assertividade: 50.00%
+ Saldo Inicial: R$ 1000.00 | Final: R$ 1800.00
+ Lucro Líquido: R$ 800.00
+ Drawdown Máx:  R$ 100.00
+================================================================
