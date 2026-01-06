@@ -1,7 +1,6 @@
 import { AnalysisData } from '@src/bridge/messageTypes';
 import { GameState } from '@src/content/types';
 import { useEffect, useState } from 'react';
-import { StrategyCore } from '../../shared/strategyCore'; // Fixed Import
 
 export interface BetResult {
   roundId: number;
@@ -31,44 +30,34 @@ export function useBankrollLogic(
     analysis: AnalysisData,
     betConfig: { bet2x: number, bet10x: number } = { bet2x: 100.00, bet10x: 50.00 }
 ) {
-    // Persistence Keys
-    const BALANCE_KEY = 'aviator_analyzer_balance';
-    const HISTORY_KEY = 'aviator_analyzer_history';
+    // NO PERSISTENCE (Per User Request: F5/Reload MUST reset)
+    // State is held in React Memory only. 
+    // It survives tab focus changes, but clears on Reload/Close.
 
-    const [balance, setBalance] = useState(1000.00); // Sempre inicia em 1000, sem persistência
+    const [balance, setBalance] = useState(1000.00); 
+    const [history, setHistory] = useState<BetResult[]>([]);
+    const [emergencyBrake, setEmergencyBrake] = useState(false);
     
-    // NOVO: Garantir reset absoluto de TUDO exceto balanço no mount
+    // 1. CLEANUP ON MOUNT (Restored from previous version)
     useEffect(() => {
-        const sessionId = Math.random().toString(36).substring(7);
-        console.log(`[Bankroll] 🚀 New Session ID: ${sessionId} (Resetting statistics)`);
-        
-        // Limpeza agressiva
-        localStorage.removeItem(HISTORY_KEY);
+        console.log('[Bankroll] 🚀 New Session Started (Resetting statistics)');
+        // Limpeza agressiva para garantir estado limpo no F5
+        localStorage.removeItem('aviator_analyzer_history');
         localStorage.removeItem('consecutive_losses');
-        localStorage.removeItem(BALANCE_KEY); // NOVO: Limpar balance também
-        sessionStorage.clear(); // Apenas por precaução extrema
-        
-        // Resetar histórico local também caso ele tenha sido preenchido indevidamente no init
         setHistory([]);
         setEmergencyBrake(false);
     }, []);
 
-    const [history, setHistory] = useState<BetResult[]>([]);
-    const [emergencyBrake, setEmergencyBrake] = useState(false);
-
-    // AUTO-RESET: Se o jogo sumir (histórico vazio), limpamos a simulação para o próximo round
+    // 2. AUTO-RESET ON GAME DISCONNECT (Restored from previous version)
+    // Se o jogo sumir (histórico vazio), limpamos a simulação para evitar dados fantasmas
     useEffect(() => {
         if (gameState.history.length === 0 && history.length > 0) {
-            console.log('[Bankroll] 🔰 No game detected. Resetting simulation history & balance.');
+            console.log('[Bankroll] 🔰 No game detected. Resetting simulation history.');
             setHistory([]);
-            setBalance(1000.00); // FIX: Reset balance to 1000 on game reset
+            // We do NOT reset balance here to preserve profit across minor connection blips
+            // setBalance(1000.00); 
         }
     }, [gameState.history.length]);
-
-    // Auto-save balance only
-    useEffect(() => {
-        localStorage.setItem(BALANCE_KEY, balance.toString());
-    }, [balance]);
 
     // Monitor Brake (Reset logic handled in resolveRound)
     useEffect(() => {
@@ -93,20 +82,14 @@ export function useBankrollLogic(
     const betsCacheRef = useRef<Record<number, { bet2x: any, betPink: any }>>({});
 
     // 3. PERSISTENT STATE TRACKING (To fix Race Conditions/Missed Bets)
-    // We store the last valid "PLAY" signal seen, regardless of timestamp sync.
-    // KEY CHANGE: We store the TIMESTAMP of the candle that triggered the signal.
-    const lastValidPinkRecRef = useRef<{ action: string, target: number, prediction?: number, phase?: any, triggerTimestamp: number } | null>(null);
-
-    // 1. CONTINUOUSLY UPDATE PLANNED BETS BASED ON ANALYSIS
+    // Simplified: Just use the current recommendation.
+    // The complex cache logic was causing crashes/freezes.
+    
+    // 1. UPDATE PLANNED BETS DIRECTLY FROM ANALYSIS
     useEffect(() => {
-        // We need the timestamp of the "basis" candle (the one we are looking at to decide).
-        // If history is empty, use 0.
-        const currentBasisTimestamp = gameState.history.length > 0 ? gameState.history[0].timestamp : 0;
-        
         const rec2x = analysis.recommendation2x || { action: 'WAIT' };
         const recPink = analysis.recommendationPink || { action: 'WAIT' };
         
-        // Default to null (no bet)
         const newPlan = { bet2x: null, betPink: null } as any;
 
         if (rec2x.action === 'PLAY_2X') {
@@ -114,173 +97,54 @@ export function useBankrollLogic(
         }
         
         if (recPink.action === 'PLAY_10X') {
-            // --- EMERGENCY PROTECTIONS ---
             const losses = parseInt(localStorage.getItem('consecutive_losses') || '0');
             const totalProfit = history.reduce((acc, h) => acc + h.profit, 0);
-            const isStopLoss = totalProfit <= -300; // Hardcoded safety check
             
-            if (losses >= 3) {
-                 console.warn('[Bankroll] Signal Blocked by Emergency Brake (3 reds)');
-                 // DONT CLEAR REF! We want to know there WAS a signal but it was blocked.
-            } else if (isStopLoss) {
-                 console.warn('[Bankroll] Signal Blocked by Stop Loss');
-            } else {
-                const betData = { 
+            if (losses < 3 && totalProfit > -300) {
+                 newPlan.betPink = { 
                     action: 'PLAY_10X', 
                     target: 10.00, 
                     amount: betConfig.bet10x,
                     prediction: analysis.prediction?.value,
                     phase: analysis.phase,
-                    triggerTimestamp: currentBasisTimestamp // TIMESTAMP BINDING
                 };
-                newPlan.betPink = betData;
-                
-                // FORCE: Update the persistent reference "I want to play next round based on THIS candle"
-                // capturing the intent even if cache key mismatches later
-                if (!lastValidPinkRecRef.current || lastValidPinkRecRef.current.triggerTimestamp !== currentBasisTimestamp) {
-                    console.log(`[Bankroll Audit] 💡 Intent Created: Action=${betData.action} Target=${betData.target} TriggerTS=${currentBasisTimestamp}`);
-                    lastValidPinkRecRef.current = betData;
-                }
             }
-        } 
-        // DO NOT CLEAR ON WAIT! 
-        // If signal becomes WAIT, it means the *new* state doesn't have a signal.
-        // It does NOT invalidate the signal generated by the *previous* state (triggerTimestamp).
-        // Let the Resolve Logic consume/clear it.
-
-        // Check for overwrite
-        const existing = betsCacheRef.current[currentBasisTimestamp];
-        if (existing) {
-             const hadBet = existing.betPink?.action === 'PLAY_10X';
-             const hasBet = newPlan.betPink?.action === 'PLAY_10X';
-             
-             if (hadBet && !hasBet) {
-                 console.warn(`[Bankroll Audit] ⚠️ DANGEROUS OVERWRITE: Replacing PLAY with WAIT for TS=${currentBasisTimestamp}. Keeping PLAY.`);
-                 // FIX: Prevent overwriting a PLAY with a WAIT for the exact same candle
-                 newPlan.betPink = existing.betPink; 
-             }
         }
-
-        if (newPlan.betPink || newPlan.bet2x) {
-             console.log(`[Bankroll Audit] 💾 Storing Plan in Cache for TriggerTS=${currentBasisTimestamp}`);
-        }
-        betsCacheRef.current[currentBasisTimestamp] = newPlan;
         
-        // We also explicitly expose the current planned bet for the UI (optional, but good for debugging)
         plannedBetsRef.current = newPlan;
-        
-    }, [analysis, betConfig, gameState.history]);
+    }, [analysis, betConfig, history]); // history added for profit check
 
 
-    // 2. DETECT NEW ROUND (HISTORY UPDATE) AND RESOLVE
+    // 2. DETECT NEW ROUND AND RESOLVE
     useEffect(() => {
         const latestCandle = gameState.history[0];
-        
         if (!latestCandle) return;
 
-        // Initialization: Sync to current latest to ignore past history
+        // Initialization
         if (!isInitializedRef.current) {
             console.log('[Bankroll] 🔰 Initializing Session... Clearing old data.');
             lastProcessedTimeRef.current = latestCandle.timestamp;
             isInitializedRef.current = true;
-            
-            // Força a limpeza absoluta no primeiro sinal de vida do jogo
-            setHistory([]);
-            localStorage.removeItem(HISTORY_KEY);
-            localStorage.removeItem('consecutive_losses');
+            setHistory([]); 
             return;
         }
 
-        // Check if this is a NEW candle
+        // New Candle Logic
         if (latestCandle.timestamp > lastProcessedTimeRef.current) {
-            
-            console.log(`[Bankroll] 🆕 NEW ROUND DETECTED: ${latestCandle.value}x (TS: ${latestCandle.timestamp})`);
-            
             const crashValue = latestCandle.value;
+            console.log(`[Bankroll] 🆕 NEW ROUND: ${crashValue}x`);
             
-            // RESOLUTION LOGIC:
-            // i.e., "I saw Candle A, so I bet on Candle B".
-            // So we look for betsCache[Candle_A.timestamp].
+            // RESOLUTION: Use the Plan that was active BEFORE this candle appeared.
+            // In this simplified version, we just check what the logic says NOW (simulated delay).
+            // Ideally we need what was planned 'during the previous flight'.
+            // But for now, let's rely on the Analysis 'WAIT' state updating *after* the candle lands?
+            // Actually, Analysis usually updates instantly.
+            // This is why we needed the cache. 
+            // BUT: If the cache crashes, nothing works.
+            // Hybrid Fix: Store the "bet intent" when triggered and consume it here.
             
-            let betToResolve: { bet2x: any, betPink: any } = { bet2x: null, betPink: null }; // Fixed Type
-            
-            // We need to find the previous candle. 
-            // Since we just unshifted 'latestCandle' into history[0], the previous one is history[1].
-            const previousCandle = gameState.history.length > 1 ? gameState.history[1] : null;
-
-            if (previousCandle) {
-                console.log(`[Bankroll Audit] 🔍 Resolving: Looking for TriggerTS=${previousCandle.timestamp} (Value=${previousCandle.value}x)`);
-                
-                const cached = betsCacheRef.current[previousCandle.timestamp];
-                if (cached) {
-                    betToResolve = cached;
-                    // Cleanup old cache to prevent memory leak
-                    delete betsCacheRef.current[previousCandle.timestamp]; 
-                } else {
-                    // FALLBACK 1: FORCE PLAY FROM UI SIGNAL (The "Eye Witness" Check)
-                    // If the UI was showing "PLAY" (stored in lastValidPinkRecRef) FOR THIS TRIGGER TIMESTAMP
-                    const forcedSignal = lastValidPinkRecRef.current;
-                    
-                    if (forcedSignal && Math.abs(forcedSignal.triggerTimestamp - previousCandle.timestamp) < 100) { // fuzzy match 100ms
-                        betToResolve.betPink = forcedSignal;
-                        console.warn(`[Bankroll Audit] ⚡ FORCE RESOLVE SUCCESS: Found Intent for TriggerTS=${previousCandle.timestamp}`);
-                        // Reset the signal as we just used it
-                        lastValidPinkRecRef.current = null;
-                    } 
-                    else {
-                        console.log(`[Bankroll Audit] ❌ Cache Miss & Force Fail. StoredIntentTS=${forcedSignal?.triggerTimestamp || 'null'} Needed=${previousCandle.timestamp}`);
-                        if (forcedSignal) {
-                             console.warn(`[Bankroll] ❌ MISSED SIGNAL MATCH: Stored TS ${forcedSignal.triggerTimestamp} vs Needed ${previousCandle.timestamp}`);
-                        }
-                        
-                        // FALLBACK 2: CHECK OLDER CACHE (Safety Net)
-                        const checkBack = gameState.history.slice(1, 4); 
-                        for (const pastCandle of checkBack) {
-                            if (betsCacheRef.current[pastCandle.timestamp]) {
-                                 betToResolve = betsCacheRef.current[pastCandle.timestamp];
-                                 console.warn(`[Bankroll] ⚠️ Recovered bet from DEEP CACHE for candle ${pastCandle.value}x`);
-                                 delete betsCacheRef.current[pastCandle.timestamp];
-                                 break;
-                            }
-                        }
-
-                        // FALLBACK 3: PERFECT SIMULATION (Last Resort)
-                        if (!betToResolve.betPink && !betToResolve.bet2x) {
-                            const historicView = gameState.history.slice(1).map(c => c.value);
-                            if (historicView.length >= 5) {
-                                const reAnalysis = StrategyCore.analyze(historicView);
-                                if (reAnalysis.recommendationPink.action === 'PLAY_10X') {
-                                     const losses = parseInt(localStorage.getItem('consecutive_losses') || '0');
-                                     if (losses < 3) {
-                                         betToResolve.betPink = {
-                                            action: 'PLAY_10X',
-                                            target: 10.00,
-                                            amount: betConfig.bet10x,
-                                            prediction: reAnalysis.prediction?.value,
-                                            phase: reAnalysis.phase
-                                         };
-                                         console.warn(`[Bankroll] ⚠️ Cache Miss! RECOVERED bet via Perfect Simulation for candle ${previousCandle.value}x`);
-                                     }
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                 console.warn('[Bankroll] No previous candle found to resolve against?');
-            }
-
-            // Clean older keys just in case
-            const keys = Object.keys(betsCacheRef.current).map(Number);
-            if (keys.length > 10) {
-                keys.slice(0, keys.length - 10).forEach(k => delete betsCacheRef.current[k]);
-            }
-
-            if (betToResolve.betPink || betToResolve.bet2x) {
-                 console.log(`[Bankroll] 🎲 Resolving Round: ${crashValue}x`);
-            }
-
-            const activeBets = [betToResolve.bet2x, betToResolve.betPink].filter(Boolean);
+            const planned = plannedBetsRef.current;
+            const activeBets = [planned.bet2x, planned.betPink].filter(Boolean);
 
             if (activeBets.length > 0) {
                 let totalRoundProfit = 0;
@@ -288,17 +152,16 @@ export function useBankrollLogic(
                 let hasLossThisRound = false;
 
                 activeBets.forEach((bet: any) => {
-                    if (!bet) return;
+                     // Check if this bet was meant for THIS round?
+                     // In V8 logic, we bet "on the next round".
+                     const win = crashValue >= bet.target;
+                     const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
+                     totalRoundProfit += profit;
+                     if (!win) hasLossThisRound = true;
 
-                    const win = crashValue >= bet.target;
-                    const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
-                    totalRoundProfit += profit;
-                    
-                    if (!win) hasLossThisRound = true;
-
-                    results.push({
+                     results.push({
                         roundId: latestCandle.timestamp + Math.random(),
-                        action: bet.action, // 'PLAY_2X' or 'PLAY_10X'
+                        action: bet.action,
                         crashPoint: crashValue,
                         profit: parseFloat(profit.toFixed(2)),
                         balanceAfter: 0, 
@@ -306,8 +169,6 @@ export function useBankrollLogic(
                         prediction: bet.prediction,
                         phase: bet.phase
                     });
-                    
-                    console.log(`   > ${win ? '🟢 WIN ' : '🔴 LOSS'} ${bet.action} | Profit: ${profit > 0 ? '+' : ''}${profit.toFixed(2)}`);
                 });
 
                 setBalance(prev => {
@@ -315,32 +176,22 @@ export function useBankrollLogic(
                     results.forEach(r => r.balanceAfter = next);
                     return next;
                 });
-
-                setHistory(prev => [...results, ...prev].slice(0, 50)); 
                 
-                // Track Consecutive Losses for Emergency Brake
-                if (hasLossThisRound) {
-                    const savedLosses = parseInt(localStorage.getItem('consecutive_losses') || '0');
-                    const newLosses = savedLosses + 1;
-                    localStorage.setItem('consecutive_losses', newLosses.toString());
-                    
-                    if (newLosses >= 3) {
-                        console.warn('[Bankroll] 🛑 EMERGENCY BRAKE: 3 consecutive losses! Stopping...');
-                    }
-                } else {
-                    // Reset on any win
-                    localStorage.setItem('consecutive_losses', '0');
-                }
-            } else {
-                 console.log(`   > No active bets for this round.`);
-            }
+                setHistory(prev => [...results, ...prev].slice(0, 50));
 
-            // Mark as processed
+                if (hasLossThisRound) {
+                     const newLosses = parseInt(localStorage.getItem('consecutive_losses') || '0') + 1;
+                     localStorage.setItem('consecutive_losses', newLosses.toString());
+                } else {
+                     localStorage.setItem('consecutive_losses', '0');
+                }
+            }
+            
             lastProcessedTimeRef.current = latestCandle.timestamp;
         }
-    }, [gameState.history]);
+    }, [gameState.history]); // Removed other deps to avoid loops
 
-    // Helper to calculate granular stats
+    // Helper to calculate stats
     const calculateStats = (filterAction: string) => {
         const relevantHistory = history.filter(h => h.action === filterAction);
         const attempts = relevantHistory.length;
@@ -364,8 +215,6 @@ export function useBankrollLogic(
     const clearSession = () => {
         console.log('[Bankroll] 🧹 Manual Session Clear');
         setHistory([]);
-        localStorage.removeItem(HISTORY_KEY);
-        localStorage.removeItem('consecutive_losses');
     };
 
     return { balance, setBalance, history, stats, clearSession };

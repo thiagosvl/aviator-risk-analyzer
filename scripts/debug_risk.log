@@ -1,0 +1,101 @@
+DEBUG START
+Processing 30 sessions...
+Reading file: 10_148.txt
+  Parsed 148 multipliers
+  PnL: 650
+Reading file: 11_142.txt
+  Parsed 143 multipliers
+  PnL: 850
+Reading file: 12_171.txt
+  Parsed 174 multipliers
+  PnL: -500
+Reading file: 13_164.txt
+  Parsed 160 multipliers
+  PnL: 650
+Reading file: 14_160.txt
+  Parsed 161 multipliers
+  PnL: 850
+Reading file: 15_173.txt
+  Parsed 172 multipliers
+  PnL: -500
+Reading file: 16_175.txt
+  Parsed 173 multipliers
+  PnL: -500
+Reading file: 17_164.txt
+  Parsed 164 multipliers
+  PnL: -500
+Reading file: 18_162.txt
+  Parsed 162 multipliers
+  PnL: -500
+Reading file: 19_157.txt
+  Parsed 159 multipliers
+  PnL: 800
+Reading file: 1_158.txt
+  Parsed 157 multipliers
+  PnL: -500
+Reading file: 20_158.txt
+  Parsed 160 multipliers
+  PnL: 850
+Reading file: 21_150.txt
+  Parsed 152 multipliers
+  PnL: 700
+Reading file: 22_152.txt
+  Parsed 157 multipliers
+  PnL: 750
+Reading file: 23_158.txt
+  Parsed 163 multipliers
+  PnL: 500
+Reading file: 24_152.txt
+  Parsed 151 multipliers
+  PnL: 700
+Reading file: 25_141.txt
+  Parsed 141 multipliers
+  PnL: 600
+Reading file: 26_164.txt
+  Parsed 170 multipliers
+  PnL: -500
+Reading file: 27_161.txt
+  Parsed 163 multipliers
+  PnL: 750
+Reading file: 28_138.txt
+  Parsed 140 multipliers
+  PnL: -500
+Reading file: 29_150.txt
+  Parsed 150 multipliers
+  PnL: 650
+Reading file: 2_139.txt
+  Parsed 138 multipliers
+  PnL: 850
+Reading file: 30_143.txt
+  Parsed 147 multipliers
+  PnL: 850
+Reading file: 3_156.txt
+  Parsed 157 multipliers
+  PnL: -500
+Reading file: 4_143.txt
+  Parsed 145 multipliers
+  PnL: -500
+Reading file: 5_163.txt
+  Parsed 164 multipliers
+  PnL: 750
+Reading file: 6_147.txt
+  Parsed 147 multipliers
+  PnL: -500
+Reading file: 7_155.txt
+  Parsed 156 multipliers
+  PnL: -500
+Reading file: 8_170.txt
+  Parsed 170 multipliers
+  PnL: 700
+Reading file: 9_147.txt
+  Parsed 148 multipliers
+  PnL: 700
+DEBUG: Finished processing sessions.
+Calculating stats for 30 PnLs...
+Starting Monte Carlo...
+Monte Carlo for Bankroll: 1000
+Monte Carlo for Bankroll: 3000
+Monte Carlo for Bankroll: 5000
+Starting Stress Test...
+Writing Report File...
+Done.

@@ -1,6 +1,6 @@
 ================================================================
  ANÁLISE DETALHADA: 24_152.txt
- Data: 06/01/2026, 00:30:16
+ Data: 06/01/2026, 00:40:48
 ================================================================
  ROUND | INPUT | AÇÃO       | MOTIVO                        | RESULTADO | SALDO
 ----------------------------------------------------------------
@@ -35,130 +35,13 @@
  29    | 2.21  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 1300.00
  30    | 2.61  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 1250.00
  31    | 46.66 | PLAY 10x   | TRIGGER: LOW PURPLE           | WIN (+450) | R$ 1700.00
- 32    | 1.13  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 1650.00
- 33    | 1.01  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 1600.00
- 34    | 1.01  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 1550.00
- 35    | 23.16 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 2000.00
- 36    | 13.09 | PLAY 10x   | TRIGGER: STICKY PINK          | WIN (+450) | R$ 2450.00
- 37    | 1.25  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 2400.00
- 38    | 1.46  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2350.00
- 39    | 3.56  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2300.00
- 40    | 1.85  | WAIT       | NO TRIGGER                    | -         | R$ 2300.00
- 41    | 1.00  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2250.00
- 42    | 3.60  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2200.00
- 43    | 1.49  | WAIT       | NO TRIGGER                    | -         | R$ 2200.00
- 44    | 1.63  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2150.00
- 45    | 11.43 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 2600.00
- 46    | 1.44  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 2550.00
- 47    | 2.37  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2500.00
- 48    | 1.01  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 2450.00
- 49    | 1.05  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2400.00
- 50    | 4.91  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2350.00
- 51    | 1.00  | WAIT       | NO TRIGGER                    | -         | R$ 2350.00
- 52    | 7.04  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2300.00
- 53    | 1.67  | WAIT       | NO TRIGGER                    | -         | R$ 2300.00
- 54    | 36.89 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 2750.00
- 55    | 6.69  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 2700.00
- 56    | 1.95  | WAIT       | NO TRIGGER                    | -         | R$ 2700.00
- 57    | 1.95  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2650.00
- 58    | 3.91  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2600.00
- 59    | 1.07  | WAIT       | NO TRIGGER                    | -         | R$ 2600.00
- 60    | 4.70  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2550.00
- 61    | 1.09  | WAIT       | NO TRIGGER                    | -         | R$ 2550.00
- 62    | 53.72 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 3000.00
- 63    | 1.00  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 2950.00
- 64    | 14.21 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 3400.00
- 65    | 5.21  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 3350.00
- 66    | 6.25  | WAIT       | NO TRIGGER                    | -         | R$ 3350.00
- 67    | 1.94  | WAIT       | NO TRIGGER                    | -         | R$ 3350.00
- 68    | 1.73  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3300.00
- 69    | 1.06  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3250.00
- 70    | 1.89  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3200.00
- 71    | 3.10  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3150.00
- 72    | 2.19  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3100.00
- 73    | 1.39  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3050.00
- 74    | 1.68  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3000.00
- 75    | 3.09  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 2950.00
- 76    | 1.84  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 2900.00
- 77    | 12.74 | WAIT       | DESERT (12 velas sem rosa)    | -         | R$ 2900.00
- 78    | 2.24  | PLAY 10x   | RECOVERY (1/3)                | LOSS (-50) | R$ 2850.00
- 79    | 1.21  | PLAY 10x   | RECOVERY (2/3)                | LOSS (-50) | R$ 2800.00
- 80    | 24.41 | PLAY 10x   | RECOVERY (3/3)                | WIN (+450) | R$ 3250.00
- 81    | 23.84 | PLAY 10x   | TRIGGER: STICKY PINK          | WIN (+450) | R$ 3700.00
- 82    | 5.34  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 3650.00
- 83    | 1.75  | WAIT       | NO TRIGGER                    | -         | R$ 3650.00
- 84    | 1.27  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3600.00
- 85    | 1.46  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3550.00
- 86    | 1.52  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3500.00
- 87    | 1.56  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3450.00
- 88    | 3.01  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3400.00
- 89    | 1.00  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3350.00
- 90    | 3.56  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3300.00
- 91    | 1.45  | WAIT       | NO TRIGGER                    | -         | R$ 3300.00
- 92    | 1.19  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3250.00
- 93    | 1.00  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3200.00
- 94    | 2.26  | WAIT       | DESERT (12 velas sem rosa)    | -         | R$ 3200.00
- 95    | 2.16  | WAIT       | DESERT (13 velas sem rosa)    | -         | R$ 3200.00
- 96    | 1.00  | WAIT       | DESERT (14 velas sem rosa)    | -         | R$ 3200.00
- 97    | 3.48  | WAIT       | DESERT (15 velas sem rosa)    | -         | R$ 3200.00
- 98    | 1.86  | WAIT       | DESERT (16 velas sem rosa)    | -         | R$ 3200.00
- 99    | 1.98  | WAIT       | DESERT (17 velas sem rosa)    | -         | R$ 3200.00
- 100   | 1.79  | WAIT       | DESERT (18 velas sem rosa)    | -         | R$ 3200.00
- 101   | 1.97  | WAIT       | DESERT (19 velas sem rosa)    | -         | R$ 3200.00
- 102   | 1.22  | WAIT       | DESERT (20 velas sem rosa)    | -         | R$ 3200.00
- 103   | 1.55  | WAIT       | DESERT (21 velas sem rosa)    | -         | R$ 3200.00
- 104   | 12.36 | WAIT       | DESERT (22 velas sem rosa)    | -         | R$ 3200.00
- 105   | 16.15 | PLAY 10x   | RECOVERY (1/3)                | WIN (+450) | R$ 3650.00
- 106   | 1.17  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 3600.00
- 107   | 1.64  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3550.00
- 108   | 32.03 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 4000.00
- 109   | 1.96  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 3950.00
- 110   | 1.16  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3900.00
- 111   | 2.09  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3850.00
- 112   | 1.11  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3800.00
- 113   | 1.67  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3750.00
- 114   | 1.30  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3700.00
- 115   | 95.72 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 4150.00
- 116   | 2.48  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 4100.00
- 117   | 1.44  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 4050.00
- 118   | 1.35  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 4000.00
- 119   | 1.03  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3950.00
- 120   | 5.32  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3900.00
- 121   | 2.16  | WAIT       | NO TRIGGER                    | -         | R$ 3900.00
- 122   | 1.19  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3850.00
- 123   | 2.80  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3800.00
- 124   | 1.89  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3750.00
- 125   | 1.04  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3700.00
- 126   | 5.59  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3650.00
- 127   | 3.53  | WAIT       | NO TRIGGER                    | -         | R$ 3650.00
- 128   | 3.95  | WAIT       | DESERT (12 velas sem rosa)    | -         | R$ 3650.00
- 129   | 2.07  | WAIT       | DESERT (13 velas sem rosa)    | -         | R$ 3650.00
- 130   | 4.32  | WAIT       | DESERT (14 velas sem rosa)    | -         | R$ 3650.00
- 131   | 1.17  | WAIT       | DESERT (15 velas sem rosa)    | -         | R$ 3650.00
- 132   | 1.72  | WAIT       | DESERT (16 velas sem rosa)    | -         | R$ 3650.00
- 133   | 1.27  | WAIT       | DESERT (17 velas sem rosa)    | -         | R$ 3650.00
- 134   | 1.12  | WAIT       | DESERT (18 velas sem rosa)    | -         | R$ 3650.00
- 135   | 1.23  | WAIT       | DESERT (19 velas sem rosa)    | -         | R$ 3650.00
- 136   | 1.20  | WAIT       | DESERT (20 velas sem rosa)    | -         | R$ 3650.00
- 137   | 1.53  | WAIT       | DESERT (21 velas sem rosa)    | -         | R$ 3650.00
- 138   | 34.46 | WAIT       | DESERT (22 velas sem rosa)    | -         | R$ 3650.00
- 139   | 1.64  | PLAY 10x   | RECOVERY (1/3)                | LOSS (-50) | R$ 3600.00
- 140   | 1.25  | PLAY 10x   | RECOVERY (2/3)                | LOSS (-50) | R$ 3550.00
- 141   | 2.82  | PLAY 10x   | RECOVERY (3/3)                | LOSS (-50) | R$ 3500.00
- 142   | 1.13  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3450.00
- 143   | 1.70  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3400.00
- 144   | 18.93 | PLAY 10x   | TRIGGER: BLUE                 | WIN (+450) | R$ 3850.00
- 145   | 1.16  | PLAY 10x   | TRIGGER: STICKY PINK          | LOSS (-50) | R$ 3800.00
- 146   | 1.11  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3750.00
- 147   | 1.88  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3700.00
- 148   | 2.05  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3650.00
- 149   | 1.04  | PLAY 10x   | TRIGGER: LOW PURPLE           | LOSS (-50) | R$ 3600.00
- 150   | 1.60  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3550.00
- 151   | 1.15  | PLAY 10x   | TRIGGER: BLUE                 | LOSS (-50) | R$ 3500.00
+
+🛑 META BATIDA (STOP WIN): +R$ 700.00
 ----------------------------------------------------------------
  RESUMO DO GRAFO:
- Jogadas: 90 | Wins: 14 | Assertividade: 15.56%
- Saldo Inicial: R$ 1000.00 | Final: R$ 3500.00
- Lucro Líquido: R$ 2500.00
- Drawdown Máx:  R$ 750.00
+ Status: STOP_WIN
+ Jogadas: 6 | Wins: 2 | Assertividade: 33.33%
+ Saldo Inicial: R$ 1000.00 | Final: R$ 1700.00
+ Lucro Líquido: R$ 700.00
+ Drawdown Máx:  R$ 150.00
 ================================================================
