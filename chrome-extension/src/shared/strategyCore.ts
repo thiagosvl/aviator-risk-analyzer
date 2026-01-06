@@ -1,4 +1,4 @@
-import { getActiveWeights, ScoreBreakdown } from './strategyWeights';
+import { ScoreBreakdown } from './strategyWeights';
 
 export interface Recommendation {
   action: 'PLAY_2X' | 'PLAY_10X' | 'WAIT' | 'STOP' | 'STOP_WIN' | 'STOP_LOSS';
@@ -43,7 +43,7 @@ export interface AnalysisResult {
     pinkPercent: number;
   };
   pinkIntervals?: PinkIntervalAnalysis;
-  phase: 'CLUSTER' | 'DESERT' | 'NORMAL';
+  phase: 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY';
   volatilityScore: number;
   prediction?: {
     category: 'BAIXA' | 'MÉDIA' | 'ALTA';
@@ -55,11 +55,10 @@ export interface AnalysisResult {
 export class StrategyCore {
   
   public static analyze(values: number[]): AnalysisResult {
-    // 1. DENSIDADES (V3.7: Janela unificada de 25 velas)
+    // 1. DENSIDADES (Janela de 25 velas)
     const windowSize = 25;
     const slice = values.slice(0, windowSize);
     const pinkDensityPercent = (slice.filter(v => v >= 10.0).length / windowSize) * 100;
-    const blueDensityPercent = (slice.filter(v => v < 2.0).length / windowSize) * 100;
     
     let volatilityDensity: 'LOW' | 'MEDIUM' | 'HIGH' = 'LOW';
     if (slice.length >= 3) {
@@ -67,40 +66,36 @@ export class StrategyCore {
         else if (pinkDensityPercent >= 6) volatilityDensity = 'MEDIUM';
     }
 
-    // 2. CONVERSION RATE
+    // 2. CONVERSION RATE & STREAK
     const purpleConversionRate = this.calculateConversionRate(values, windowSize); 
-
-    // 3. STREAK & PINK DISTANCE
     const streak = this.calculateStreak(values);
+    
+    // 3. INDEX & INTERVALS
     const lastPinkIndex = values.findIndex(v => v >= 10.0);
     const candlesSinceLastPink = lastPinkIndex === -1 ? values.length : lastPinkIndex;
-
-    // 4. DETECTAR PADRÕES
-    const pinkPattern = this.detectPinkPattern(values, lastPinkIndex, volatilityDensity);
-    const isXadrez = this.checkXadrez(values);
-    const deepDowntrend = this.checkDeepDowntrend(values);
-
-    // 5. VERIFICAR HARD BLOCKS (V4.0: Bloqueios absolutos)
-    const has3BluesAfterPink = this.check3ConsecutiveBluesAfterPink(values);
-    const isStopLoss = streak <= -2;
-
-    // 6. ESTATÍSTICAS DE MERCADO (V5 - Janela de 60 velas)
-    // 6. ESTATÍSTICAS DE MERCADO (V5 - Janela de 60 velas)
-    const marketStats = this.calculateMarketStats(values, 60);
-
-    // 9. ANÁLISE DE INTERVALOS ENTRE ROSAS (NOVO)
     const pinkIntervals = this.analyzePinkIntervals(values);
 
-    // 7. CALCULAR ALVO DINÂMICO
-    const estimatedTarget = this.calculateEstimatedTarget(values, candlesSinceLastPink);
+    // 4. DETECTAR PADRÕES & HARD BLOCKS (Auxiliar)
+    const pinkPattern = this.detectPinkPattern(values, lastPinkIndex, volatilityDensity);
 
-    // 8. IDENTIFICAR FASE (NOVO)
-    const phase = this.calculatePhase(values, candlesSinceLastPink);
+    // 5. ESTATÍSTICAS DE MERCADO (Janela de 60 velas)
+    const marketStats = this.calculateMarketStats(values, 60);
 
-    // 8. GERAR RECOMENDAÇÕES (V5: Pure Rosa & Disabled Roxa)
-    const rec2x = this.decideAction2xV5();
+    // 6. IDENTIFICAR FASE (V8 Logic)
+    const phase = this.calculatePhaseV8(values, candlesSinceLastPink);
+
+    // 7. GERAR RECOMENDAÇÕES (V8 SNIPER)
+    const recPink = this.decideActionSniperV8(values, candlesSinceLastPink, phase);
     
-    const recPink = this.decideActionPinkV5(values, candlesSinceLastPink, phase, pinkIntervals);
+    // V8: A estratégia 2x é redundante ou segue o fluxo principal.
+    // Para compatibilidade, retornamos WAIT ou replicamos a decisão principal se quisermos double-bet.
+    // Por enquanto, mantemos WAIT na recomendação 2x específica para focar na Pink/10x.
+    const rec2x: Recommendation = {
+      action: 'WAIT',
+      reason: 'Estratégia 2x unificada com Sniper V8 (Ver recPink)',
+      riskLevel: 'LOW',
+      confidence: 0
+    };
 
     return {
       recommendation2x: rec2x,
@@ -112,77 +107,95 @@ export class StrategyCore {
       candlesSinceLastPink,
       marketStats,
       pinkIntervals,
-      phase,
-      volatilityScore: 0, // Placeholder
-      prediction: undefined // Placeholder
+      phase, // Retorna NORMAL, DESERT ou RECOVERY (Mapped to valid types if needed)
+      volatilityScore: 0,
+      prediction: undefined
     };
   }
 
   /**
-   * V5: ESTRATÉGIA ROXA DESATIVADA (Sempre WAIT)
-   * Motivo: Inconsistência nos testes históricos vs Rosa Pura.
+   * V8 SNIPER STRATEGY (UNIFIED)
+   * Lógica unificada para decisão de entrada.
    */
-  private static decideAction2xV5(): Recommendation {
-    return {
-      action: 'WAIT',
-      reason: 'Estratégia Roxa desativada (Foco em Rosa V5)',
-      riskLevel: 'LOW',
-      confidence: 0
-    };
-  }
-
-  /**
-   * V5: ESTRATÉGIA ROSA PURA (Agressiva)
-   * Gatilho: Qualquer vela azul (< 2.0x)
-   * NOVO: Suporte a Recuperação Pós-Deserto
-   */
-  private static decideActionPinkV5(
+  private static decideActionSniperV8(
     values: number[], 
     candlesSinceLastPink: number,
-    phase: 'CLUSTER' | 'DESERT' | 'NORMAL',
-    pinkIntervals: PinkIntervalAnalysis
+    phase: 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY' // Adicionado RECOVERY internamente, cast para output se precisar
   ): Recommendation {
     if (values.length === 0) return { action: 'WAIT', reason: 'Aguardando dados...', riskLevel: 'LOW', confidence: 0 };
     
-    const lastValue = values[0];
-    const isBlueTrigger = lastValue < 2.0;
-    
-    // ESTRATÉGIA PÓS-DESERTO:
-    // Se o último padrão foi > 15 (veio de deserto) e estamos < 15 velas da rosa atual
-    // Relaxamos o limite de 10 velas para 15
-    const lastInterval = pinkIntervals.lastPattern || 0;
-    const isPostDesert = lastInterval >= 15;
-    const limit = isPostDesert ? 15 : 10;
-
-    // BLOQUEIOS (Hard Blocks)
+    // 1. PROTEÇÃO DE DESERTO (Prioridade Absoluta)
+    // Se estamos em DESERTO, bloqueia tudo.
     if (phase === 'DESERT') {
-         return { action: 'WAIT', reason: '🌵 Fase Deserto detected (bloqueio total).', riskLevel: 'HIGH', confidence: 0 };
-    }
-
-    if (candlesSinceLastPink > limit) {
-         return { 
-             action: 'WAIT', 
-             reason: isPostDesert 
-                 ? `🧊 Grafo Esfriou (Pós-Deserto: ${candlesSinceLastPink} > 15)` 
-                 : `🧊 Grafo Esfriou (${candlesSinceLastPink} > 10 velas sem rosa)`, 
-             riskLevel: 'MEDIUM', 
-             confidence: 0 
-         };
-    }
-
-    if (isBlueTrigger) {
-      return {
-        action: 'PLAY_10X',
-        reason: `🌸 V5 Sniper: Vela azul (${lastValue.toFixed(2)}x) detectada.`,
-        riskLevel: 'MEDIUM',
-        confidence: 100,
+      return { 
+        action: 'WAIT', 
+        reason: `🌵 FASE DESERTO: ${candlesSinceLastPink} velas sem rosa. Bloqueio de segurança.`, 
+        riskLevel: 'HIGH', 
+        confidence: 0,
         estimatedTarget: 10.0
       };
     }
 
+    // 2. RECUPERAÇÃO PÓS-DESERTO (Agressividade Controlada)
+    // Se estamos em RECOVERY, jogamos para buscar o repique
+    if (phase === 'RECOVERY') {
+      // Calcula qual rodada da recuperação estamos (1, 2 ou 3)
+      // Logica: candlesSinceLastPink é o numero de velas desde a rosa que quebrou.
+      // Se candlesSinceLastPink == 0 (a rosa foi a ultima), na proxima rodada é a #1.
+      // Espera... analyze roda NO FINAL da rodada ou INICIO?
+      // Roda com o historico fechado. Se candlesSinceLastPink == 0, a ultima foi rosa. Vamos apostar na proxima.
+      const recoveryRound = candlesSinceLastPink + 1; // 1, 2 ou 3
+      return {
+        action: 'PLAY_10X',
+        reason: `🔥 RECUPERAÇÃO PÓS-DESERTO (Tentativa ${recoveryRound}/3). Alta probabilidade de repique.`,
+        riskLevel: 'MEDIUM',
+        confidence: 90 - (candlesSinceLastPink * 10), // 90, 80, 70
+        estimatedTarget: 10.0
+      };
+    }
+
+    // 3. GATILHOS DE ENTRADA (SNIPER)
+    // Se não é Deserto nem Recuperação, estamos em NORMAL. Validamos gatilhos.
+    const lastValue = values[0];
+    
+    // GATILHO 1: AZUL (< 2.0x)
+    if (lastValue < 2.0) {
+      return {
+        action: 'PLAY_10X',
+        reason: `🎯 SNIPER V8: Gatilho AZUL detectado (${lastValue.toFixed(2)}x).`,
+        riskLevel: 'MEDIUM',
+        confidence: 85,
+        estimatedTarget: 10.0
+      };
+    }
+
+    // GATILHO 2: ROXA BAIXA (2.0x - 3.5x)
+    if (lastValue >= 2.0 && lastValue <= 3.5) {
+      return {
+        action: 'PLAY_10X',
+        reason: `🎯 SNIPER V8: Gatilho ROXA BAIXA detectado (${lastValue.toFixed(2)}x). Aquecimento.`,
+        riskLevel: 'MEDIUM',
+        confidence: 80,
+        estimatedTarget: 10.0
+      };
+    }
+
+    // GATILHO 3: ROSA COLADA (Sticky Pink >= 10.0x)
+    // Nota: Se estamos aqui, candlesSinceLastPink == 0.
+    if (lastValue >= 10.0) {
+      return {
+        action: 'PLAY_10X',
+        reason: `🎯 SNIPER V8: Gatilho ROSA COLADA detectado (${lastValue.toFixed(2)}x).`,
+        riskLevel: 'MEDIUM', // Médio risco pois rosa atrai rosa, mas as vezes quebra
+        confidence: 75,
+        estimatedTarget: 10.0
+      };
+    }
+
+    // SEM GATILHO
     return {
       action: 'WAIT',
-      reason: 'Aguardando vela azul (Gatilho V5)',
+      reason: `⏳ Aguardando gatilho V8 (Azul, Roxa Baixa ou Rosa). Última: ${lastValue.toFixed(2)}x`,
       riskLevel: 'LOW',
       confidence: 0,
       estimatedTarget: 10.0
@@ -190,8 +203,52 @@ export class StrategyCore {
   }
 
   /**
-   * V5: Cálculo de estatísticas de mercado
+   * V8: Identifica fase simplificada (Normal, Deserto, Recovery)
    */
+  private static calculatePhaseV8(values: number[], candlesSinceLastPink: number): 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY' {
+    // DESERT: 12+ velas sem rosa (Ajuste V8: Reduzido de 15 para 12)
+    if (candlesSinceLastPink >= 12) return 'DESERT';
+
+    // RECOVERY CHECK
+    // Precisamos ver se a última rosa (index = candlesSinceLastPink) QUEBROU um deserto.
+    // Ex: values = [2.0, 1.5, 120.0 (Pink), 1.0, 1.0, 1.0 ... 15x ...]
+    // values[candlesSinceLastPink] é a rosa.
+    // Olhamos para o intervalo ANTERIOR a ela.
+    
+    // Indice da rosa que estamos analisando
+    const pinkIndex = candlesSinceLastPink; 
+    
+    // Se a rosa está "muito longe" (ex: > 2), já saiu da janela de recovery (3 rodadas).
+    // RecoveryWindow = 0 (acabou de dar rosa), 1 (1 vela depois), 2 (2 velas depois).
+    if (pinkIndex <= 2) {
+      // Buscar a rosa ANTES dessa (a penúltima rosa do array todo)
+      const nextPinkIndexRel = values.slice(pinkIndex + 1).findIndex(v => v >= 10.0);
+      
+      if (nextPinkIndexRel !== -1) {
+        const actualNextPinkIndex = pinkIndex + 1 + nextPinkIndexRel;
+        const gap = actualNextPinkIndex - pinkIndex - 1; // Velas ENTRE as rosas
+
+        // Se o gap foi >= 12, então a rosa atual (pinkIndex) foi um "Deserter Breaker"
+        if (gap >= 12) {
+          return 'RECOVERY';
+        }
+      } else {
+        // Se não achou outra rosa no histórico imediato (slice), assume que é deserto se o slice for longo o suficiente
+        // Caso de borda: histórico curto. Mas assumimos histórico >= 60.
+        // Se slice length > 12 e não tem rosa, então veio de deserto.
+        if (values.length > pinkIndex + 1 + 12) {
+             return 'RECOVERY';
+        }
+      }
+    }
+
+    // Se não é Deserto nem Recovery, é Normal.
+    // Mantemos 'NORMAL' para compatibilidade.
+    return 'NORMAL';
+  }
+
+  // --- MÉTODOS AUXILIARES (Mantidos) ---
+
   private static calculateMarketStats(values: number[], window: number) {
     const slice = values.slice(0, window);
     if (slice.length === 0) return { bluePercent: 0, purplePercent: 0, pinkPercent: 0 };
@@ -204,7 +261,6 @@ export class StrategyCore {
       bluePercent: Math.round((blue / slice.length) * 100),
       purplePercent: Math.round((purple / slice.length) * 100),
       pinkPercent: Math.round((pink / slice.length) * 100),
-      // NOVO: Retornar contagens absolutas para exibição no Header
       counts: {
         blue,
         purple,
@@ -214,11 +270,6 @@ export class StrategyCore {
     };
   }
 
-  /**
-   * NOVO: Análise de Intervalos entre Rosas
-   * Retorna mapa de intervalos, último padrão e clustering
-   * CORREÇÃO: Subtrai 1 para contar apenas velas ENTRE as rosas
-   */
   private static analyzePinkIntervals(values: number[]): PinkIntervalAnalysis {
     const pinkIndices: number[] = [];
     for (let i = 0; i < values.length; i++) {
@@ -231,7 +282,6 @@ export class StrategyCore {
     
     const intervals: number[] = [];
     for (let i = 0; i < pinkIndices.length - 1; i++) {
-        // CORREÇÃO: Subtrair 1 para contar apenas velas ENTRE as rosas (não incluir a rosa de destino)
         const interval = (pinkIndices[i + 1] - pinkIndices[i]) - 1;
         if (interval >= 0) intervals.push(interval);
     }
@@ -251,466 +301,21 @@ export class StrategyCore {
     return { intervalMap, lastPattern, topIntervals };
   }
 
-  /**
-   * Identifica a fase do mercado baseada na densidade recente e distância
-   */
-  private static calculatePhase(values: number[], candlesSinceLastPink: number): 'CLUSTER' | 'DESERT' | 'NORMAL' {
-    // DESERT: Última rosa há 15+ velas
-    if (candlesSinceLastPink >= 15) return 'DESERT';
-
-    const recent10 = values.slice(0, 10).filter(v => v >= 10.0).length;
-    const recent20 = values.slice(0, 20).filter(v => v >= 10.0).length;
-
-    // CLUSTER: 2+ em 10 OU 3+ em 20 com rosa recente (<5)
-    if (recent10 >= 2 || (recent20 >= 3 && candlesSinceLastPink < 5)) {
-        return 'CLUSTER';
-    }
-
-    return 'NORMAL';
-  }
-
-  /**
-   * V4.0: DECISÃO ROXA COM SISTEMA DE PONTUAÇÃO
-   */
-  private static decideAction2xV4(
-    values: number[],
-    streak: number,
-    convRate: number,
-    bluePercent: number,
-    pinkDistance: number,
-    volatility: 'LOW' | 'MEDIUM' | 'HIGH',
-    isXadrez: boolean,
-    deepDowntrend: boolean,
-    has3BluesAfterPink: boolean,
-    isStopLoss: boolean,
-    estimatedTarget: number
-  ): Recommendation {
-    const weights = getActiveWeights().roxa;
-    
-    // HARD BLOCKS (sempre bloqueiam, independente do score)
-    if (has3BluesAfterPink) {
-      return {
-        action: 'WAIT',
-        reason: '🚫 Mercado quebrado (3+ blues consecutivos após rosa)',
-        riskLevel: 'CRITICAL',
-        confidence: 0,
-        estimatedTarget
-      };
-    }
-    
-    // NOVO HARD BLOCK: Conversion rate muito baixa = não jogar
-    if (convRate < 50) {
-      return {
-        action: 'WAIT',
-        reason: '⛔ Conversion rate baixa (<50%). Mercado instável.',
-        riskLevel: 'HIGH',
-        confidence: 0,
-        estimatedTarget
-      };
-    }
-    
-    // NOVO HARD BLOCK: Blue density muito alta = mercado quebrado
-    if (bluePercent > 60) {
-      return {
-        action: 'WAIT',
-        reason: '⛔ Muitos blues (>60%). Mercado quebrado.',
-        riskLevel: 'HIGH',
-        confidence: 0,
-        estimatedTarget
-      };
-    }
-    
-    // NOVO HARD BLOCK: Streak extremo = reversão iminente
-    if (streak >= 7) {
-      return {
-        action: 'WAIT',
-        reason: '⚠️ Streak muito longo (≥7). Reversão iminente!',
-        riskLevel: 'HIGH',
-        confidence: 0,
-        estimatedTarget
-      };
-    }
-    
-    // V4.1: Stop Loss Adaptativo
-    if (isStopLoss) {
-      // Verificar se histórico tem 3 blues consecutivos
-      const has3BluesInHistory = this.check3ConsecutiveBluesInWindow(values, 25);
-      
-      if (has3BluesInHistory) {
-        return {
-          action: 'STOP',
-          reason: '🛑 Stop Loss (2 reds + histórico com 3 blues). Alto risco.',
-          riskLevel: 'HIGH',
-          confidence: 0,
-          estimatedTarget
-        };
-      } else {
-        // Histórico mostra que só quebra até 2, então pode arriscar
-        // Mas adiciona penalidade no score
-        // (continua para cálculo de score)
-      }
-    }
-
-    // CALCULAR SCORE
-    const scoreBreakdown: ScoreBreakdown = {
-      streak: 0,
-      conversionRate: 0,
-      blueDensity: 0,
-      pinkDistance: 0,
-      volatility: 0,
-      pattern: 0,
-      downtrend: 0,
-      total: 0,
-      details: []
-    };
-
-    // 1. STREAK
-    if (streak >= 4) {
-      scoreBreakdown.streak = weights.streak_4_plus;
-      scoreBreakdown.details.push(`Streak ≥4: +${weights.streak_4_plus}`);
-    } else if (streak === 3) {
-      scoreBreakdown.streak = weights.streak_3;
-      scoreBreakdown.details.push(`Streak=3: +${weights.streak_3}`);
-    } else if (streak === 2) {
-      scoreBreakdown.streak = weights.streak_2;
-      scoreBreakdown.details.push(`Streak=2: +${weights.streak_2}`);
-    } else if (streak === 1) {
-      scoreBreakdown.streak = weights.streak_1;
-      scoreBreakdown.details.push(`Streak=1: +${weights.streak_1}`);
-    }
-
-    // 2. CONVERSION RATE
-    if (convRate >= 60) {
-      scoreBreakdown.conversionRate = weights.conv_60_plus;
-      scoreBreakdown.details.push(`Conv ≥60%: +${weights.conv_60_plus}`);
-    } else if (convRate >= 50) {
-      scoreBreakdown.conversionRate = weights.conv_50_59;
-      scoreBreakdown.details.push(`Conv 50-59%: +${weights.conv_50_59}`);
-    } else if (convRate >= 40) {
-      scoreBreakdown.conversionRate = weights.conv_40_49;
-      scoreBreakdown.details.push(`Conv 40-49%: +${weights.conv_40_49}`);
-    } else {
-      scoreBreakdown.conversionRate = weights.conv_under_40;
-      scoreBreakdown.details.push(`Conv <40%: ${weights.conv_under_40}`);
-    }
-
-    // 3. BLUE DENSITY
-    if (bluePercent < 40) {
-      scoreBreakdown.blueDensity = weights.blue_under_40;
-      scoreBreakdown.details.push(`Blue <40%: +${weights.blue_under_40}`);
-    } else if (bluePercent < 50) {
-      scoreBreakdown.blueDensity = weights.blue_40_50;
-      scoreBreakdown.details.push(`Blue 40-50%: +${weights.blue_40_50}`);
-    } else if (bluePercent <= 60) {
-      scoreBreakdown.blueDensity = weights.blue_50_60;
-      scoreBreakdown.details.push(`Blue 50-60%: ${weights.blue_50_60}`);
-    } else {
-      scoreBreakdown.blueDensity = weights.blue_over_60;
-      scoreBreakdown.details.push(`Blue >60%: ${weights.blue_over_60}`);
-    }
-
-    // 4. PINK DISTANCE
-    if (pinkDistance >= 5) {
-      scoreBreakdown.pinkDistance = weights.pink_5_plus;
-      scoreBreakdown.details.push(`Dist ≥5: +${weights.pink_5_plus}`);
-    } else if (pinkDistance >= 3) {
-      scoreBreakdown.pinkDistance = weights.pink_3_4;
-      scoreBreakdown.details.push(`Dist 3-4: +${weights.pink_3_4}`);
-    } else {
-      scoreBreakdown.pinkDistance = weights.pink_under_3;
-      scoreBreakdown.details.push(`Dist <3: ${weights.pink_under_3}`);
-    }
-
-    // 5. VOLATILITY
-    if (volatility === 'MEDIUM') {
-      scoreBreakdown.volatility = weights.volatility_medium;
-      scoreBreakdown.details.push(`Vol MEDIUM: +${weights.volatility_medium}`);
-    } else if (volatility === 'HIGH') {
-      scoreBreakdown.volatility = weights.volatility_high;
-      scoreBreakdown.details.push(`Vol HIGH: +${weights.volatility_high}`);
-    } else {
-      scoreBreakdown.volatility = weights.volatility_low;
-      scoreBreakdown.details.push(`Vol LOW: ${weights.volatility_low}`);
-    }
-
-    // 6. PATTERNS
-    if (isXadrez) {
-      scoreBreakdown.pattern = weights.xadrez_detected;
-      scoreBreakdown.details.push(`Xadrez: +${weights.xadrez_detected}`);
-    }
-
-    // 7. DOWNTREND
-    if (deepDowntrend) {
-      scoreBreakdown.downtrend = weights.deep_downtrend;
-      scoreBreakdown.details.push(`Deep Downtrend: ${weights.deep_downtrend}`);
-    }
-    
-    // 8. STOP LOSS ADAPTATIVO (V4.1)
-    // Se está em stop loss mas histórico não tem 3 blues, adiciona penalidade
-    if (isStopLoss && !this.check3ConsecutiveBluesInWindow(values, 25)) {
-      const penalty = -15;
-      scoreBreakdown.downtrend += penalty; // Adiciona à categoria downtrend
-      scoreBreakdown.details.push(`Stop Loss (2 reds): ${penalty}`);
-    }
-
-    // 9. EXHAUSTION PROTECTION (V4.4)
-    // Se houver muitos roxos recentes (>= 7 em 10), o mercado pode estar saturado.
-    const recentPurples = values.slice(0, 10).filter(v => v >= 2.0).length;
-    if (recentPurples >= 7) {
-      const penalty = -20;
-      scoreBreakdown.pattern += penalty;
-      scoreBreakdown.details.push(`Possível Exaustão: ${penalty}`);
-    } else if (streak >= 2 && recentPurples >= 5) {
-      // Remover bônus de Turbo Surf antigo que era armadilha
-      // Manter neutro ou pequena penalidade se necessário
-      // scoreBreakdown.details.push(`Surf observado (Neutro)`);
-    }
-
-    // TOTAL
-    scoreBreakdown.total = 
-      scoreBreakdown.streak +
-      scoreBreakdown.conversionRate +
-      scoreBreakdown.blueDensity +
-      scoreBreakdown.pinkDistance +
-      scoreBreakdown.volatility +
-      scoreBreakdown.pattern +
-      scoreBreakdown.downtrend;
-
-    // DECISÃO BASEADA EM THRESHOLD
-    const threshold = weights.threshold;
-    
-    // NOVO: Hard block para scores extremos (V4.3)
-    if (scoreBreakdown.total > 120) {
-      return {
-        action: 'WAIT',
-        reason: `❌ Score: ${scoreBreakdown.total} (Saturação/Armadilha)`,
-        riskLevel: 'HIGH',
-        confidence: scoreBreakdown.total,
-        estimatedTarget,
-        scoreBreakdown
-      };
-    }
-
-    if (scoreBreakdown.total >= threshold) {
-      return {
-        action: 'PLAY_2X',
-        reason: `✅ Score: ${scoreBreakdown.total} (Threshold: ${threshold})`,
-        riskLevel: 'LOW',
-        confidence: Math.min(95, scoreBreakdown.total),
-        estimatedTarget,
-        scoreBreakdown
-      };
-    } else if (scoreBreakdown.total >= threshold - 10) {
-      return {
-        action: 'WAIT',
-        reason: `⚠️ Score: ${scoreBreakdown.total} (Zona cinza - aguarde)`,
-        riskLevel: 'MEDIUM',
-        confidence: scoreBreakdown.total,
-        estimatedTarget,
-        scoreBreakdown
-      };
-    } else {
-      return {
-        action: 'WAIT',
-        reason: `❌ Score: ${scoreBreakdown.total} (Baixa confiança)`,
-        riskLevel: 'LOW',
-        confidence: Math.max(0, scoreBreakdown.total),
-        estimatedTarget,
-        scoreBreakdown
-      };
-    }
-  }
-
-  /**
-   * V4.0: DECISÃO ROSA COM SISTEMA DE PONTUAÇÃO
-   */
-  private static decideActionPinkV4(
-    pattern: PatternData | null,
-    pinkDistance: number,
-    pinkCount25: number,
-    has3BluesAfterPink: boolean
-  ): Recommendation {
-    const weights = getActiveWeights().rosa;
-    
-    // HARD BLOCKS
-    if (has3BluesAfterPink) {
-      return {
-        action: 'WAIT',
-        reason: '🚫 Mercado quebrado (3+ blues após rosa)',
-        riskLevel: 'CRITICAL',
-        confidence: 0
-      };
-    }
-    
-    if (pinkCount25 === 0) {
-      return {
-        action: 'WAIT',
-        reason: '❌ Sem rosas na janela de 25',
-        riskLevel: 'HIGH',
-        confidence: 0
-      };
-    }
-
-    // CALCULAR SCORE
-    const scoreBreakdown: ScoreBreakdown = {
-      streak: 0,
-      conversionRate: 0,
-      blueDensity: 0,
-      pinkDistance: 0,
-      volatility: 0,
-      pattern: 0,
-      downtrend: 0,
-      total: 0,
-      details: []
-    };
-
-    // 1. PATTERN
-    if (pattern) {
-      const occ = pattern.occurrences;
-      if (occ >= 4) {
-        scoreBreakdown.pattern = weights.pattern_4_plus_occurrences;
-        scoreBreakdown.details.push(`Padrão ${occ}x: +${weights.pattern_4_plus_occurrences}`);
-      } else if (occ === 3) {
-        scoreBreakdown.pattern = weights.pattern_3_occurrences;
-        scoreBreakdown.details.push(`Padrão 3x: +${weights.pattern_3_occurrences}`);
-      } else {
-        scoreBreakdown.pattern = weights.pattern_2_occurrences;
-        scoreBreakdown.details.push(`Padrão 2x: +${weights.pattern_2_occurrences}`);
-      }
-      
-      // ZONE
-      const diff = Math.abs(pattern.candlesUntilMatch);
-      if (diff === 0) {
-        scoreBreakdown.streak = weights.zone_exact;
-        scoreBreakdown.details.push(`Zona exata: +${weights.zone_exact}`);
-      } else if (diff === 1) {
-        scoreBreakdown.streak = weights.zone_near;
-        scoreBreakdown.details.push(`Zona ±1: +${weights.zone_near}`);
-      } else {
-        scoreBreakdown.streak = weights.zone_far;
-        scoreBreakdown.details.push(`Zona distante: ${weights.zone_far}`);
-      }
-      
-      // INTERVAL
-      const int = pattern.interval;
-      if (int >= 3 && int <= 5) {
-        scoreBreakdown.volatility = weights.interval_3_5;
-        scoreBreakdown.details.push(`Intervalo 3-5: +${weights.interval_3_5}`);
-      } else if (int >= 6 && int <= 10) {
-        scoreBreakdown.volatility = weights.interval_6_10;
-        scoreBreakdown.details.push(`Intervalo 6-10: +${weights.interval_6_10}`);
-      } else {
-        scoreBreakdown.volatility = weights.interval_over_10;
-        scoreBreakdown.details.push(`Intervalo >10: +${weights.interval_over_10}`);
-      }
-      
-      // CONFIDENCE
-      const conf = pattern.confidence;
-      if (conf >= 80) {
-        scoreBreakdown.downtrend = weights.confidence_80_plus;
-        scoreBreakdown.details.push(`Conf ≥80%: +${weights.confidence_80_plus}`);
-      } else if (conf >= 70) {
-        scoreBreakdown.downtrend = weights.confidence_70_79;
-        scoreBreakdown.details.push(`Conf 70-79%: +${weights.confidence_70_79}`);
-      } else {
-        scoreBreakdown.downtrend = weights.confidence_under_70;
-        scoreBreakdown.details.push(`Conf <70%: ${weights.confidence_under_70}`);
-      }
-    } else {
-      scoreBreakdown.pattern = weights.no_pattern;
-      scoreBreakdown.details.push(`Sem padrão: ${weights.no_pattern}`);
-    }
-
-    // 2. FREQUENCY
-    if (pinkCount25 >= 3) {
-      scoreBreakdown.conversionRate = weights.freq_3_plus;
-      scoreBreakdown.details.push(`Freq ≥3: +${weights.freq_3_plus}`);
-    } else if (pinkCount25 === 2) {
-      scoreBreakdown.conversionRate = weights.freq_2;
-      scoreBreakdown.details.push(`Freq 2: +${weights.freq_2}`);
-    } else if (pinkCount25 === 1) {
-      scoreBreakdown.conversionRate = weights.freq_1;
-      scoreBreakdown.details.push(`Freq 1: ${weights.freq_1}`);
-    }
-
-    // 3. PINK DISTANCE
-    if (pinkDistance >= 5) {
-      scoreBreakdown.pinkDistance = weights.pink_5_plus;
-      scoreBreakdown.details.push(`Dist ≥5: +${weights.pink_5_plus}`);
-    } else if (pinkDistance >= 3) {
-      scoreBreakdown.pinkDistance = weights.pink_3_4;
-      scoreBreakdown.details.push(`Dist 3-4: +${weights.pink_3_4}`);
-    } else {
-      scoreBreakdown.pinkDistance = weights.pink_under_3;
-      scoreBreakdown.details.push(`Dist <3: ${weights.pink_under_3}`);
-    }
-
-    // 4. SNIPER WINDOW (V4.1)
-    // Janela de oportunidade estatística entre 8 e 12 velas
-    if (pinkDistance >= 8 && pinkDistance <= 12) {
-      const bonus = 15;
-      scoreBreakdown.volatility += bonus;
-      scoreBreakdown.details.push(`Sniper Window: +${bonus}`);
-    }
-
-    // TOTAL
-    scoreBreakdown.total = 
-      scoreBreakdown.pattern +
-      scoreBreakdown.streak +
-      scoreBreakdown.conversionRate +
-      scoreBreakdown.pinkDistance +
-      scoreBreakdown.volatility +
-      scoreBreakdown.downtrend;
-
-    // DECISÃO
-    const threshold = weights.threshold;
-    
-    if (scoreBreakdown.total >= threshold) {
-      return {
-        action: 'PLAY_10X',
-        reason: `🌸 Score: ${scoreBreakdown.total} (Threshold: ${threshold})`,
-        riskLevel: 'MEDIUM',
-        confidence: Math.min(95, scoreBreakdown.total),
-        scoreBreakdown
-      };
-    } else {
-      return {
-        action: 'WAIT',
-        reason: `❌ Score: ${scoreBreakdown.total} (Threshold: ${threshold})`,
-        riskLevel: 'LOW',
-        confidence: Math.max(0, scoreBreakdown.total),
-        scoreBreakdown
-      };
-    }
-  }
-
-  /**
-   * V4.0: DETECTA 3 BLUES CONSECUTIVOS APÓS ÚLTIMO ROSA
-   */
   private static check3ConsecutiveBluesAfterPink(values: number[]): boolean {
     const lastPinkIndex = values.findIndex(v => v >= 10.0);
     if (lastPinkIndex === -1) return false;
-    
-    // Pega as 3 velas após o rosa
     const afterPink = values.slice(0, lastPinkIndex);
     if (afterPink.length < 3) return false;
-    
-    // Verifica se as 3 primeiras são blues
     return afterPink[0] < 2.0 && afterPink[1] < 2.0 && afterPink[2] < 2.0;
   }
 
-  /**
-   * V4.1: Verifica se há 3 blues consecutivos na janela
-   */
   private static check3ConsecutiveBluesInWindow(v: number[], windowSize: number): boolean {
     const window = v.slice(0, windowSize);
-    
     for (let i = 0; i < window.length - 2; i++) {
       if (window[i] < 2.0 && window[i + 1] < 2.0 && window[i + 2] < 2.0) {
         return true;
       }
     }
-    
     return false;
   }
 
@@ -723,13 +328,6 @@ export class StrategyCore {
       else break;
     }
     return firstIsBlue ? -count : count;
-  }
-
-  private static calculateDoubleBlueStats(v: number[], lb: number) {
-    const slice = v.slice(0, lb);
-    let count = 0;
-    for (let i = 0; i < slice.length - 1; i++) if (slice[i] < 2.0 && slice[i+1] < 2.0) count++;
-    return count;
   }
 
   private static calculateConversionRate(v: number[], lb: number) {
@@ -746,8 +344,6 @@ export class StrategyCore {
 
   private static detectPinkPattern(v: number[], lastIdx: number, _density: string): PatternData | null {
     if (lastIdx === -1) return null;
-    
-    // V4.0: Busca em até 60 velas para melhor detecção
     const indices = v.slice(0, 60).map((val, i) => (val >= 10.0 ? i : -1)).filter(i => i !== -1);
     if (indices.length < 2) return null;
     
@@ -757,17 +353,14 @@ export class StrategyCore {
     const freq = new Map<number, number>();
     intervals.forEach(int => freq.set(int, (freq.get(int) || 0) + 1));
     
-    // V4.1: Regras relaxadas para capturar padrões em janelas curtas
     const confirmed = Array.from(freq.entries()).filter(([int, count]) => {
         if (int < 3) return count >= 3;
         if (int >= 3 && int <= 5) return count >= 2;
         return count >= 1;
     });
     
-    // Prioriza intervalos com mais ocorrências
     for (const [int, count] of confirmed.sort((a, b) => b[1] - a[1])) {
         const diff = Math.abs(lastIdx - int);
-        // V4.1: Margem de erro maior para intervalos longos
         const maxDiff = int >= 12 ? 2 : 1;
         if (diff <= maxDiff) {
             return {
@@ -798,26 +391,6 @@ export class StrategyCore {
   }
 
   private static calculateEstimatedTarget(values: number[], candlesSincePink: number): number {
-    const analysisWindowSize = Math.max(candlesSincePink, 10);
-    const window = values.slice(0, Math.min(analysisWindowSize, 25));
-    const purples = window.filter(v => v >= 2.0 && v < 10.0);
-
-    if (purples.length < 2) return 2.00;
-
-    const buckets = purples.map(v => Math.floor(v * 2) / 2);
-    const freqMap = new Map<number, number>();
-    buckets.forEach(b => freqMap.set(b, (freqMap.get(b) || 0) + 1));
-
-    const sortedBuckets = Array.from(freqMap.keys()).sort((a, b) => b - a);
-    const threshold = purples.length * 0.4;
-
-    for (const bucket of sortedBuckets) {
-      if ((freqMap.get(bucket) || 0) >= threshold) {
-        return Math.max(2.0, bucket);
-      }
-    }
-
-    const avg = purples.reduce((sum, v) => sum + v, 0) / purples.length;
-    return Math.max(2.0, Math.floor(avg * 2) / 2);
+    return 10.0; // V8: Target fixo
   }
 }
