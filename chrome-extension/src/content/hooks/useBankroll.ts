@@ -30,34 +30,67 @@ export function useBankrollLogic(
     analysis: AnalysisData,
     betConfig: { bet2x: number, bet10x: number } = { bet2x: 100.00, bet10x: 50.00 }
 ) {
-    // NO PERSISTENCE (Per User Request: F5/Reload MUST reset)
-    // State is held in React Memory only. 
-    // It survives tab focus changes, but clears on Reload/Close.
+    // PERSISTENCE LOGIC (Smart Session)
+    // We want to persist across tab switches (component unmount)
+    // BUT reset on actual page reloads or new sessions (F5).
+    
+    // Key used to track if this tab instance is "fresh" or "resuming"
+    const SESSION_ACTIVE_KEY = 'aviator_analyzer_session_active';
+    const BALANCE_KEY = 'aviator_analyzer_balance';
+    const HISTORY_KEY = 'aviator_analyzer_history';
 
-    const [balance, setBalance] = useState(1000.00); 
-    const [history, setHistory] = useState<BetResult[]>([]);
+    // 1. INITIALIZE STATE (Lazy Init)
+    const [balance, setBalance] = useState(() => {
+        const saved = localStorage.getItem(BALANCE_KEY);
+        // Only restore if session is active, otherwise default 1000
+        return (saved && sessionStorage.getItem(SESSION_ACTIVE_KEY)) ? parseFloat(saved) : 1000.00;
+    });
+
+    const [history, setHistory] = useState<BetResult[]>(() => {
+        const saved = localStorage.getItem(HISTORY_KEY);
+        return (saved && sessionStorage.getItem(SESSION_ACTIVE_KEY)) ? JSON.parse(saved) : [];
+    });
+
     const [emergencyBrake, setEmergencyBrake] = useState(false);
     
-    // 1. CLEANUP ON MOUNT (Restored from previous version)
+    // 2. SESSION LIFECYCLE MANAGEMENT
     useEffect(() => {
-        console.log('[Bankroll] 🚀 New Session Started (Resetting statistics)');
-        // Limpeza agressiva para garantir estado limpo no F5
-        localStorage.removeItem('aviator_analyzer_history');
-        localStorage.removeItem('consecutive_losses');
-        setHistory([]);
-        setEmergencyBrake(false);
+        // Check if this is a "continue" or "start"
+        const isContinuing = sessionStorage.getItem(SESSION_ACTIVE_KEY);
+
+        if (!isContinuing) {
+            console.log('[Bankroll] 🚀 New Session Started (Cleaning old data)');
+            // Fresh Start: Clear Storage
+            localStorage.removeItem(HISTORY_KEY);
+            localStorage.removeItem(BALANCE_KEY);
+            localStorage.removeItem('consecutive_losses');
+            
+            // Mark session as active for future tab switches
+            sessionStorage.setItem(SESSION_ACTIVE_KEY, 'true');
+            
+            setHistory([]);
+            setBalance(1000.00);
+            setEmergencyBrake(false);
+        } else {
+             console.log('[Bankroll] 🔄 Resuming Session (Restoring from Storage)');
+        }
     }, []);
 
-    // 2. AUTO-RESET ON GAME DISCONNECT (Restored from previous version)
-    // Se o jogo sumir (histórico vazio), limpamos a simulação para evitar dados fantasmas
+    // 3. PERSIST ON CHANGE
     useEffect(() => {
-        if (gameState.history.length === 0 && history.length > 0) {
-            console.log('[Bankroll] 🔰 No game detected. Resetting simulation history.');
-            setHistory([]);
-            // We do NOT reset balance here to preserve profit across minor connection blips
-            // setBalance(1000.00); 
-        }
-    }, [gameState.history.length]);
+        localStorage.setItem(BALANCE_KEY, balance.toString());
+    }, [balance]);
+
+    useEffect(() => {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }, [history]);
+
+
+    // 4. AUTO-RESET (Only if game truly disappears for long, optional)
+    /* 
+       REMOVED: This was causing issues on tab switch where `gameState` comes empty initially.
+       We will trust the user to manually reset if needed, or rely on the logic above.
+    */
 
     // Monitor Brake (Reset logic handled in resolveRound)
     useEffect(() => {
