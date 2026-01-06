@@ -1,0 +1,162 @@
+================================================================
+ ANÁLISE SURVIVAL V9: 2_139.txt
+ Data: 06/01/2026, 03:20:56
+================================================================
+ ROUND | INPUT | REGIME     | STAKE | AÇÃO       | MOTIVO                    | RESULTADO | SALDO   | CD
+----------------------------------------------------------------
+ 1     | 33.10 | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 2     | 2.61  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 3     | 1.15  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 4     | 6.95  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 5     | 1.04  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 6     | 6.26  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 7     | 1.97  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 8     | 1.68  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 9     | 1.24  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 10    | 1.84  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 11    | 15.54 | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 12    | 1.38  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 13    | 1.84  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 14    | 1.07  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 15    | 22.47 | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 16    | 1.45  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 17    | 1.56  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 18    | 8.26  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 19    | 1.41  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 20    | 1.89  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 21    | 1.25  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 22    | 4.97  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 23    | 1.99  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 24    | 1.06  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 25    | 1.85  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 26    | 1213.49 | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 27    | 1.17  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 28    | 1.05  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 29    | 1.00  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 30    | 2.80  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 31    | 2.63  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 32    | 7.66  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 33    | 2.60  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 34    | 1.06  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 35    | 9.49  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 36    | 1.15  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 37    | 2.41  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 38    | 4.43  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 39    | 1.54  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 40    | 1.82  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 41    | 1.20  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 42    | 1.82  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 43    | 1.61  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 44    | 4.27  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 45    | 5.49  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 46    | 3.37  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 47    | 4.89  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 48    | 2.01  | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 49    | 10.16 | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 50    | 40.64 | BUILD      | 0%    | SKIP       | Building Memory           | -         | R$ 1000 | -
+ 51    | 41.48 | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | WIN +450  | R$ 1450 | -
+ 52    | 7.07  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 1400 | -
+ 53    | 1.15  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 1400 | -
+ 54    | 2.42  | EXPANSION  | 100%  | PLAY 10x   | BLUE                      | LOSS -50  | R$ 1350 | -
+ 55    | 1.08  | EXPANSION  | 100%  | PLAY 10x   | LOW PURPLE                | LOSS -50  | R$ 1300 | ACTIVATED
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (17.68x) <<<
+ 56    | 17.68 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 1300 | RELEASE
+ 57    | 1.20  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 1250 | -
+ 58    | 1.00  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 1225 | -
+ 59    | 3.17  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 1200 | ACTIVATED
+ 60    | 1.46  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1200 | ON
+ 61    | 5.64  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1200 | ON
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (13.20x) <<<
+ 62    | 13.20 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 1200 | RELEASE
+ 63    | 3.62  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 1150 | -
+ 64    | 1.11  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 1150 | -
+ 65    | 5.07  | EXPANSION  | 100%  | PLAY 10x   | BLUE                      | LOSS -50  | R$ 1100 | -
+ 66    | 1.48  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 1100 | -
+ 67    | 2.54  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 1075 | ACTIVATED
+ 68    | 4.32  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 69    | 1.94  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 70    | 1.29  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 71    | 1.15  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 72    | 5.16  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 73    | 1.28  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (17.02x) <<<
+ 74    | 17.02 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 1075 | RELEASE
+ 75    | 1.00  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 1025 | -
+ 76    | 1.21  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 1000 | -
+ 77    | 1.04  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 975 | ACTIVATED
+ 78    | 1.64  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 975 | ON
+ 79    | 2.32  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 975 | ON
+ 80    | 5.02  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 975 | ON
+ 81    | 1.27  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 975 | ON
+ 82    | 1.67  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 975 | ON
+ 83    | 1.93  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 975 | ON
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (11.12x) <<<
+ 84    | 11.12 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 975 | RELEASE
+ 85    | 1.84  | UNCERTAINT | 50%   | PLAY 10x   | STICKY PINK               | LOSS -25  | R$ 950 | -
+ 86    | 2.06  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 925 | -
+ 87    | 1.08  | UNCERTAINT | 50%   | PLAY 10x   | LOW PURPLE                | LOSS -25  | R$ 900 | ACTIVATED
+ 88    | 6.95  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 900 | ON
+ 89    | 3.37  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 900 | ON
+ 90    | 1.46  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 900 | ON
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (15.28x) <<<
+ 91    | 15.28 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 900 | RELEASE
+ 92    | 1.41  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 850 | -
+ 93    | 5.53  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 825 | -
+ 94    | 2.11  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 825 | -
+ 95    | 3.72  | EXPANSION  | 100%  | PLAY 10x   | LOW PURPLE                | LOSS -50  | R$ 775 | ACTIVATED
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (17.22x) <<<
+ 96    | 17.22 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 775 | RELEASE
+ 97    | 11.63 | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | WIN +450  | R$ 1225 | -
+ 98    | 9.35  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 1175 | -
+ 99    | 1.02  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 1175 | -
+ 100   | 3.32  | EXPANSION  | 100%  | PLAY 10x   | BLUE                      | LOSS -50  | R$ 1125 | -
+ 101   | 5.23  | EXPANSION  | 100%  | PLAY 10x   | LOW PURPLE                | LOSS -50  | R$ 1075 | ACTIVATED
+ 102   | 1.38  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 103   | 1.19  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 104   | 1.46  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 105   | 2.80  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 106   | 8.04  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 107   | 1.06  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+ 108   | 1.14  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1075 | ON
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (11.34x) <<<
+ 109   | 11.34 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 1075 | RELEASE
+ 110   | 1.92  | UNCERTAINT | 50%   | PLAY 10x   | STICKY PINK               | LOSS -25  | R$ 1050 | -
+ 111   | 30.17 | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | WIN +225  | R$ 1275 | -
+ 112   | 3.10  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 1225 | -
+ 113   | 4.59  | EXPANSION  | 100%  | PLAY 10x   | LOW PURPLE                | LOSS -50  | R$ 1175 | -
+ 114   | 9.49  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 1175 | -
+ 115   | 1.57  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 1175 | -
+ 116   | 1.15  | EXPANSION  | 100%  | PLAY 10x   | BLUE                      | LOSS -50  | R$ 1125 | ACTIVATED
+ 117   | 1.32  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1125 | ON
+ 118   | 1.92  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1125 | ON
+ 119   | 2.89  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1125 | ON
+ 120   | 1.00  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1125 | ON
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (10.35x) <<<
+ 121   | 10.35 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 1125 | RELEASE
+ 122   | 1.60  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 1075 | -
+ 123   | 1.99  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 1050 | -
+ 124   | 1.92  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 1025 | ACTIVATED
+ 125   | 8.01  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 1025 | ON
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (20.48x) <<<
+ 126   | 20.48 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 1025 | RELEASE
+ 127   | 6.30  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 975 | -
+ 128   | 1.65  | EXPANSION  | 0%    | WAIT       | WAITING                   | -         | R$ 975 | -
+ 129   | 3.32  | EXPANSION  | 100%  | PLAY 10x   | BLUE                      | LOSS -50  | R$ 925 | -
+ 130   | 3.55  | EXPANSION  | 100%  | PLAY 10x   | LOW PURPLE                | LOSS -50  | R$ 875 | ACTIVATED
+   >>> 🟢 COOL DOWN LIBERADO POR ROSA (40.61x) <<<
+ 131   | 40.61 | COOL_DOWN  | 0%    | WAIT       | -                         | -         | R$ 875 | RELEASE
+ 132   | 1.63  | EXPANSION  | 100%  | PLAY 10x   | STICKY PINK               | LOSS -50  | R$ 825 | -
+ 133   | 1.41  | EXPANSION  | 100%  | PLAY 10x   | BLUE                      | LOSS -50  | R$ 775 | -
+ 134   | 5.98  | UNCERTAINT | 50%   | PLAY 10x   | BLUE                      | LOSS -25  | R$ 750 | ACTIVATED
+ 135   | 8.76  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 750 | ON
+ 136   | 1.02  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 750 | ON
+ 137   | 1.81  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 750 | ON
+ 138   | 2.43  | COOL_DOWN  | 0%    | BLOCKED    | Cool Down Active          | CD-WAIT   | R$ 750 | ON
+----------------------------------------------------------------
+ RESUMO DO GRAFO:
+ Status: END_OF_GRAPH
+ Jogadas: 37 | Wins: 3 | Assertividade: 8.11%
+ Saldo Inicial: R$ 1000.00 | Final: R$ 750.00
+ Lucro Líquido: R$ -250.00
+ Drawdown Máx:  R$ 700.00
+================================================================

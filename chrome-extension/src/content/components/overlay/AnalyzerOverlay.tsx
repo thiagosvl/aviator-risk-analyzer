@@ -14,9 +14,9 @@ import { useEffect, useRef, useState } from 'react';
  */
 
 import {
-    ChevronDown,
-    ChevronUp,
-    Maximize2
+  ChevronDown,
+  ChevronUp,
+  Maximize2
 } from 'lucide-react';
 
 import { useBankrollLogic } from '@src/content/hooks/useBankroll';
@@ -68,15 +68,22 @@ export const AnalyzerOverlay = () => {
   const [bet10x, setBet10x] = useState(50.00);
 
   // Bankroll Management
-  const { balance, setBalance, history, stats } = useBankrollLogic(gameState, analysis, { bet2x, bet10x });
+  const { balance, setBalance, history, stats, isCoolDown } = useBankrollLogic(gameState, analysis, { bet2x, bet10x });
   
   const [isVisible, setIsVisible] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
-  const [showDetails, setShowDetails] = useState(true); // Default OPEN
+  const [showDetails, setShowDetails] = useState(false); // Default CLOSED to reduce noise
   const [isMinimized, setIsMinimized] = useState(false);
   const [isEditingBalance, setIsEditingBalance] = useState(false);
   const [balanceInput, setBalanceInput] = useState('1000.00');
   const [isStealthMode, setIsStealthMode] = useState(false);
+
+  // V9 Metrics
+  const regime = analysis.regime || 'EXPANSION';
+  const absStake = analysis.absStake !== undefined ? analysis.absStake : 1.0;
+  
+  // Dynamic Stake Calculation
+  const adjustedStake10x = bet10x * absStake;
 
   // Draggable State - DEFAULT POSITION LEFT
   const [position, setPosition] = useState({ x: 20, y: 100 }); 
@@ -225,6 +232,9 @@ export const AnalyzerOverlay = () => {
 
   // Helper colors
   const getCardStyle = (rec: any, type: '2x' | 'pink') => {
+      // OVERRIDE IF COOL DOWN
+      if (isCoolDown) return 'bg-slate-900 border-slate-700 text-slate-500 min-h-[100px] flex items-center justify-center';
+
       const isPlay = rec.action?.includes('PLAY');
       const isStop = rec.action?.includes('STOP');
       
@@ -244,7 +254,7 @@ export const AnalyzerOverlay = () => {
   return (
     <div
       ref={overlayRef}
-      className="fixed z-[999999] select-none flex flex-col gap-2 font-sans"
+      className={cn("fixed z-[999999] select-none flex flex-col gap-2 font-sans", isCoolDown && "grayscale-[0.5]")}
       style={{
         left: `${position.x}px`,
         top: `${position.y}px`,
@@ -253,21 +263,64 @@ export const AnalyzerOverlay = () => {
       }}>
       <DragShield />
       
-      {/* HEADER & CONTROLS */}
+      {/* HEADER & CONTROLS (V9 REGIME BAR) */}
       <div 
-        className="flex items-center justify-between bg-slate-950/90 backdrop-blur border border-slate-800 rounded-t-lg p-2 cursor-grab active:cursor-grabbing"
+        className={cn("flex items-center justify-between backdrop-blur border border-b-0 rounded-t-lg p-2 cursor-grab active:cursor-grabbing transition-colors relative z-20", // Added z-20 to stay above
+             regime === 'HOSTILE' ? "bg-red-950/90 border-red-900" :
+             regime === 'UNCERTAINTY' ? "bg-amber-950/90 border-amber-900" :
+             "bg-emerald-950/90 border-emerald-900" // Changed directly to emerald-950 for BOM
+        )}
         onMouseDown={handleMouseDown}
       >
          <div className="flex items-center gap-2">
             <GripVertical className="w-4 h-4 text-slate-500"/>
-            <span className="text-xs font-bold text-slate-200">Aviator Analyzer</span>
+            <div className="flex flex-col leading-none">
+                <span className="text-xs font-bold text-slate-200">Aviator Analyzer</span>
+                <span className={cn("text-[10px] font-black uppercase tracking-widest", 
+                    regime === 'HOSTILE' ? 'text-red-500' :
+                    regime === 'UNCERTAINTY' ? 'text-amber-500' : 'text-emerald-500'
+                )}>
+                    {regime === 'HOSTILE' ? 'RUIM' : regime === 'UNCERTAINTY' ? 'MÉDIO' : 'BOM'}
+                </span>
+            </div>
          </div>
-         <div className="text-[10px] text-slate-500 font-mono">
-            v0.5.1
-         </div>
+         <div className="text-[10px] text-slate-500 font-mono">v0.9.3</div>
       </div>
 
-     <div className="bg-slate-950/95 backdrop-blur border-x border-b border-slate-800 rounded-b-lg p-3 shadow-2xl space-y-4">
+     <div className="bg-slate-950/95 backdrop-blur border-x border-b border-slate-800 rounded-b-lg p-3 shadow-2xl space-y-4 relative overflow-hidden min-h-[200px]">
+        
+        {/* RESULT ALERTS */}
+        {(balance - 1000) >= 500 && (
+             <div className="bg-emerald-500/20 border border-emerald-500/50 p-2 rounded text-center animate-pulse mb-2">
+                 <h3 className="text-emerald-400 font-bold text-sm">✅ META BATIDA!</h3>
+                 <p className="text-emerald-300/80 text-[10px]">Lucro: R$ {(balance - 1000).toFixed(2)}. Considere parar.</p>
+             </div>
+        )}
+        {(balance - 1000) <= -500 && (
+             <div className="bg-red-500/20 border border-red-500/50 p-2 rounded text-center animate-pulse mb-2">
+                 <h3 className="text-red-400 font-bold text-sm">🛑 STOP LOSS</h3>
+                 <p className="text-red-300/80 text-[10px]">Prejuízo: R$ {(balance - 1000).toFixed(2)}. Encerre a sessão.</p>
+             </div>
+        )}
+
+        {/* COOL DOWN OVERLAY - Now inside the content area only */}
+        {isCoolDown && (
+             <div className="absolute inset-0 bg-slate-950/95 z-10 flex flex-col items-center justify-center text-center p-4 animate-in fade-in">
+                 <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mb-2 animate-pulse">
+                     <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                         <span className="text-xl">❄️</span>
+                     </div>
+                 </div>
+                 <h3 className="text-blue-400 font-bold text-lg mb-1">COOL DOWN</h3>
+                 <p className="text-slate-400 text-xs max-w-[200px] mb-3">
+                     3 Red Hooks. Aguardando Rosa acima de 10x.
+                 </p>
+                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-900/20 rounded-full border border-blue-500/30">
+                     <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                     <span className="text-[10px] font-bold text-blue-300 uppercase tracking-wider">Aguardando...</span>
+                 </div>
+             </div>
+        )}
         
         {/* 0. MARKET TEMPERATURE (V5 NEW) */}
         <MarketTemperature stats={analysis.marketStats} />
@@ -338,14 +391,33 @@ export const AnalyzerOverlay = () => {
          </div> 
          */}
 
-        {/* CARD ROSA (10.00x) */}
+        {/* 2. CARD ROSA (10.00x) - V9 STYLE */}
         <div className={cn("rounded-lg border-2 p-3 text-center transition-all duration-300 relative overflow-hidden", getCardStyle(recPink, 'pink'))}>
-            <div className="absolute top-0 right-0 bg-black/40 px-2 rounded-bl text-[8px] font-bold uppercase text-white/70">
-                Estratégia Ataque (10x)
-            </div>
+            {/* ABS STAKE BADGE: REDUCED */}
+            {absStake < 1.0 && !isCoolDown && (
+                <div className="absolute top-0 right-0 bg-amber-500/90 text-amber-950 text-[9px] font-bold px-1.5 py-0.5 rounded-bl shadow-sm">
+                    ⚠️ STAKE {absStake * 100}%
+                </div>
+            )}
+            
+            {/* ABS STAKE BADGE: BOOSTED */}
+            {absStake > 1.0 && !isCoolDown && (
+                <div className="absolute top-0 right-0 bg-blue-500/90 text-blue-50 text-[9px] font-bold px-1.5 py-0.5 rounded-bl shadow-sm animate-pulse">
+                    🚀 BOOST {absStake * 100}%
+                </div>
+            )}
+            
            <div className="text-xl font-black tracking-tight mt-1">
              {formatAction(recPink.action).replace('STOP', 'PARE').replace('WAIT', 'AGUARDE')}
            </div>
+           
+           {/* STAKE AMOUNT DISPLAY */}
+           {recPink.action.includes('PLAY') && !isCoolDown && (
+               <div className={cn("text-sm font-bold mt-[-2px] mb-1", absStake > 1.0 ? "text-blue-300" : "text-white/90")}>
+                  R$ {adjustedStake10x.toFixed(2)}
+               </div>
+           )}
+
             <div className="mt-1 text-xs font-medium uppercase opacity-90 border-t border-white/10 pt-1 flex justify-between items-center">
               <span>{recPink.reason || '...'}</span>
               {getRiskBadge(recPink)}

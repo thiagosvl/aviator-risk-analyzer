@@ -44,6 +44,15 @@ export interface AnalysisResult {
   };
   pinkIntervals?: PinkIntervalAnalysis;
   phase: 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY';
+  
+  // V9 NEW FIELDS
+  regime: 'EXPANSION' | 'UNCERTAINTY' | 'HOSTILE'; 
+  absStake: number; // 1.0 = 100%, 0.5 = 50%, 0.0 = 0%
+  regimeStats?: {
+    recentBlueCount: number; // in last 20
+    isHostile: boolean;
+  };
+  
   volatilityScore: number;
   prediction?: {
     category: 'BAIXA' | 'MÉDIA' | 'ALTA';
@@ -74,25 +83,21 @@ export class StrategyCore {
     const lastPinkIndex = values.findIndex(v => v >= 10.0);
     const candlesSinceLastPink = lastPinkIndex === -1 ? values.length : lastPinkIndex;
     const pinkIntervals = this.analyzePinkIntervals(values);
-
-    // 4. DETECTAR PADRÕES & HARD BLOCKS (Auxiliar)
     const pinkPattern = this.detectPinkPattern(values, lastPinkIndex, volatilityDensity);
 
-    // 5. ESTATÍSTICAS DE MERCADO (Janela de 60 velas)
+    // 4. ESTATÍSTICAS DE MERCADO (Janela de 60 velas)
     const marketStats = this.calculateMarketStats(values, 60);
 
-    // 6. IDENTIFICAR FASE (V8 Logic)
-    const phase = this.calculatePhaseV8(values, candlesSinceLastPink);
+    // 5. REGIME & PHASE DETECTION (V9 LOGIC)
+    const { regime, phase, absStake, regimeStats } = this.calculateRegimeAndPhaseV9(values, candlesSinceLastPink);
 
-    // 7. GERAR RECOMENDAÇÕES (V8 SNIPER)
-    const recPink = this.decideActionSniperV8(values, candlesSinceLastPink, phase);
+    // 6. GERAR RECOMENDAÇÕES (V9 SURVIVAL)
+    // Passamos o regime para dentro da decisão para ajustar confidence/reason
+    const recPink = this.decideActionV9(values, candlesSinceLastPink, regime, phase);
     
-    // V8: A estratégia 2x é redundante ou segue o fluxo principal.
-    // Para compatibilidade, retornamos WAIT ou replicamos a decisão principal se quisermos double-bet.
-    // Por enquanto, mantemos WAIT na recomendação 2x específica para focar na Pink/10x.
     const rec2x: Recommendation = {
       action: 'WAIT',
-      reason: 'Estratégia 2x unificada com Sniper V8 (Ver recPink)',
+      reason: 'V9: Foco total em Rosa. 2x desativado para maximizar Sobrevivência.',
       riskLevel: 'LOW',
       confidence: 0
     };
@@ -107,144 +112,161 @@ export class StrategyCore {
       candlesSinceLastPink,
       marketStats,
       pinkIntervals,
-      phase, // Retorna NORMAL, DESERT ou RECOVERY (Mapped to valid types if needed)
+      phase,
+      
+      // V9 Fields
+      regime,
+      absStake,
+      regimeStats,
+      
       volatilityScore: 0,
       prediction: undefined
     };
   }
 
   /**
-   * V8 SNIPER STRATEGY (UNIFIED)
-   * Lógica unificada para decisão de entrada.
+   * V9 REGIME DETECTION
+   * Determina o estado do mar: Liso (Expansão), Agitado (Incerteza) ou Tempestade (Hostil).
    */
-  private static decideActionSniperV8(
+  private static calculateRegimeAndPhaseV9(values: number[], candlesSinceLastPink: number) {
+      // 1. DETECT HOSTILE (DESERT)
+      // Regra Antiga: 12 velas sem rosa.
+      if (candlesSinceLastPink >= 12) {
+          return { 
+              regime: 'HOSTILE' as const, 
+              phase: 'DESERT' as const, 
+              absStake: 0.0, // STOP TOTAL
+              regimeStats: { recentBlueCount: 0, isHostile: true }
+          };
+      }
+
+      // 2. DETECT UNCERTAINTY (BLUE FLOOD)
+      // Regra V9: Se nas últimas 20 velas, tivermos mais que 12 Blues (<2.0x) OU 2 Blues nas últimas 3.
+      // E estamos "longe" de rosa (ex: > 4 velas), para evitar confundir "Correction" com "Bad Market".
+      const shortWindow = values.slice(0, 20);
+      const blueCount = shortWindow.filter(v => v < 2.0).length;
+      
+      // Filtro de "Short Term Pain" (2 blues nos ultimos 3)
+      const recentPain = values.slice(0, 3).filter(v => v < 2.0).length >= 2;
+
+      if (blueCount >= 12 || recentPain) {
+           return {
+               regime: 'UNCERTAINTY' as const,
+               phase: 'NORMAL' as const,
+               absStake: 0.5, // ABS ACTIVATED (50% Stake)
+               regimeStats: { recentBlueCount: blueCount, isHostile: false }
+           };
+      }
+
+      // 3. EXPANSION (GREEN LIGHT)
+      // V8 Logic integrated: Recovery post-Desert
+      // Simplified Logic: If candlesSinceLastPink is low, but we have a "gap" context in history?
+      
+      // Let's rely on the Phase Logic being passed IN or calculated here.
+      // Ideally we calculate Phase first? 
+      // V8 Logic for Phase:
+      let phase: 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY' = 'NORMAL';
+      
+      // ... (Existing Phase Calculation or Simplification)
+      // Since we need to match "Recovery" specifically:
+      // We check if we just exited a desert.
+      
+      // Actually, we can reuse the existing 'phase' if it was calculated before? 
+      // The current flow calls this method to Return phase.
+      
+      // RECOVERY DETECTION (V8 Logic)
+      if (candlesSinceLastPink <= 2) {
+          const prevPinkIndex = values.slice(candlesSinceLastPink + 1).findIndex(v => v >= 10.0);
+           if (prevPinkIndex !== -1) {
+             const gap = prevPinkIndex;
+             if (gap >= 12) phase = 'RECOVERY';
+           }
+      }
+
+      const isRecovery = phase === 'RECOVERY';
+
+      return {
+          regime: 'EXPANSION' as const,
+          phase,
+          absStake: isRecovery ? 1.5 : 1.0, // BOOST: 150% in Recovery, 100% in Normal
+          regimeStats: { recentBlueCount: blueCount, isHostile: false }
+      };
+  }
+
+  /**
+   * V9 DECISION ENGINE
+   */
+  private static decideActionV9(
     values: number[], 
     candlesSinceLastPink: number,
-    phase: 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY' // Adicionado RECOVERY internamente, cast para output se precisar
+    regime: 'EXPANSION' | 'UNCERTAINTY' | 'HOSTILE',
+    phase: 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY'
   ): Recommendation {
     if (values.length === 0) return { action: 'WAIT', reason: 'Aguardando dados...', riskLevel: 'LOW', confidence: 0 };
     
-    // 1. PROTEÇÃO DE DESERTO (Prioridade Absoluta)
-    // Se estamos em DESERTO, bloqueia tudo.
-    if (phase === 'DESERT') {
+    // --- LAYER 1: REGIME FILTER ---
+    if (regime === 'HOSTILE') {
       return { 
         action: 'WAIT', 
-        reason: `🌵 FASE DESERTO: ${candlesSinceLastPink} velas sem rosa. Bloqueio de segurança.`, 
+        reason: `🔴 REGIME HOSTIL: ${candlesSinceLastPink} velas sem rosa. Proteção total.`, 
         riskLevel: 'HIGH', 
         confidence: 0,
         estimatedTarget: 10.0
       };
     }
 
-    // 2. RECUPERAÇÃO PÓS-DESERTO (Agressividade Controlada)
-    // Se estamos em RECOVERY, jogamos para buscar o repique
-    if (phase === 'RECOVERY') {
-      // Calcula qual rodada da recuperação estamos (1, 2 ou 3)
-      // Logica: candlesSinceLastPink é o numero de velas desde a rosa que quebrou.
-      // Se candlesSinceLastPink == 0 (a rosa foi a ultima), na proxima rodada é a #1.
-      // Espera... analyze roda NO FINAL da rodada ou INICIO?
-      // Roda com o historico fechado. Se candlesSinceLastPink == 0, a ultima foi rosa. Vamos apostar na proxima.
-      const recoveryRound = candlesSinceLastPink + 1; // 1, 2 ou 3
-      return {
-        action: 'PLAY_10X',
-        reason: `🔥 RECUPERAÇÃO PÓS-DESERTO (Tentativa ${recoveryRound}/3). Alta probabilidade de repique.`,
-        riskLevel: 'MEDIUM',
-        confidence: 90 - (candlesSinceLastPink * 10), // 90, 80, 70
-        estimatedTarget: 10.0
-      };
-    }
-
-    // 3. GATILHOS DE ENTRADA (SNIPER)
-    // Se não é Deserto nem Recuperação, estamos em NORMAL. Validamos gatilhos.
     const lastValue = values[0];
-    
-    // GATILHO 1: AZUL (< 2.0x)
+    const baseAdvice = { action: 'WAIT', reason: 'Aguardando oportunidade.', riskLevel: 'LOW', confidence: 0 } as Recommendation;
+
+    // --- LAYER 2: OPPORTUNITY SCANNERS ---
+
+    // A. RECOVERY (Alta prioridade)
+    if (phase === 'RECOVERY') {
+       const recoveryRound = candlesSinceLastPink + 1;
+       return {
+         action: 'PLAY_10X',
+         reason: `🔥 RECOVERY (${recoveryRound}/3). Pós-Deserto.`,
+         riskLevel: 'MEDIUM',
+         confidence: 90 - (candlesSinceLastPink * 10),
+         estimatedTarget: 10.0
+       };
+    }
+
+    // B. GATILHOS SNIPER (V8 -> V9)
+    // Gatilho 1: Azul (<2.0)
     if (lastValue < 2.0) {
-      return {
-        action: 'PLAY_10X',
-        reason: `🎯 SNIPER V8: Gatilho AZUL detectado (${lastValue.toFixed(2)}x).`,
-        riskLevel: 'MEDIUM',
-        confidence: 85,
-        estimatedTarget: 10.0
-      };
+        return {
+            action: 'PLAY_10X',
+            reason: `🎯 V9 GATILHO: Azul (${lastValue.toFixed(2)}x).`,
+            riskLevel: 'MEDIUM',
+            confidence: 85,
+            estimatedTarget: 10.0
+        };
     }
-
-    // GATILHO 2: ROXA BAIXA (2.0x - 3.5x)
+    
+    // Gatilho 2: Roxa Baixa (2.0 - 3.5)
     if (lastValue >= 2.0 && lastValue <= 3.5) {
-      return {
-        action: 'PLAY_10X',
-        reason: `🎯 SNIPER V8: Gatilho ROXA BAIXA detectado (${lastValue.toFixed(2)}x). Aquecimento.`,
-        riskLevel: 'MEDIUM',
-        confidence: 80,
-        estimatedTarget: 10.0
-      };
+        return {
+            action: 'PLAY_10X',
+            reason: `🎯 V9 GATILHO: Roxa Baixa (${lastValue.toFixed(2)}x).`,
+            riskLevel: 'MEDIUM',
+            confidence: 80,
+            estimatedTarget: 10.0
+        };
     }
 
-    // GATILHO 3: ROSA COLADA (Sticky Pink >= 10.0x)
-    // Nota: Se estamos aqui, candlesSinceLastPink == 0.
+    // Gatilho 3: Sticky Pink (>=10.0) -> Reentrada
     if (lastValue >= 10.0) {
-      return {
-        action: 'PLAY_10X',
-        reason: `🎯 SNIPER V8: Gatilho ROSA COLADA detectado (${lastValue.toFixed(2)}x).`,
-        riskLevel: 'MEDIUM', // Médio risco pois rosa atrai rosa, mas as vezes quebra
-        confidence: 75,
-        estimatedTarget: 10.0
-      };
+        return {
+            action: 'PLAY_10X',
+            reason: `🎯 V9 GATILHO: Rosa Colada (${lastValue.toFixed(2)}x).`,
+            riskLevel: 'MEDIUM',
+            confidence: 75,
+            estimatedTarget: 10.0
+        };
     }
 
-    // SEM GATILHO
-    return {
-      action: 'WAIT',
-      reason: `⏳ Aguardando gatilho V8 (Azul, Roxa Baixa ou Rosa). Última: ${lastValue.toFixed(2)}x`,
-      riskLevel: 'LOW',
-      confidence: 0,
-      estimatedTarget: 10.0
-    };
-  }
-
-  /**
-   * V8: Identifica fase simplificada (Normal, Deserto, Recovery)
-   */
-  private static calculatePhaseV8(values: number[], candlesSinceLastPink: number): 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY' {
-    // DESERT: 12+ velas sem rosa (Ajuste V8: Reduzido de 15 para 12)
-    if (candlesSinceLastPink >= 12) return 'DESERT';
-
-    // RECOVERY CHECK
-    // Precisamos ver se a última rosa (index = candlesSinceLastPink) QUEBROU um deserto.
-    // Ex: values = [2.0, 1.5, 120.0 (Pink), 1.0, 1.0, 1.0 ... 15x ...]
-    // values[candlesSinceLastPink] é a rosa.
-    // Olhamos para o intervalo ANTERIOR a ela.
-    
-    // Indice da rosa que estamos analisando
-    const pinkIndex = candlesSinceLastPink; 
-    
-    // Se a rosa está "muito longe" (ex: > 2), já saiu da janela de recovery (3 rodadas).
-    // RecoveryWindow = 0 (acabou de dar rosa), 1 (1 vela depois), 2 (2 velas depois).
-    if (pinkIndex <= 2) {
-      // Buscar a rosa ANTES dessa (a penúltima rosa do array todo)
-      const nextPinkIndexRel = values.slice(pinkIndex + 1).findIndex(v => v >= 10.0);
-      
-      if (nextPinkIndexRel !== -1) {
-        const actualNextPinkIndex = pinkIndex + 1 + nextPinkIndexRel;
-        const gap = actualNextPinkIndex - pinkIndex - 1; // Velas ENTRE as rosas
-
-        // Se o gap foi >= 12, então a rosa atual (pinkIndex) foi um "Deserter Breaker"
-        if (gap >= 12) {
-          return 'RECOVERY';
-        }
-      } else {
-        // Se não achou outra rosa no histórico imediato (slice), assume que é deserto se o slice for longo o suficiente
-        // Caso de borda: histórico curto. Mas assumimos histórico >= 60.
-        // Se slice length > 12 e não tem rosa, então veio de deserto.
-        if (values.length > pinkIndex + 1 + 12) {
-             return 'RECOVERY';
-        }
-      }
-    }
-
-    // Se não é Deserto nem Recovery, é Normal.
-    // Mantemos 'NORMAL' para compatibilidade.
-    return 'NORMAL';
+    return baseAdvice; // Wait default
   }
 
   // --- MÉTODOS AUXILIARES (Mantidos) ---
@@ -301,24 +323,8 @@ export class StrategyCore {
     return { intervalMap, lastPattern, topIntervals };
   }
 
-  private static check3ConsecutiveBluesAfterPink(values: number[]): boolean {
-    const lastPinkIndex = values.findIndex(v => v >= 10.0);
-    if (lastPinkIndex === -1) return false;
-    const afterPink = values.slice(0, lastPinkIndex);
-    if (afterPink.length < 3) return false;
-    return afterPink[0] < 2.0 && afterPink[1] < 2.0 && afterPink[2] < 2.0;
-  }
-
-  private static check3ConsecutiveBluesInWindow(v: number[], windowSize: number): boolean {
-    const window = v.slice(0, windowSize);
-    for (let i = 0; i < window.length - 2; i++) {
-      if (window[i] < 2.0 && window[i + 1] < 2.0 && window[i + 2] < 2.0) {
-        return true;
-      }
-    }
-    return false;
-  }
-
+  // ... (Outros helpers não usados na V9 podem ser removidos ou mantidos por segurança)
+  
   private static calculateStreak(v: number[]) {
     if (v.length === 0) return 0;
     const firstIsBlue = v[0] < 2.0;

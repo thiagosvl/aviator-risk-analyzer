@@ -55,11 +55,16 @@ export function useBankrollLogic(
     
     // 2. SESSION LIFECYCLE MANAGEMENT
     useEffect(() => {
-        // Check if this is a "continue" or "start"
+        // Detect F5/Reload vs Tab Switch
+        const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+        const isReload = navEntry && navEntry.type === 'reload';
+        
+        // Check if this is a "continue"
         const isContinuing = sessionStorage.getItem(SESSION_ACTIVE_KEY);
 
-        if (!isContinuing) {
-            console.log('[Bankroll] 🚀 New Session Started (Cleaning old data)');
+        if (!isContinuing || isReload) {
+            console.log(isReload ? '[Bankroll] 🔄 Page Reload Detected (F5). Wiping Session.' : '[Bankroll] 🚀 New Session Started.');
+            
             // Fresh Start: Clear Storage
             localStorage.removeItem(HISTORY_KEY);
             localStorage.removeItem(BALANCE_KEY);
@@ -69,7 +74,7 @@ export function useBankrollLogic(
             sessionStorage.setItem(SESSION_ACTIVE_KEY, 'true');
             
             setHistory([]);
-            setBalance(1000.00);
+            setBalance(1000.00); // User reset request
             setEmergencyBrake(false);
         } else {
              console.log('[Bankroll] 🔄 Resuming Session (Restoring from Storage)');
@@ -196,51 +201,72 @@ export function useBankrollLogic(
             // BUT: If the cache crashes, nothing works.
             // Hybrid Fix: Store the "bet intent" when triggered and consume it here.
             
-            const planned = plannedBetsRef.current;
-            const activeBets = [planned.bet2x, planned.betPink].filter(Boolean);
+            // SMART COOL DOWN RELEASE LOGIC (V9)
+            // If we are in Cool Down, we look for the "Market Proof" (Pink > 10x) to release.
+            const currentLosses = parseInt(localStorage.getItem('consecutive_losses') || '0');
+            const isCoolDown = currentLosses >= 3;
 
-            if (activeBets.length > 0) {
-                let totalRoundProfit = 0;
-                const results: BetResult[] = [];
-                let hasLossThisRound = false;
-
-                activeBets.forEach((bet: any) => {
-                     // Check if this bet was meant for THIS round?
-                     // In V8 logic, we bet "on the next round".
-                     const win = crashValue >= bet.target;
-                     const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
-                     totalRoundProfit += profit;
-                     if (!win) hasLossThisRound = true;
-
-                     results.push({
-                        roundId: latestCandle.timestamp + Math.random(),
-                        action: bet.action,
-                        crashPoint: crashValue,
-                        profit: parseFloat(profit.toFixed(2)),
-                        balanceAfter: 0, 
-                        timestamp: new Date().toLocaleTimeString(),
-                        prediction: bet.prediction,
-                        phase: bet.phase
-                    });
-                });
-
-                setBalance(prev => {
-                    const next = parseFloat((prev + totalRoundProfit).toFixed(2));
-                    results.forEach(r => r.balanceAfter = next);
-                    return next;
-                });
-                
-                setHistory(prev => [...results, ...prev].slice(0, 50));
-
-                if (hasLossThisRound) {
-                     const newLosses = parseInt(localStorage.getItem('consecutive_losses') || '0') + 1;
-                     localStorage.setItem('consecutive_losses', newLosses.toString());
-                } else {
+            if (isCoolDown) {
+                 // Sair da Geladeira?
+                 if (crashValue >= 10.0) {
+                     console.log('[Bankroll] 🌸 SMART COOL DOWN RELEASE: Pink Detected! Resuming normal play.');
                      localStorage.setItem('consecutive_losses', '0');
+                 } else {
+                     console.log(`[Bankroll] ❄️ Cool Down Active. Waiting for Pink. Last: ${crashValue}x`);
+                 }
+                 // IMPORTANT: When in Cool Down, we do NOT process bets (System Blocks).
+                 // But wait, if we had a "Planned Bet" that latched before CD?
+                 // Ideally Strategy stops sending signals in CD.
+            } 
+            else {
+                // NORMAL BET RESOLUTION
+                const planned = plannedBetsRef.current;
+                const activeBets = [planned.bet2x, planned.betPink].filter(Boolean);
+
+                if (activeBets.length > 0) {
+                    let totalRoundProfit = 0;
+                    const results: BetResult[] = [];
+                    let hasLossThisRound = false;
+
+                    activeBets.forEach((bet: any) => {
+                         const win = crashValue >= bet.target;
+                         const profit = win ? (bet.amount * bet.target) - bet.amount : -bet.amount;
+                         totalRoundProfit += profit;
+                         if (!win) hasLossThisRound = true;
+
+                         results.push({
+                            roundId: latestCandle.timestamp + Math.random(),
+                            action: bet.action,
+                            crashPoint: crashValue,
+                            profit: parseFloat(profit.toFixed(2)),
+                            balanceAfter: 0, 
+                            timestamp: new Date().toLocaleTimeString(),
+                            prediction: bet.prediction,
+                            phase: bet.phase
+                        });
+                    });
+
+                    setBalance(prev => {
+                        const next = parseFloat((prev + totalRoundProfit).toFixed(2));
+                        results.forEach(r => r.balanceAfter = next);
+                        return next;
+                    });
+                    
+                    setHistory(prev => [...results, ...prev].slice(0, 50));
+
+                    if (hasLossThisRound) {
+                         const newLosses = parseInt(localStorage.getItem('consecutive_losses') || '0') + 1;
+                         localStorage.setItem('consecutive_losses', newLosses.toString());
+                    } else {
+                         // Win resets losses in standard mode? 
+                         // V9 Rule: Only Pinks clear "Deep Bad State"? 
+                         // No, standard wins clear standard losses count for CD trigger.
+                         localStorage.setItem('consecutive_losses', '0');
+                    }
                 }
             }
             
-            // CRITICAL: Clear the latch after resolution to prevent double-betting next round
+            // CRITICAL: Clear the latch after resolution
             plannedBetsRef.current = { bet2x: null, betPink: null };
             
             lastProcessedTimeRef.current = latestCandle.timestamp;
@@ -273,5 +299,5 @@ export function useBankrollLogic(
         setHistory([]);
     };
 
-    return { balance, setBalance, history, stats, clearSession };
+    return { balance, setBalance, history, stats, clearSession, isCoolDown: emergencyBrake };
 }

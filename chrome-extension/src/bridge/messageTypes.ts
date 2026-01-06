@@ -66,7 +66,16 @@ export interface AnalysisData {
       total: number;
     };
   };
-  phase: 'CLUSTER' | 'DESERT' | 'NORMAL';
+  phase: 'CLUSTER' | 'DESERT' | 'NORMAL' | 'RECOVERY';
+  
+  // V9 NEW FIELDS
+  regime?: 'EXPANSION' | 'UNCERTAINTY' | 'HOSTILE'; 
+  absStake?: number; 
+  regimeStats?: {
+    recentBlueCount: number;
+    isHostile: boolean;
+  };
+
   volatilityScore: number;
   prediction?: {
     category: 'BAIXA' | 'MÉDIA' | 'ALTA';
